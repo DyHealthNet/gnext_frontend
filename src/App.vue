@@ -2,7 +2,8 @@
 
 <template>
   <v-app>
-    <Navbar />
+<!--<component :is="isHomeRoute ? 'Navbar' : 'Navbar_AutoComplete'" />-->
+    <Navbar/>
     <v-main>
       <v-container fluid class="page-borders">
         <v-row>
@@ -18,8 +19,15 @@ import Navbar from "@/components/Navbar.vue";
 
 export default {
   components: {
-    Navbar
+    Navbar,
+    //Navbar_AutoComplete
   },
+
+  computed: {
+    isHomeRoute(){
+      return this.$route.path === '/';
+    }
+  }
 };
 </script>
 

@@ -1,136 +1,105 @@
 <template>
-  <v-container class="ma-0">
-    <h1>Welcome to My Site</h1>
-    <p>This is the home page.</p>
-  </v-container>
+  <v-app>
+    <v-main class="home-background">
+      <v-container width="80%">
+        <!-- Part 1: Welcome -->
+        <v-row class="mt-12 mb-0">
+          <v-col cols="12" class="text-center">
+            <h1 class="main-header">
+              <span>{{ mainHeaderPrefix }}</span>
+              <span class="main-header-study">{{ mainHeaderStudyName }}</span>
+              <span>{{ mainHeaderSuffix }}</span>
+             </h1>
+          </v-col>
+          <v-col cols="12" class="text-center">
+            <h2 class="main-subheader">{{ mainSubheader }}</h2>
+          </v-col>
+        </v-row>
+
+      <HomeStatsGrid/>
+
+      <v-row align="center" justify="center" class="mt-6 mb-2" style="gap: 5px; font-size:0.8rem;">
+        <v-icon class="mr-1">mdi-arrow-down</v-icon>
+        <span>Try searching for a trait or a variant</span>
+        <v-icon class="ml-1">mdi-arrow-down</v-icon>
+      </v-row>
+
+      <AutoComplete/>
 
 
-  <v-container fluid>
-    <ais-instant-search :search-client="searchClient" index-name="nodes">
-      <ais-autocomplete>
-        <template #default="{ currentRefinement, refine, indices, indicesAreEmpty }">
-          <v-text-field
-              v-model="searchQuery"
-              label="Search variants or phenotypes"
-              prepend-inner-icon="mdi-magnify"
-              outlined
-              dense
-              class="full-width"
-              @input="refine(searchQuery)"
-          ></v-text-field>
+        <v-row align="center" justify="center" class="mt-3" style="gap: 5px; font-size:0.8rem;">
+          <v-btn class="example-btn" depressed>
+            Example Trait →
+          </v-btn>
+          <v-btn class="example-btn" depressed>
+            Example Variant →
+          </v-btn>
+        </v-row>
+      </v-container>
 
-          <v-list v-if="currentRefinement" class="mt-2">
-            <template v-if="indices.length && indices[0].hits.length">
-              <v-list-item
-                v-for="hit in indices[0].hits"
-                :key="hit.objectID"
-                @click="goToHit(hit)"
-                class="clickable"
-              >
-                <v-row no-gutters align="center">
-                  <v-col cols="auto">
-                    <v-avatar size="40">
-                      <v-img
-                        v-if="hit.type === 'protein'"
-                        :src="proteinIcon"
-                        alt="Protein"
-                        max-width="32"
-                        max-height="32"
-                        contain
-                      />
-                      <v-img
-                        v-else-if="hit.type === 'variant'"
-                        :src="variantIcon"
-                        alt="Variant"
-                        max-width="32"
-                        max-height="32"
-                        contain
-                      />
-                      <v-img
-                        v-else
-                        :src="phenotypeIcon"
-                        alt="Phenotype"
-                        max-width="32"
-                        max-height="32"
-                        contain
-                      />
-                    </v-avatar>
-                  </v-col>
-                  <v-col>
-                    <v-list-item-title v-html="hit._highlightResult.label.value" />
-                    <v-list-item-subtitle>
-                      <template v-if="hit.type === 'protein'">
-                        <span v-html="hit._highlightResult.description.value"></span> -
-                        <span v-html="hit._highlightResult.gene_symbol.value"></span>
-                      </template>
-                      <template v-else-if="hit.type === 'variant'">
-                        <span v-html="hit._highlightResult.internal_id.value"></span>
-                      </template>
-                    </v-list-item-subtitle>
-                  </v-col>
-                </v-row>
-              </v-list-item>
-            </template>
-            <template v-else-if="currentRefinement && (!indices.length || !indices[0].hits.length)">
-              <v-list-item>
-                <v-list-item-content>
-                  <v-list-item-title>No results found !</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </template>
-          </v-list>
-        </template>
-      </ais-autocomplete>
-    </ais-instant-search>
-  </v-container>
 
+    </v-main>
+  </v-app>
 
 </template>
 
-<script setup>
-import TypesenseInstantSearchAdapter from "typesense-instantsearch-adapter";
-
-const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
-  server: {
-    apiKey: "xyz",
-    nodes: [
-      {
-        host: "localhost",
-        path: "",
-        port: "8108",
-        protocol: "http",
-      },
-    ],
-    cacheSearchResultsForSeconds: 120,
-  },
-  additionalSearchParameters: {
-    query_by: "label,description,gene_symbol,internal_id",
-    num_typos:0,
-    drop_tokens_threshold: 1.0,
-  },
-});
-
-const searchClient = typesenseInstantsearchAdapter.searchClient;
-
-</script>
 
 <script>
-import proteinIcon from "@/assets/figures/proteins.png"
-import variantIcon from "@/assets/figures/genetic_variants.png"
-import phenotypeIcon from "@/assets/figures/phenotypes.png"
+import AutoComplete from "@/components/AutoComplete_Home.vue";
+import HomeStatsGrid from "@/components/HomeStatsGrid.vue";
 
 export default {
-  methods: {
-    goToHit(hit) {
-      // Change this to your actual navigation logic
-      this.$router.push({name: 'HitDetail', params: {id: hit.objectID}});
+  name: "Home",
+  components: {
+    AutoComplete,
+    HomeStatsGrid
+  },
+  data() {
+    const studyName = import.meta.env.VITE_STUDY_NAME;
+    return {
+      mainHeaderPrefix: "Welcome to the GWAS Explorer of the ",
+      mainHeaderStudyName: studyName,
+      mainHeaderSuffix: " Study",
+      mainSubheader: "Your gateway to explore and analyze GWAS summary statistics",
     }
-  }
+  },
 }
 </script>
 
 <style scoped>
-.clickable {
-  cursor: pointer;
+
+.example-btn {
+  background: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-darken-1));
+  font-weight: bold;
+  border-radius: 999px;
+  padding: 6px 18px;
+  transition: all 0.2s ease-in-out;
+}
+
+
+.home-background {
+  background: linear-gradient(to bottom right,  rgb(var(--v-theme-primary)),  rgb(var(--v-theme-background)));
+  padding: 20px;
+  border-radius: 10px;
+}
+
+
+.main-header {
+  font-size: 3rem;
+  font-weight: bold;
+  color: rgb(var(--v-theme-darken-1));
+  margin-bottom: 10px;
+}
+
+.main-header-study {
+  color: rgb(var(--v-theme-primary-darken-1));
+  text-decoration: underline;
+}
+
+.main-subheader {
+  font-size: 2rem;
+  font-weight: 400;
+  color: rgb(var(--v-theme-primary-darken-1));
 }
 </style>

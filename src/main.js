@@ -2,12 +2,18 @@
 import { createApp } from 'vue'
 import router from './router'
 
+import "./assets/main.css"
+
 // Vuetify
 import 'vuetify/styles'
 import '@mdi/font/css/materialdesignicons.css'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+
+// PrimeVue
+import PrimeVue from 'primevue/config'
+import Aura from '@primeuix/themes/aura';
 
 // Components
 import App from './App.vue'
@@ -52,11 +58,46 @@ const dyHealthNetTheme = {
   },
 }
 
+const dyHealthNetThemeDark = {
+  dark: true,
+  colors: {
+    "background": "#1E1E1E",
+    "surface": "#2A2A2A",
+    "surface-bright": "#3C3C3C",
+    "surface-light": "#474747",
+    "surface-variant": "#555555",
+    "on-surface-variant": "#D1D1D1",
+    "darken-1": "#FFFFFF",
+    "white-surface": "#FAFAFA",
+
+    "primary": "#516F84",
+    "primary-darken-1": "#A5BFDC",
+
+    "secondary": "#C1A1D3",
+    "secondary-darken-1": "#5E3A6B",
+
+    "error": "#E57373",
+    "info": "#3398DB",
+    "success": "#81C784",
+    "warning": "#FFB74D",
+
+    "orcid_button": "#54691a",
+    "github_button": "#FAFAFA",
+
+    "chart": '#B0B0B0',
+    "chart-grid": '#555555',
+
+    "text": "#FFFFFF",
+    "node-border": "#A5BFDC",
+  },
+}
+
 const vuetify = createVuetify({
     theme: {
       defaultTheme: 'dyHealthNetTheme',
         themes: {
-          dyHealthNetTheme
+          dyHealthNetTheme,
+          dyHealthNetThemeDark
         }
     },
     options: {
@@ -66,4 +107,4 @@ const vuetify = createVuetify({
   directives,
 })
 
-createApp(App).use(vuetify).use(router).use(InstantSearch).mount('#app')
+createApp(App).use(vuetify).use(router).use(InstantSearch).use(PrimeVue, {theme: {preset: Aura, options: {prefix:'p', darkModeSelector: false, cssLayer: false}}}).mount('#app')

@@ -1,6 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from './pages/Home.vue'
-import About from './pages/About.vue'
+import Documentation from './pages/Documentation.vue'
+import Variant from "./pages/Variant.vue";
+import Trait from "./pages/Trait.vue";
+import Overview from "./pages/Overview.vue";
+import Downstream from "./pages/Downstream.vue";
+import Citation from "./pages/Citation.vue";
 
 const routes = [
   {
@@ -9,9 +14,36 @@ const routes = [
     component: Home
   },
   {
-    path: '/about',
-    name: 'About',
-    component: About
+    path: '/docs',
+    name: 'Documentation',
+    component: Documentation
+  },
+  {
+    path: '/overview',
+    name: 'Overview',
+    component: Overview
+  },
+  {
+    path: '/cite',
+    name: 'Citation',
+    component: Citation
+  },
+  {
+    path: '/downstream',
+    name : 'Downstream Analysis',
+    component: Downstream
+  },
+  {
+    path: '/variant/:id',
+    name: 'Variant',
+    component: Variant,
+    props: true
+  },
+  {
+    path: '/trait/:id',
+    name: 'Trait',
+    component: Trait,
+    props: true
   }
 ]
 
