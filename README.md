@@ -1,29 +1,25 @@
 # pheweb_frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+# Conda environment
 
-## Recommended IDE Setup
+Create a conda environment using the requirements.txt file
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+```bash
+conda create -n pheweb_frontend python=3.10
+conda activate pheweb_frontend
+pip install -r requirements.txt
 ```
 
-### Compile and Hot-Reload for Development
+Activate your conda environment
 
-```sh
+```bash
+conda activate pheweb_frontend
+```
+
+# Run the frontend
+
+Be sure that you have the environment file with the correct ports, and the backend is running.
+
+```bash
 npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
 ```
