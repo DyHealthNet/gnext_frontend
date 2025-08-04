@@ -5,7 +5,7 @@
 Create a conda environment using the requirements.txt file
 
 ```bash
-conda create -n pheweb_frontend python=3.10
+conda create -n pheweb_frontend
 conda activate pheweb_frontend
 pip install -r requirements.txt
 ```

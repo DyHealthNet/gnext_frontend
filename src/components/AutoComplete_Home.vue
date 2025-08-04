@@ -70,6 +70,8 @@ import {ref} from "vue";
 
 import phenotypeIcon from "@/assets/figures/phenotypes.png";
 import variantIcon from "@/assets/figures/genetic_variants.png"
+import {TYPESENSE_HOST, TYPESENSE_PORT} from "@/config.js";
+
 
 import {useRouter} from "vue-router";
 
@@ -104,9 +106,9 @@ const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
     apiKey: "xyz",
     nodes: [
       {
-        host: "10.162.163.34",
+        host: TYPESENSE_HOST,
         path: "",
-        port: "8108",
+        port: TYPESENSE_PORT,
         protocol: "http",
       },
     ],
