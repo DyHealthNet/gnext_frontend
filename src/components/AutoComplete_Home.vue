@@ -100,7 +100,6 @@ if (props.typeFilter) {
   additionalSearchParameters.filter_by = `category:=${props.typeFilter}`;
 }
 
-
 const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
   server: {
     apiKey: "xyz",

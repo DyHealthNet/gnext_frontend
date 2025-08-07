@@ -95,7 +95,6 @@ const props = defineProps({
   }
 });
 
-
 const searchQuery = ref("");
 const menu = ref(false);
 const hits = ref([]);
