@@ -162,7 +162,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env.develop
+.env
 .venv
 env/
 venv/
@@ -209,5 +209,5 @@ cython_debug/
 
 
 .env.build
-.env.develop
+.env
 .env.user

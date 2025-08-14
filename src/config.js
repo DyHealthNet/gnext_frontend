@@ -8,8 +8,8 @@ const TYPESENSE_HOST = import.meta.env.VITE_TYPESENSE_HOST;
 const TYPESENSE_PORT = Number(import.meta.env.VITE_TYPESENSE_PORT);
 
 // Runtime-first for user-provided vars, fallback to build-time
-const GENOME_BUILD = String(R.VITE_GENOME_BUILD ?? import.meta.env.VITE_GENOME_BUILD);
-const STUDY_NAME = String(R.VITE_STUDY_NAME ?? import.meta.env.VITE_STUDY_NAME);
+const GENOME_BUILD = import.meta.env.VITE_GENOME_BUILD;
+const STUDY_NAME = import.meta.env.VITE_STUDY_NAME;
 
 console.log("Typesense host:", TYPESENSE_HOST);
 console.log("Typesense port (number):", TYPESENSE_PORT);
