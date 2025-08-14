@@ -1,0 +1,4 @@
+window.__ENV__ = {
+  VITE_STUDY_NAME: "${VITE_STUDY_NAME}",
+  VITE_GENOME_BUILD: "${VITE_GENOME_BUILD}"
+};

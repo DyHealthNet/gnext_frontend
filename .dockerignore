@@ -1,0 +1,11 @@
+# Don't copy envs that should never be inside a Docker image
+.env.user
+.env.develop
+
+# Optional extras
+node_modules
+dist
+.vscode
+.git
+.DS_Store
+*.log

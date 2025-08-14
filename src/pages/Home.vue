@@ -47,6 +47,7 @@
 <script>
 import AutoComplete from "@/components/AutoComplete_Home.vue";
 import HomeStatsGrid from "@/components/HomeStatsGrid.vue";
+import {STUDY_NAME} from '@/config'
 
 export default {
   name: "Home",
@@ -55,10 +56,9 @@ export default {
     HomeStatsGrid
   },
   data() {
-    const studyName = import.meta.env.VITE_STUDY_NAME;
     return {
       mainHeaderPrefix: "Welcome to the GWAS Explorer of the ",
-      mainHeaderStudyName: studyName,
+      mainHeaderStudyName: STUDY_NAME,
       mainHeaderSuffix: " Study",
       mainSubheader: "Your gateway to explore and analyze GWAS summary statistics",
     }
