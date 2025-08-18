@@ -146,7 +146,6 @@ import TypesenseInstantSearchAdapter from "typesense-instantsearch-adapter";
 
 import { TYPESENSE_HOST, TYPESENSE_PORT } from "@/config.js";
 import AutocompleteVariant from "@/components/trait/AutocompleteVariant.vue";
-import router from "@/router.js";
 
 
 export default {
