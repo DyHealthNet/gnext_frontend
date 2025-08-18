@@ -18,6 +18,12 @@
 
         <QQPlot :traitId="id" :key="`qq-${id}`" />
 
+        <v-row>
+          <v-col cols="12" style="padding:0px">
+            <PhenotypeSNPTable :pheno="id"></PhenotypeSNPTable>
+          </v-col>
+        </v-row>
+
       </v-container>
     </v-main>
   </v-app>
@@ -28,11 +34,13 @@ import { useRoute} from 'vue-router';
 import ManhattanPlot from "@/components/trait/Manhattan.vue";
 import QQPlot from "@/components/trait/QQ.vue";
 import { ref, watch } from 'vue';
+import PhenotypeSNPTable from "@/components/trait/PhenotypeSNPTable.vue";
 
 
 export default {
   name: 'Trait',
   components: {
+    PhenotypeSNPTable,
     ManhattanPlot,
     QQPlot
   },
