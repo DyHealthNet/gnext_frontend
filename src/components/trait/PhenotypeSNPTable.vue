@@ -22,7 +22,6 @@
 </template>
 
 <script>
-import LocusZoom from "locuszoom";
 import 'locuszoom/dist/locuszoom.css'
 import {API_BASE_URL} from "@/config.js";
 import VariantsGwasAnnotation from "@/components/trait/VariantsGWASAnnotation.vue";
