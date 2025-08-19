@@ -25,7 +25,12 @@ export default {
     },
     items: {
       type: Array,
-      required: true,
+      required: false,
+      default: () => []   // ensure table has an array
+    },
+    items: {
+      type: Array,
+      required: false,
       default: () => []   // ensure table has an array
     }
   },
