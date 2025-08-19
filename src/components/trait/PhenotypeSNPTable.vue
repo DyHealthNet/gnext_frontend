@@ -61,7 +61,6 @@ export default {
 
         if (filters.mode === "rsid") {
           // Case 1: Query by rsID + neighbor range
-          const query = encodeURIComponent(filters.rsid);
           url = `${API_BASE_URL}/trait_get_variants/?trait=${encodeURIComponent(this.pheno)}&varid=${encodeURIComponent(filters.varid)}&range=${encodeURIComponent(filters.neighborRange)}&pval_cutoff=${encodeURIComponent(filters.pvalCutoff)}`;
         } else if (filters.mode === "chromosome") {
           // Case 2: Query by chromosome range
