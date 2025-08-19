@@ -160,7 +160,7 @@ export default {
 
         var dataSources = new LocusZoom.DataSources();
 
-        var apiBase = API_BASE_URL + "/variant_phewas/";
+        var apiBase = `${API_BASE_URL}/variant_phewas/`;
         dataSources
             .add("phewas", ["PheWASLZ", {
               url: apiBase,
