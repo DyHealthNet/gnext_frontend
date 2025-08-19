@@ -1,4 +1,4 @@
-<!-- AutocompleteResult.vue -->
+<!-- AutocompleteVariant.vue -->
 <template>
   <v-list v-if="currentRefinement" class="mt-2">
     <template v-if="indices.length && indices[0].hits.length">
