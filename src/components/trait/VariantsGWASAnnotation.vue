@@ -14,7 +14,6 @@
 </template>
 
 <script>
-import 'locuszoom/dist/locuszoom.css'
 
 export default {
   name: "VariantsGWASAnnotation",

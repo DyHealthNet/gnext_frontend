@@ -67,7 +67,6 @@ export default {
         additionalSearchParameters: searchParams.value,
       });
       this.searchClient = this.typesense.searchClient
-    },
     methods: {
       selectRsid(hit, refine) {
         if (hit.type === "variant") {
