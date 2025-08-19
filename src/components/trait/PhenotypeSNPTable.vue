@@ -79,7 +79,6 @@ export default {
         }));
 
         // Add ID column first
-        //this.tableHeader.unshift({ title: "ID", key: "ID" });
       } catch (err) {
         console.error("Error fetching variants:", err);
       }
