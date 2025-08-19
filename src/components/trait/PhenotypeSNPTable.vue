@@ -14,6 +14,14 @@
 
       <v-row>
         <v-col cols="12">
+          <v-overlay v-model="showLoading" scroll-strategy="none" contained
+                        class="d-flex justify-center align-center">
+                <v-progress-circular
+                    indeterminate
+                    color="primary"
+                    size="60"
+                ></v-progress-circular>
+          </v-overlay>
           <VariantsGwasAnnotation :headers="tableHeader" :items="tableItems"></VariantsGwasAnnotation>
         </v-col>
       </v-row>
@@ -27,6 +35,7 @@ import 'locuszoom/dist/locuszoom.css'
 import {API_BASE_URL} from "@/config.js";
 import VariantsGwasAnnotation from "@/components/trait/VariantsGWASAnnotation.vue";
 import TableSearchBar from "@/components/trait/TableSearchBar.vue";
+import {isLoading, setIsLoading} from "@/components/constants.js";
 
 
 export default {
@@ -40,22 +49,24 @@ export default {
   },
   data() {
     return {
-       tableHeader: [],
+      tableHeader: [],
       tableItems: [],
+      showLoading: isLoading,
     }
   },
   methods: {
     async onApplyFilters(filters) {
+      setIsLoading(true);
       try {
         let url = "";
 
         if (filters.mode === "rsid") {
           // Case 1: Query by rsID + neighbor range
           const query = encodeURIComponent(filters.rsid);
-          url = `${API_BASE_URL}/trait_get_variants/?trait=${this.pheno}&varid=${filters.varid}&range=${filters.neighborRange}&pval_cutoff=${filters.pvalCutoff}`;
+          url = `${API_BASE_URL}/trait_get_variants/?trait=${encodeURIComponent(this.pheno)}&varid=${encodeURIComponent(filters.varid)}&range=${encodeURIComponent(filters.neighborRange)}&pval_cutoff=${encodeURIComponent(filters.pvalCutoff)}`;
         } else if (filters.mode === "chromosome") {
           // Case 2: Query by chromosome range
-          url = `${API_BASE_URL}/trait_get_variants/?trait=${this.pheno}&chr=${filters.chr}&start=${filters.start}&end=${filters.end}&pval_cutoff=${filters.pvalCutoff}`;
+          url = `${API_BASE_URL}/trait_get_variants/?trait=${encodeURIComponent(this.pheno)}&chr=${encodeURIComponent(filters.chr)}&start=${encodeURIComponent(filters.start)}&end=${encodeURIComponent(filters.end)}&pval_cutoff=${encodeURIComponent(filters.pvalCutoff)}`;
         }
 
         const res = await fetch(url);
@@ -74,6 +85,7 @@ export default {
       } catch (err) {
         console.error("Error fetching variants:", err);
       }
+      setIsLoading(false);
     }
   },
 }
