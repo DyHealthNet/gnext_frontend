@@ -15,6 +15,7 @@
     "d3-tip": "^0.9.1",
     "jquery": "^3.7.1",
     "locuszoom": "^0.14.0",
+    "plotly.js-dist-min": "^3.1.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.3.4",
     "typesense-instantsearch-adapter": "^2.9.0",

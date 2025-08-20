@@ -21,7 +21,7 @@
 
 <script>
 import QQPlot from "@/components/trait/QQ.vue";
-import ManhattanPlot from "@/components/trait/Manhattan.vue";
+import ManhattanPlot from "@/components/trait/Manhattan_old.vue";
 
 export default {
   name: 'Overview',

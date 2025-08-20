@@ -5,4 +5,6 @@ export const STUDY_NAME   = import.meta.env.VITE_STUDY_NAME   ?? "DefaultStudy";
 export const TRAIT_EXAMPLE = import.meta.env.VITE_TRAIT_EXAMPLE
 export const VARIANT_EXAMPLE = import.meta.env.VITE_VARIANT_EXAMPLE
 
+export const TRAIT_EXTERNAL_REF_URL = import.meta.env.VITE_TRAIT_EXTERNAL_REF_URL
+
 export const TYPESENSE_API_KEY = import.meta.env.VITE_TYPESENSE_KEY;

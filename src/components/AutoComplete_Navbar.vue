@@ -45,11 +45,11 @@
                     </v-col>
                     <v-col>
                       <v-list-item-title>
-                        <span v-html="hit._highlightResult.description.value"/>
+                        <span v-html="hit._highlightResult.id.value"/>
                       </v-list-item-title>
                       <v-list-item-subtitle>
                         <template v-if="hit.type === 'trait'">
-                          <span v-html="hit._highlightResult.id.value"></span> -
+                          <span v-html="hit._highlightResult.description.value"></span> -
                           <span v-html="hit._highlightResult.category.value"></span>
                         </template>
                         <template v-else-if="hit.type === 'variant'">
@@ -132,7 +132,7 @@ function goToHit(hit) {
     searchQuery.value = "";
     this.hits = [];
   } else if (hit.type === "trait") {
-    router.push(`/trait/${hit.description}`);
+    router.push(`/trait/${hit.id}`);
     searchQuery.value = "";
     this.hits = [];
   }

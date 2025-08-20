@@ -132,12 +132,6 @@
           </v-col>
         </v-row>
 
-        <v-row>
-          <v-col cols="12" style="padding:0px">
-            <VariantVEPAnnotation :variantId="id"></VariantVEPAnnotation>
-          </v-col>
-        </v-row>
-
       </v-container>
     </v-main>
   </v-app>
@@ -146,7 +140,6 @@
 <script>
 import {useRoute} from 'vue-router';
 import PheWas from '@/components/variant/Variant_PheWas.vue';
-import VariantVEPAnnotation from "@/components/variant/VariantVEPAnnotation.vue";
 import VariantProfile from "@/components/variant/VariantProfile.vue";
 import {API_BASE_URL} from "@/config.js";
 import VariantPopulationFrequencies from "@/components/variant/VariantPopulationFrequencies.vue";
@@ -159,7 +152,6 @@ export default {
   components: {
     VariantPopulationFrequencies,
     PheWas,
-    VariantVEPAnnotation,
     VariantProfile,
     VariantClosestGene,
     VariantConsequences
