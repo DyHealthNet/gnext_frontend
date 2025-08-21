@@ -35,25 +35,21 @@ export default {
 /* Colors for different impact levels */
 .impact-high {
   color: #d32f2f;
-  border-color: #f8bbd0;
-  background-color: #fde0e0;
+  border-color: #d32f2f;
 }
 
 .impact-moderate {
   color: #f57c00;
-  border-color: #ffe0b2;
-  background-color: #fff3e0;
+  border-color: #f57c00;
 }
 
 .impact-low {
   color: #388e3c;
-  border-color: #c8e6c9;
-  background-color: #e8f5e9;
+  border-color: #388e3c;
 }
 
 .impact-modifier {
   color: #546e7a;
-  border-color: #cfd8dc;
-  background-color: #eceff1;
+  border-color: #546e7a;
 }
 </style>

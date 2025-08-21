@@ -1,5 +1,4 @@
-
-import { createApp } from 'vue'
+import {createApp} from 'vue'
 import router from './router'
 
 import "./assets/main.css"
@@ -7,13 +6,15 @@ import "./assets/main.css"
 // Vuetify
 import 'vuetify/styles'
 import '@mdi/font/css/materialdesignicons.css'
-import { createVuetify } from 'vuetify'
+import {createVuetify} from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
 // PrimeVue
 import PrimeVue from 'primevue/config'
 import Aura from '@primeuix/themes/aura';
+import {definePreset} from '@primeuix/themes';
+
 
 // Components
 import App from './App.vue'
@@ -21,90 +22,181 @@ import App from './App.vue'
 import InstantSearch from 'vue-instantsearch/vue3/es' // ← this is critical for Vue 3
 
 const dyHealthNetTheme = {
-  dark: false,
+    dark: false,
     colors: {
-    "background": "#F5F5F5",
-    "surface": "#FAFAFA",
-    "surface-bright": "#FFFFFF",
-    "surface-light": "#F5F5F5",
-    "surface-variant": "#E0E0E0",
-    "on-surface-variant": "#4D4D4D",
-    "darken-1": "#333333",
-    "white-surface": "#FAFAFA",
+        "background": "#F5F5F5",
+        "surface": "#FAFAFA",
+        "surface-bright": "#FFFFFF",
+        "surface-light": "#F5F5F5",
+        "surface-variant": "#E0E0E0",
+        "on-surface-variant": "#4D4D4D",
+        "darken-1": "#333333",
+        "white-surface": "#FAFAFA",
 
-    "primary": "#A5BFDC",
-    "primary-backup": "#A5BFDC",
-    "primary-darken-1": "#516F84",
-    "primary-darken-1-backup": "#516F84",
+        "primary": "#A5BFDC",
+        "primary-backup": "#A5BFDC",
+        "primary-darken-1": "#516F84",
+        "primary-darken-1-backup": "#516F84",
 
-    "secondary": "#C1A1D3",
-    "secondary-darken-1": "#7D5E9A",
+        "secondary": "#C1A1D3",
+        "secondary-darken-1": "#7D5E9A",
 
-    "error": "#E57373",
-    "info": "#3398DB",
-    "success": "#81C784",
-    "warning": "#FFB74D",
+        "error": "#E57373",
+        "info": "#3398DB",
+        "success": "#81C784",
+        "warning": "#FFB74D",
 
-    "orcid_button": "#A6CE39",
-    "github_button": "#121212",
+        "orcid_button": "#A6CE39",
+        "github_button": "#121212",
 
-    "chart": '#707070',
-    "chart-grid": '#E0E0E0',
+        "chart": '#707070',
+        "chart-grid": '#E0E0E0',
 
-    "node-logo-background": "#CDDDE8",
+        "node-logo-background": "#CDDDE8",
 
-    "text": "#000000",
-    "node-border": "#A5BFDC",
-  },
+        "text": "#000000",
+        "node-border": "#A5BFDC",
+    },
 }
 
 const dyHealthNetThemeDark = {
-  dark: true,
-  colors: {
-    "background": "#1E1E1E",
-    "surface": "#2A2A2A",
-    "surface-bright": "#3C3C3C",
-    "surface-light": "#474747",
-    "surface-variant": "#555555",
-    "on-surface-variant": "#D1D1D1",
-    "darken-1": "#FFFFFF",
-    "white-surface": "#FAFAFA",
+    dark: true,
+    colors: {
+        "background": "#1E1E1E",
+        "surface": "#2A2A2A",
+        "surface-bright": "#3C3C3C",
+        "surface-light": "#474747",
+        "surface-variant": "#555555",
+        "on-surface-variant": "#D1D1D1",
+        "darken-1": "#FFFFFF",
+        "white-surface": "#FAFAFA",
 
-    "primary": "#516F84",
-    "primary-darken-1": "#A5BFDC",
+        "primary": "#516F84",
+        "primary-darken-1": "#A5BFDC",
 
-    "secondary": "#C1A1D3",
-    "secondary-darken-1": "#5E3A6B",
+        "secondary": "#C1A1D3",
+        "secondary-darken-1": "#5E3A6B",
 
-    "error": "#E57373",
-    "info": "#3398DB",
-    "success": "#81C784",
-    "warning": "#FFB74D",
+        "error": "#E57373",
+        "info": "#3398DB",
+        "success": "#81C784",
+        "warning": "#FFB74D",
 
-    "orcid_button": "#54691a",
-    "github_button": "#FAFAFA",
+        "orcid_button": "#54691a",
+        "github_button": "#FAFAFA",
 
-    "chart": '#B0B0B0',
-    "chart-grid": '#555555',
+        "chart": '#B0B0B0',
+        "chart-grid": '#555555',
 
-    "text": "#FFFFFF",
-    "node-border": "#A5BFDC",
-  },
+        "text": "#FFFFFF",
+        "node-border": "#A5BFDC",
+    },
 }
 
 const vuetify = createVuetify({
     theme: {
-      defaultTheme: 'dyHealthNetTheme',
+        defaultTheme: 'dyHealthNetTheme',
         themes: {
-          dyHealthNetTheme,
-          dyHealthNetThemeDark
+            dyHealthNetTheme,
+            dyHealthNetThemeDark
         }
     },
     options: {
-      customProperties: true,
+        customProperties: true,
     },
-  components,
-  directives,
+    components,
+    directives,
 })
 
-createApp(App).use(vuetify).use(router).use(InstantSearch).use(PrimeVue, {theme: {preset: Aura, options: {prefix:'p', darkModeSelector: false, cssLayer: false}}}).mount('#app')
+const MyPreset = definePreset(Aura, {
+    components: {
+        inputtext: {
+            colorScheme: {
+                light: {
+                    root: {
+                        background: 'transparent'
+                    }
+                },
+                dark: {
+                    root: {
+                        background: 'transparent'
+                    }
+                }
+            }
+        },
+        select: {
+            colorScheme: {
+                light: {
+                    root: {
+                        background: 'transparent'
+                    }
+                },
+                dark: {
+                    root: {
+                        background: 'transparent'
+                    }
+                }
+            }
+        },
+        paginator: {
+            colorScheme: {
+                light: {
+                    root: {
+                        background: 'transparent'
+                    }
+                },
+                dark: {
+                    root: {
+                        background: 'transparent'
+                    }
+                }
+            }
+        },
+        datatable: {
+            colorScheme: {
+                light: {
+                    root: {
+                        root: {background: 'transparent'},
+                        header: {
+                            background: 'transparent',
+                            cell: {background: 'transparent'}
+                        },
+                        body: {background: 'transparent'},
+                        footer: {
+                            background: 'transparent',
+                            border: {color: dyHealthNetTheme.surface},
+                            cell: {background: 'transparent'}
+                        },
+                        row: {background: 'transparent'},
+                    }
+                },
+                dark: {
+                    root: {
+                        root: {background: 'transparent'},
+                        header: {
+                            background: 'transparent',
+                            cell: {background: 'transparent'}
+                        },
+                        body: {background: 'transparent'},
+                        footer: {
+                            background: 'transparent',
+                            border: {color: dyHealthNetTheme.surface},
+                            cell: {background: 'transparent'}
+                        },
+                        row: {background: 'transparent'},
+                    }
+                }
+            }
+        }
+    }
+})
+
+createApp(App).use(vuetify).use(router).use(InstantSearch).use(PrimeVue, {
+    theme: {
+        preset: MyPreset, options: {
+            prefix: 'p',
+            darkModeSelector: 'html.my-app-dark',
+            cssLayer: false
+        }
+    }
+}).mount('#app')

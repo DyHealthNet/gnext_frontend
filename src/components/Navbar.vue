@@ -82,6 +82,7 @@ export default {
       this.$vuetify.theme.global.name = currentTheme === 'dyHealthNetTheme' ? 'dyHealthNetThemeDark' : 'dyHealthNetTheme'
       this.isDark = currentTheme === 'dyHealthNetTheme'
       localStorage.setItem('theme', this.$vuetify.theme.global.name)
+      document.documentElement.classList.toggle('my-app-dark', this.isDark)
       this.darkModeText = currentTheme === 'dyHealthNetTheme' ? "Light mode" : "Dark mode";
     },
     defaultTheme() {
@@ -93,6 +94,7 @@ export default {
       const getSystemMode = () => window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
       this.$vuetify.theme.global.name = getSystemMode() === "dark" ? "dyHealthNetThemeDark" : "dyHealthNetTheme"
       this.isDark = getSystemMode() === "dark"
+      document.documentElement.classList.toggle('my-app-dark', this.isDark)
     },
   },
   created() {

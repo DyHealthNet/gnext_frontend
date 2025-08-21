@@ -8,20 +8,21 @@
   </v-container>
 
   <v-container>
-    <DataTable :value="rows"
-               paginator
-               :rows="5"
-               :rowsPerPageOptions="[5, 10, 20, 50]"
-               tableStyle="min-width: 50rem"
-               :customSort="true"
-               :sortField="sortField"
-               :sortOrder="sortOrder"
-               @sort="onSort"
-               filterDisplay="menu"
-               :filters="filters"
-               :globalFilterFields="['id', 'trait_label', 'trait_group']"
-               paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink PaginatorEnd"
-               currentPageReportTemplate="{first} to {last} of {totalRecords}">
+    <DataTable
+        :value="rows"
+        paginator
+        :rows="5"
+        :rowsPerPageOptions="[5, 10, 20, 50]"
+        tableStyle="min-width: 50rem"
+        :customSort="true"
+        :sortField="sortField"
+        :sortOrder="sortOrder"
+        @sort="onSort"
+        filterDisplay="menu"
+        :filters="filters"
+        :globalFilterFields="['id', 'trait_label', 'trait_group']"
+        paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink PaginatorEnd"
+        currentPageReportTemplate="{first} to {last} of {totalRecords}">
       <template #header>
         <v-row class="align-center mb-1 mt-1">
           <IconField>
@@ -55,7 +56,7 @@
       </template>
       <template v-for="col in columns" :key="col.field">
         <Column
-            v-if="col.field !== 'trait_label'"
+            v-if="col.field !== 'id'"
             :field="col.field"
             :header="col.header"
             sortable
@@ -67,8 +68,8 @@
             sortable
         >
           <template #body="slotProps">
-            <a :href="`/trait/${slotProps.data.trait_label}`" class="text-blue-600 hover:underline">
-              {{ slotProps.data.trait_label }}
+            <a :href="`/trait/${slotProps.data.id}`" class="text-blue-600 hover:underline">
+              {{ slotProps.data.id }}
             </a>
           </template>
         </Column>
@@ -261,13 +262,18 @@ export default {
 
 </script>
 
-<style>
+<style scoped>
 .v-data-table .v-data-table-header tr th {
   font-size: 50px !important;
   font-weight: bold !important;
 }
+
 a, .green {
-  color: rgb(var(--v-theme-primary)) !important;
+  color: rgb(var(--v-theme-primary-darken)) !important;
+}
+
+::v-deep(#phewas_plot svg.lz-locuszoom) {
+  background-color: transparent !important;
 }
 </style>
 
