@@ -65,8 +65,11 @@
         </v-row>
 
 
-
-
+        <v-row>
+          <v-col cols="12" style="padding:0px">
+            <PhenotypeSNPTable :pheno="id"></PhenotypeSNPTable>
+          </v-col>
+        </v-row>
 
       </v-container>
     </v-main>
@@ -77,6 +80,7 @@
 import { useRoute} from 'vue-router';
 import ManhattanPlot from "@/components/trait/Manhattan.vue";
 import QQPlot from "@/components/trait/QQ.vue";
+import PhenotypeSNPTable from "@/components/trait/PhenotypeSNPTable.vue";
 import {onMounted, ref, watch} from 'vue';
 import TraitProfile from "@/components/trait/TraitProfile.vue";
 import {API_BASE_URL} from "@/config.js";
@@ -84,6 +88,7 @@ import {API_BASE_URL} from "@/config.js";
 export default {
   name: 'Trait',
   components: {
+    PhenotypeSNPTable,
     TraitProfile,
     ManhattanPlot,
     QQPlot
