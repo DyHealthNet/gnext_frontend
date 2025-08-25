@@ -176,8 +176,6 @@ export default {
     };
   },
   mounted() {
-    //this.getChromosomeBounds();
-    console.log("these bounds: ", this.chromosomeBounds["1"])
   },
   methods: {
     applyFilters() {
