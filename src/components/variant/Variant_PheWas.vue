@@ -118,25 +118,9 @@ export default {
     filters: {
       global: {value: null, matchMode: FilterMatchMode.CONTAINS}
     },
-    downloadItems: [
-      {
-        label: 'Download as CSV',
-        icon: 'pi pi-file',
-        command: () => this.download('csv')
-      },
-      {
-        label: 'Download as JSON',
-        icon: 'pi pi-file',
-        command: () => this.download('json')
-      },
-      {
-        label: 'Download as TXT',
-        icon: 'pi pi-file',
-        command: () => this.download('txt')
-      }
-    ]
+    downloadItems: [],
+    columns: [], // also add columns here
   }),
-
   methods: {
     onMenuClick(event) {
       this.$refs.menuRef.toggle(event);
@@ -229,6 +213,42 @@ export default {
       const res = await fetch(`${API_BASE_URL}/variant_phewas/?filter=${query}`);
       const json = await res.json();
       this.rows = json.data;
+    },
+    download(format) {
+      console.log("Downloading in format: " + format);
+      const rows = this.rows;
+      const variantId = this.variantId;
+      let content = "";
+      let mimeType = "text/plain";
+      let filename = `variant_${variantId}_PhewasTable.${format}`;
+
+      if (!rows.length) return;
+
+      if (format === 'json') {
+        content = JSON.stringify(rows, null, 2);
+        mimeType = "application/json";
+      } else if (format === 'csv') {
+        const headers = Object.keys(rows[0]);
+        const csvRows = [
+          headers.join(','),
+          ...rows.map(row => headers.map(h => `"${(row[h] ?? '').toString().replace(/"/g, '""')}"`).join(','))
+        ];
+        content = csvRows.join('\n');
+        mimeType = "text/csv";
+      } else if (format === 'txt') {
+        const headers = Object.keys(rows[0]);
+        const headerLine = headers.join('\t');
+        const lines = rows.map(row =>
+            headers.map(h => row[h] ?? '').join('\t')
+        );
+        content = [headerLine, ...lines].join('\n');
+      }
+      const blob = new Blob([content], {type: mimeType});
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
     }
   },
 
@@ -236,7 +256,25 @@ export default {
     this.renderPheWasPlot();
     this.renderPheWasTable();
   },
-
+  created() {
+    this.downloadItems = [
+      {
+        label: 'Download as CSV',
+        icon: 'pi pi-file',
+        command: function() { this.download('csv') }.bind(this)
+      },
+      {
+        label: 'Download as JSON',
+        icon: 'pi pi-file',
+        command: function() { this.download('json') }.bind(this)
+      },
+      {
+        label: 'Download as TXT',
+        icon: 'pi pi-file',
+        command: function() { this.download('txt') }.bind(this)
+      }
+    ];
+  },
   watch: {
     headers: {
       handler(newVal) {
