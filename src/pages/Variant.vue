@@ -4,7 +4,13 @@
       <v-container class="justify-center mt-4">
         <v-row class="text-center">
           <v-col cols="12">
-            <h1 class="title mt-4">Variant View - {{ id }}</h1>
+            <h1 class="title mt-4" style="display: inline-flex">
+              Variant - {{id}}
+              <img
+              src="@/assets/figures/genetic_variants.png"
+              style="width: 50px; height: 50px; margin-left: 10px"
+            >
+            </h1>
           </v-col>
         </v-row>
 

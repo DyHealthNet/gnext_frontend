@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <div id="qq_plot_container" style="width: 400px; height: 710px;"></div>
+    <div id="qq_plot_container" style="width: 100%; height: 710px;"></div>
     <p class="gc-control"></p>
     <i>(Genomic Control lambda calculated based on the 50th percentile (median), 10th percentile, 1st percentile,
             and 1/10th of a percentile)</i>

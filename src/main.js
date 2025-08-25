@@ -34,12 +34,7 @@ const dyHealthNetTheme = {
         "white-surface": "#FAFAFA",
 
         "primary": "#A5BFDC",
-        "primary-backup": "#A5BFDC",
         "primary-darken-1": "#516F84",
-        "primary-darken-1-backup": "#516F84",
-
-        "secondary": "#C1A1D3",
-        "secondary-darken-1": "#7D5E9A",
 
         "error": "#E57373",
         "info": "#3398DB",
@@ -55,7 +50,6 @@ const dyHealthNetTheme = {
         "node-logo-background": "#CDDDE8",
 
         "text": "#000000",
-        "node-border": "#A5BFDC",
     },
 }
 
@@ -74,22 +68,15 @@ const dyHealthNetThemeDark = {
         "primary": "#516F84",
         "primary-darken-1": "#A5BFDC",
 
-        "secondary": "#C1A1D3",
-        "secondary-darken-1": "#5E3A6B",
-
         "error": "#E57373",
         "info": "#3398DB",
         "success": "#81C784",
         "warning": "#FFB74D",
 
-        "orcid_button": "#54691a",
-        "github_button": "#FAFAFA",
-
         "chart": '#B0B0B0',
         "chart-grid": '#555555',
 
         "text": "#FFFFFF",
-        "node-border": "#A5BFDC",
     },
 }
 

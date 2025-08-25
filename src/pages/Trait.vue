@@ -4,7 +4,13 @@
       <v-container>
         <v-row  class="text-center">
           <v-col cols="12">
-            <h1 class="title mt-4">Trait View - {{id}}</h1>
+            <h1 class="title mt-4" style="display: inline-flex">
+              Trait - {{id}}
+              <img
+              src="@/assets/figures/phenotypes.png"
+              style="width: 50px; height: 50px; margin-left: 10px"
+            >
+            </h1>
           </v-col>
         </v-row>
 
@@ -74,7 +80,6 @@ import QQPlot from "@/components/trait/QQ.vue";
 import {onMounted, ref, watch} from 'vue';
 import TraitProfile from "@/components/trait/TraitProfile.vue";
 import {API_BASE_URL} from "@/config.js";
-
 
 export default {
   name: 'Trait',
