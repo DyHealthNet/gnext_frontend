@@ -8,7 +8,7 @@
 
       <v-row>
         <v-col cols="12">
-          <TableSearchBar @apply-filters="onApplyFilters" ></TableSearchBar>
+          <TableSearchBar :pheno="pheno" @apply-filters="onApplyFilters" ></TableSearchBar>
         </v-col>
       </v-row>
 
@@ -22,8 +22,8 @@
                     size="60"
                 ></v-progress-circular>
           </v-overlay>
-          <VariantsGwasAnnotation2 :headers="tableHeader" :rows="tableItems" :downloadName="downloadName"
-                                   :globalFilterFields="['rsid', 'chrom', 'pos']"></VariantsGwasAnnotation2>
+          <VariantsGwasAnnotation :headers="tableHeader" :rows="tableItems" :downloadName="downloadName"
+                                   :globalFilterFields="['rsid', 'chrom', 'pos']"></VariantsGwasAnnotation>
         </v-col>
       </v-row>
     </v-card>
@@ -33,14 +33,14 @@
 <script>
 import 'locuszoom/dist/locuszoom.css'
 import {API_BASE_URL} from "@/config.js";
-import VariantsGwasAnnotation2 from "@/components/trait/VariantsGWASAnnotation2.vue";
+import VariantsGwasAnnotation from "@/components/trait/VariantsGWASAnnotation.vue";
 import TableSearchBar from "@/components/trait/TableSearchBar.vue";
 import {isLoading, setIsLoading} from "@/components/constants.js";
 
 
 export default {
   name: "PhenotypeSNPTable",
-  components: {VariantsGwasAnnotation2, TableSearchBar},
+  components: {VariantsGwasAnnotation, TableSearchBar},
   props: {
     pheno: {
       type: String,

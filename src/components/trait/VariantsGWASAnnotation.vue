@@ -9,24 +9,6 @@
         <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
       </IconField>
 
-      <!-- Download Button outside scrollable table -->
-      <div style="margin-left: auto; display: flex; align-items: center;">
-        <Button
-          type="button"
-          icon="pi pi-download"
-          class="p-button-text p-button-secondary"
-          @click="onMenuClick"
-          aria-haspopup="true"
-          aria-controls="download_menu"
-        />
-        <Menu
-          id="download_menu"
-          ref="menuRef"
-          :model="downloadItems"
-          :popup="true"
-          :visible="menuVisible"
-        />
-      </div>
     </v-row>
     <v-row>
       <div class="table-wrapper" style="overflow-x: auto;">
@@ -51,6 +33,24 @@
       <template #empty> Nothing found.</template>
       <template #loading> Loading data. Please wait.</template>
       <template #paginatorend>
+              <!-- Download Button outside scrollable table -->
+      <div style="margin-left: auto; display: flex; align-items: center;">
+        <Button
+          type="button"
+          icon="pi pi-download"
+          class="p-button-text p-button-secondary"
+          @click="onMenuClick"
+          aria-haspopup="true"
+          aria-controls="download_menu"
+        />
+        <Menu
+          id="download_menu"
+          ref="menuRef"
+          :model="downloadItems"
+          :popup="true"
+          :visible="menuVisible"
+        />
+      </div>
       </template>
       <template v-for="col in columns" :key="col.field">
         <Column
@@ -205,93 +205,6 @@ export default {
 </script>
 
 <style>
-.v-data-table .v-data-table-header tr th {
-  font-size: 50px !important;
-  font-weight: bold !important;
-}
-.table-toolbar {
-  background: var(--surface-card); /* matches DataTable background */
-  border: 1px solid var(--surface-border); /* matches table border */
-  border-radius: 6px 6px 0 0; /* same as table top corners */
-  padding: 0.5rem 1rem;
-}
-.table-wrapper {
-  overflow-x: auto;
-  background: var(--surface-card); /* ✅ matches PrimeVue DataTable */
-  border: 1px solid var(--surface-border); /* optional, for continuity */
-  border-radius: 0 0 6px 6px; /* match bottom corners of table */
-}
-a, .green {
-  color: rgb(var(--v-theme-primary)) !important;
-}
-/* Make PrimeVue DataTable use Vuetify theme background/text */
-.p-datatable,
-.p-datatable .p-datatable-header,
-.p-datatable .p-datatable-thead > tr > th,
-.p-datatable .p-datatable-tbody > tr > td,
-.p-datatable .p-paginator {
-  background-color: rgb(var(--v-theme-surface)) !important;
-  color: rgb(var(--v-theme-on-surface)) !important;
-}
-
-/* Row hover */
-.p-datatable .p-datatable-tbody > tr:hover {
-  background-color: rgba(var(--v-theme-on-surface), 0.04) !important;
-}
-
-/* Toolbar area (search + download button) */
-.table-toolbar {
-  background-color: rgb(var(--v-theme-surface)) !important;
-  color: rgb(var(--v-theme-on-surface)) !important;
-}
-
-/* Search input */
-.table-toolbar .p-inputtext {
-  background-color: rgb(var(--v-theme-surface)) !important;
-  color: rgb(var(--v-theme-on-surface)) !important;
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.12) !important;
-}
-
-.table-toolbar .p-inputtext::placeholder {
-  color: rgba(var(--v-theme-on-surface), 0.6) !important;
-}
-
-/* Download button */
-.table-toolbar .p-button {
-  background-color: rgb(var(--v-theme-surface)) !important;
-  color: rgb(var(--v-theme-on-surface)) !important;
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.12) !important;
-}
-
-/* Rows-per-page dropdown */
-.p-dropdown {
-  background-color: rgb(var(--v-theme-surface)) !important;
-  color: rgb(var(--v-theme-on-surface)) !important;
-}
-
-.p-dropdown .p-dropdown-label {
-  color: rgb(var(--v-theme-on-surface)) !important;
-}
-
-.p-dropdown .p-dropdown-items .p-dropdown-item {
-  background-color: rgb(var(--v-theme-surface)) !important;
-  color: rgb(var(--v-theme-on-surface)) !important;
-}
-
-/* PrimeVue dropdowns (including portal panels) */
-.p-dropdown,
-.p-dropdown .p-dropdown-label,
-.p-dropdown .p-dropdown-items,
-.p-dropdown .p-dropdown-item {
-  background-color: rgb(var(--v-theme-surface)) !important;
-  color: rgb(var(--v-theme-on-surface)) !important;
-}
-
-/* Hover for dropdown items */
-.p-dropdown .p-dropdown-item.p-highlight {
-  background-color: rgba(var(--v-theme-on-surface), 0.12) !important;
-  color: rgb(var(--v-theme-on-surface)) !important;
-}
 
 .no-wrap {
   white-space: nowrap;
