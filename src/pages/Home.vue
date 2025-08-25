@@ -28,10 +28,10 @@
 
 
         <v-row align="center" justify="center" class="mt-3" style="gap: 5px; font-size:0.8rem;">
-          <v-btn class="example-btn" depressed>
+          <v-btn class="example-btn" depressed @click="onTraitClick">
             Example Trait →
           </v-btn>
-          <v-btn class="example-btn" depressed>
+          <v-btn class="example-btn" depressed @click="onVariantClick">
             Example Variant →
           </v-btn>
         </v-row>
@@ -44,25 +44,27 @@
 </template>
 
 
-<script>
+<script setup>
 import AutoComplete from "@/components/AutoComplete_Home.vue";
 import HomeStatsGrid from "@/components/HomeStatsGrid.vue";
+import { STUDY_NAME, VARIANT_EXAMPLE, TRAIT_EXAMPLE } from "@/config";
+import { useRouter } from "vue-router";
 
-export default {
-  name: "Home",
-  components: {
-    AutoComplete,
-    HomeStatsGrid
-  },
-  data() {
-    const studyName = import.meta.env.VITE_STUDY_NAME;
-    return {
-      mainHeaderPrefix: "Welcome to the GWAS Explorer of the ",
-      mainHeaderStudyName: studyName,
-      mainHeaderSuffix: " Study",
-      mainSubheader: "Your gateway to explore and analyze GWAS summary statistics",
-    }
-  },
+const mainHeaderPrefix = "Welcome to the GWAS Explorer of the ";
+const mainHeaderStudyName = STUDY_NAME;
+const mainHeaderSuffix = " Study";
+const mainSubheader = "Your gateway to explore and analyze GWAS summary statistics";
+
+const router = useRouter();
+
+function onTraitClick() {
+  console.log("Trait button pressed");
+  router.push(`/trait/${TRAIT_EXAMPLE}`);
+}
+
+function onVariantClick() {
+  console.log("Variant button pressed");
+  router.push(`/variant/${encodeURIComponent(VARIANT_EXAMPLE)}`);
 }
 </script>
 

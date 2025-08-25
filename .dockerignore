@@ -1,0 +1,7 @@
+# Optional extras
+node_modules
+dist
+.vscode
+.git
+.DS_Store
+*.log

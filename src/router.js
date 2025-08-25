@@ -4,7 +4,6 @@ import Documentation from './pages/Documentation.vue'
 import Variant from "./pages/Variant.vue";
 import Trait from "./pages/Trait.vue";
 import Overview from "./pages/Overview.vue";
-import Downstream from "./pages/Downstream.vue";
 import Citation from "./pages/Citation.vue";
 
 const routes = [
@@ -27,11 +26,6 @@ const routes = [
     path: '/cite',
     name: 'Citation',
     component: Citation
-  },
-  {
-    path: '/downstream',
-    name : 'Downstream Analysis',
-    component: Downstream
   },
   {
     path: '/variant/:id',

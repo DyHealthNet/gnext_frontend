@@ -20,7 +20,7 @@
               cols="auto"
               class="mb-2"
           >
-            <VariantLinkButton :title="label" :url="url" :disabled="!rsId"/>
+            <LinkButton :title="label" :url="url" :disabled="!rsId"/>
           </v-col>
         </v-row>
       </v-col>
@@ -31,14 +31,14 @@
 
 
 <script>
-import VariantLinkButton from "@/components/variant/VariantLinkButton.vue";
+import LinkButton from "@/components/LinkButton.vue";
 import VariantImpactTag from "@/components/variant/VariantImpactTag.vue";
 import {GENOME_BUILD} from "@/config.js";
 
 
 export default {
   name: "VariantProfile",
-  components: {VariantLinkButton, VariantImpactTag},
+  components: {LinkButton, VariantImpactTag},
   props: {
     variantId: {
       type: String,

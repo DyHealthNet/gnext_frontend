@@ -1,9 +1,10 @@
-const API_BASE_URL = `${import.meta.env.VITE_API_URL}/backend`;
-const GENOME_BUILD = `${import.meta.env.VITE_GENOME_BUILD}`;
-const TYPESENSE_HOST =import.meta.env.VITE_TYPESENSE_HOST;
-const TYPESENSE_PORT = Number(import.meta.env.VITE_TYPESENSE_PORT);
+// config.js
+export const API_BASE_URL = "/backend";     // NOT /backend/backend
+export const GENOME_BUILD = import.meta.env.VITE_GENOME_BUILD ?? "GRCh38";
+export const STUDY_NAME   = import.meta.env.VITE_STUDY_NAME   ?? "DefaultStudy";
+export const TRAIT_EXAMPLE = import.meta.env.VITE_TRAIT_EXAMPLE
+export const VARIANT_EXAMPLE = import.meta.env.VITE_VARIANT_EXAMPLE
 
-console.log("Typesense host:", TYPESENSE_HOST);
-console.log("Typesense port (number):", TYPESENSE_PORT);
+export const TRAIT_EXTERNAL_REF_URL = import.meta.env.VITE_TRAIT_EXTERNAL_REF_URL
 
-export { API_BASE_URL, GENOME_BUILD, TYPESENSE_PORT, TYPESENSE_HOST}
+export const TYPESENSE_API_KEY = import.meta.env.VITE_TYPESENSE_KEY;

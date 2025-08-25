@@ -35,11 +35,11 @@
                   </v-col>
                   <v-col>
                     <v-list-item-title>
-                      <span v-html="hit._highlightResult.description.value"/>
+                      <span v-html="hit._highlightResult.id.value"/>
                     </v-list-item-title>
                     <v-list-item-subtitle>
                       <template v-if="hit.type === 'trait'">
-                        <span v-html="hit._highlightResult.id.value"></span> -
+                        <span v-html="hit._highlightResult.description.value"></span> -
                         <span v-html="hit._highlightResult.external_ref.value"></span> -
                         <span v-html="hit._highlightResult.category.value"></span>
                       </template>
@@ -70,10 +70,9 @@ import {ref} from "vue";
 
 import phenotypeIcon from "@/assets/figures/phenotypes.png";
 import variantIcon from "@/assets/figures/genetic_variants.png"
-import {TYPESENSE_HOST, TYPESENSE_PORT} from "@/config.js";
-
 
 import {useRouter} from "vue-router";
+import {TYPESENSE_API_KEY} from "@/config.js";
 
 const router = useRouter();
 
@@ -102,13 +101,13 @@ if (props.typeFilter) {
 
 const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
   server: {
-    apiKey: "xyz",
+    apiKey: TYPESENSE_API_KEY,
     nodes: [
       {
-        host: TYPESENSE_HOST,
-        path: "",
-        port: TYPESENSE_PORT,
-        protocol: "http",
+        host: window.location.hostname,
+        path: "/typesense",
+        port:window.location.port,
+        protocol: window.location.protocol.replace(":",""),
       },
     ],
     cacheSearchResultsForSeconds: 120,
@@ -122,7 +121,7 @@ function goToHit(hit) {
   if (hit.type === "variant") {
     router.push(`/variant/${encodeURIComponent(hit.id)}`);
   } else if (hit.type === "trait") {
-    router.push(`/trait/${hit.description}`);
+    router.push(`/trait/${hit.id}`);
   }
 };
 

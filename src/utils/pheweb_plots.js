@@ -26,6 +26,7 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
     // In the DOM, later siblings are displayed over top of (and occluding) earlier siblings.
     unbinned_variants = sortBy(unbinned_variants, function(d) { return d.neg_log_pvalue; });
 
+
     const get_chrom_offsets = memoize(function() {
         const  chrom_padding = 2e7;
         const chrom_extents = {};
@@ -309,7 +310,7 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
                 .enter()
                 .append('a')
                 .attr('class', 'variant_hover_ring')
-                .attr('xlink:href', get_link_to_LZ)
+                //.attr('xlink:href', get_link_to_LZ)
                 .append('circle')
                 .attr('cx', function(d) {
                     return x_scale(get_genomic_position(d));
@@ -337,7 +338,7 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
                 .enter()
                 .append('a')
                 .attr('class', 'variant_point')
-                .attr('xlink:href', get_link_to_LZ)
+                //.attr('xlink:href', get_link_to_LZ)
                 .append('circle')
                 .attr('id', function(d) {
                     return fmt('variant-point-{0}-{1}-{2}-{3}', d.chrom, d.pos, d.ref, d.alt);
