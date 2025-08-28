@@ -190,11 +190,16 @@ export default {
   watch: {
     headers: {
       handler(newVal) {
-        this.columns = newVal.map(col => ({
-          field: col, // must match row keys
-          header: col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) // nicely formatted
+        const priorityOrder = ["rsid", "variant_id", "chrom", "pos", "ref", "alt"];
+        const sorted = [
+          ...priorityOrder.filter(c => newVal.includes(c)),
+          ...newVal.filter(c => !priorityOrder.includes(c))
+        ];
+
+        this.columns = sorted.map(col => ({
+            field: col, // must match row keys
+            header: col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) // nicely formatted
         }));
-        console.log("this.columns:", this.columns);
       },
       immediate: true
     }
