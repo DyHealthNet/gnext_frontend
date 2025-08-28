@@ -57,12 +57,19 @@ const statCounts = reactive({
 })
 
 onMounted(async () => {
-  const res = await fetch(`${API_BASE_URL}/overview_stats/`);
-  const json = await res.json();
-  statCounts.trait = json.trait;
-  statCounts.variant = json.variant;
-  console.log("trait count:", statCounts.trait);
-  console.log("Variant count:", statCounts.variant);
+  const cached = localStorage.getItem("overview_stats")
+  if(cached){
+    const json = JSON.parse(cached)
+    statCounts.trait = json.trait
+    statCounts.variant = json.variant
+  } else {
+    const res = await fetch(`${API_BASE_URL}/get_overview_stats/`);
+    const json = await res.json();
+    localStorage.setItem("overview_stats", JSON.stringify(json))
+    statCounts.trait = json.trait;
+    statCounts.variant = json.variant;
+  }
+
 
 })
 </script>

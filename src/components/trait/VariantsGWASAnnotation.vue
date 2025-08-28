@@ -1,16 +1,6 @@
 <template>
   <v-container>
-    <!-- Table Toolbar (fixed, not scrollable) -->
-    <v-row class="align-center mb-1 mt-1 table-toolbar" style="width: 100%; border-radius: 8px;">
-      <IconField>
-        <InputIcon>
-          <i class="pi pi-search" />
-        </InputIcon>
-        <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
-      </IconField>
 
-    </v-row>
-    <v-row>
       <div class="table-wrapper" style="overflow-x: auto;">
       <DataTable
                class="no-wrap-headers"
@@ -29,7 +19,16 @@
                paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink PaginatorEnd"
                currentPageReportTemplate="{first} to {last} of {totalRecords}"
               :scrollable="true">
-      <template #header></template>
+       <template #header>
+        <v-row class="align-center mb-1">
+          <IconField>
+            <InputIcon>
+              <i class="pi pi-search"/>
+            </InputIcon>
+            <InputText v-model="filters['global'].value" placeholder="Keyword Search"/>
+          </IconField>
+        </v-row>
+      </template>
       <template #empty> Nothing found.</template>
       <template #loading> Loading data. Please wait.</template>
       <template #paginatorend>
@@ -74,7 +73,7 @@
       </template>
     </DataTable>
         </div>
-    </v-row>
+
   </v-container>
 </template>
 
@@ -107,7 +106,7 @@ export default {
     headers: {
       type: Array,
       required: false,
-      default: () => ["variant_id","chrom","pos","rsid","ref","alt","neg_log_pvalue","pvalue","beta","stderr_beta",
+      default: () => ["variant_id","rsid", "chrom","pos","ref","alt","neg_log_pvalue","pvalue","beta","stderr_beta",
 		          "alt_allele_freq"]
 
     },

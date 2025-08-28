@@ -63,7 +63,7 @@ export default {
     async loadAndDraw() {
       try {
         // Use exactly the same endpoint/data as the SVG version
-        const res = await fetch(`${API_BASE_URL}/trait_manhattan/?id=${this.traitId}`)
+        const res = await fetch(`${API_BASE_URL}/trait_get_manhattan/?id=${this.traitId}`)
         const json = await res.json()
         await this.draw(json)
       } catch (error) {

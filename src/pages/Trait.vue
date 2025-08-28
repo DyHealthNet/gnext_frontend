@@ -59,18 +59,10 @@
               <v-toolbar color="primary-darken-1" density="compact">
                 <v-toolbar-title>GWAS Table</v-toolbar-title>
               </v-toolbar>
-              <ManhattanPlot :traitId="id" :key="`manhattan-${id}`" />
+              <PhenotypeSNPTable :pheno="id"></PhenotypeSNPTable>
             </v-card>
           </v-col>
         </v-row>
-
-
-        <v-row>
-          <v-col cols="12" style="padding:0px">
-            <PhenotypeSNPTable :pheno="id"></PhenotypeSNPTable>
-          </v-col>
-        </v-row>
-
       </v-container>
     </v-main>
   </v-app>
@@ -115,7 +107,7 @@ export default {
 
     const fetchTraitData = () => {
       const query = encodeURIComponent(id.value);
-      fetch(`${API_BASE_URL}/trait_info/?id=${query}`)
+      fetch(`${API_BASE_URL}/trait_get_info/?id=${query}`)
           .then(response => response.json())
           .then(data => {
             description.value = data["description"]

@@ -1,32 +1,31 @@
 <template>
   <v-container>
-    <v-card outlined class="d-flex flex-column h-100 pa-4" style="min-height: 300px;">
-      <!-- pa-4 adds padding around the card content -->
-      <v-toolbar color="primary-darken-1" density="compact">
-        <v-toolbar-title>Variant Information</v-toolbar-title>
-      </v-toolbar>
-
-      <v-row>
-        <v-col cols="12">
-          <TableSearchBar :pheno="pheno" @apply-filters="onApplyFilters" ></TableSearchBar>
+    <v-row>
+      <v-col>
+      <TableSearchBar :pheno="pheno" @apply-filters="onApplyFilters"></TableSearchBar>
         </v-col>
-      </v-row>
+    </v-row>
 
-      <v-row>
-        <v-col cols="12">
-          <v-overlay v-model="showLoading" scroll-strategy="none" contained
-                        class="d-flex justify-center align-center">
-                <v-progress-circular
-                    indeterminate
-                    color="primary"
-                    size="60"
-                ></v-progress-circular>
-          </v-overlay>
-          <VariantsGwasAnnotation :headers="tableHeader" :rows="tableItems" :downloadName="downloadName"
-                                   :globalFilterFields="['rsid', 'chrom', 'pos']"></VariantsGwasAnnotation>
+    <v-row>
+      <v-divider class="my-2" thickness="2"></v-divider>
+    </v-row>
+
+
+    <v-row>
+      <v-col>
+      <v-overlay v-model="showLoading" scroll-strategy="none" contained
+                 class="d-flex justify-center align-center">
+        <v-progress-circular
+            indeterminate
+            color="primary"
+            size="60"
+        ></v-progress-circular>
+      </v-overlay>
+      <VariantsGwasAnnotation :headers="tableHeader" :rows="tableItems" :downloadName="downloadName"
+                              :globalFilterFields="['rsid', 'chrom', 'pos']"></VariantsGwasAnnotation>
         </v-col>
-      </v-row>
-    </v-card>
+    </v-row>
+
   </v-container>
 </template>
 
@@ -76,8 +75,7 @@ export default {
         this.tableItems = Object.values(json.rows).map((row, index) => ({
           ...row,
         }));
-        console.log("items: ", this.tableItems)
-       this.tableHeader = json.header;
+        this.tableHeader = json.header;
 
         // Add ID column first
       } catch (err) {

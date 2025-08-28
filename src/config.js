@@ -7,4 +7,8 @@ export const VARIANT_EXAMPLE = import.meta.env.VITE_VARIANT_EXAMPLE
 
 export const TRAIT_EXTERNAL_REF_URL = import.meta.env.VITE_TRAIT_EXTERNAL_REF_URL
 
+export const STUDY_PLAIN_CITATION = import.meta.env.VITE_STUDY_PLAIN_CITATION
+export const STUDY_BIBTEX_CITATION = import.meta.env.VITE_STUDY_BIBTEX_CITATION
+export const STUDY_DOI_LINK = import.meta.env.VITE_STUDY_CITATION_DOI_LINK
+
 export const TYPESENSE_API_KEY = import.meta.env.VITE_TYPESENSE_KEY;

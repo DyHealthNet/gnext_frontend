@@ -4,7 +4,7 @@
   </v-container>
 
   <v-container>
-    <div id="phewas_plot" style="width: 100%; height: 500px;"></div>
+    <div id="phewas_plot" style="width: 100%; height: 600px;"></div>
   </v-container>
 
   <v-container>
@@ -81,7 +81,7 @@
 <script>
 import LocusZoom from "locuszoom";
 import 'locuszoom/dist/locuszoom.css'
-import {API_BASE_URL} from "@/config.js";
+import {API_BASE_URL, GENOME_BUILD} from "@/config.js";
 import {InputIcon, IconField, InputText, Column, DataTable, MultiSelect, Menu, Button} from "primevue";
 import 'primeicons/primeicons.css'
 
@@ -107,12 +107,15 @@ export default {
     variantId: {
       type: String,
       required: true,
+    },
+    traitMetrics: {
+      type: Object,
+      default: () => ({})
     }
   },
 
   data: () => ({
-    headers: ["id", "trait_label", "trait_group", "log_pvalue", "se", "beta"],
-    rows: [],
+    headers: ["id", "trait_label", "trait_group", "log_pvalue", "pvalue", "beta", "stderr_beta", "alt_allele_freq"],
     menuVisible: false,
     sortField: "log_pvalue",
     sortOrder: -1,
@@ -122,10 +125,19 @@ export default {
     downloadItems: [],
     columns: [], // also add columns here
   }),
+
+  computed: {
+    // Convert your dict -> array for the table
+    rows() {
+      // If traitMetrics is like { key: {...}, ... }
+      // turn it into an array of objects
+      if (!this.traitMetrics) return [];
+      return Object.values(this.traitMetrics);
+    }
+  },
   methods: {
     onMenuClick(event) {
       this.$refs.menuRef.toggle(event);
-
     },
 
     onSort(event) {
@@ -134,87 +146,73 @@ export default {
     },
 
     async renderPheWasPlot() {
-      try {
-        const container = document.getElementById("phewas_plot");
-        if (!container) {
-          return;
-        }
+      if (!this.rows || !this.rows.length) return;
 
-        // Clear previous plot (important on route change)
-        container.innerHTML = "";
+      const container = document.getElementById("phewas_plot");
+      if (!container) return;
+      container.innerHTML = "";
 
-        var dataSources = new LocusZoom.DataSources();
+      // var dataSources = new LocusZoom.DataSources();
+      //
+      // var apiBase = `${API_BASE_URL}/variant_get_metrics/`;
+      // dataSources
+      //     .add("phewas", ["PheWASLZ", {
+      //       url: apiBase,
+      //       build: [GENOME_BUILD]
+      //     }])
 
-        var apiBase = `${API_BASE_URL}/variant_phewas/`;
-        dataSources
-            .add("phewas", ["PheWASLZ", {
-              url: apiBase,
-              build: ["GRCh37"]
-            }])
+      var dataSources = new LocusZoom.DataSources().add("phewas", ["StaticSource", {data: this.rows}]);
 
-        // Define the layout
-        var mods = {
-          variant: this.variantId,
-        };
+      // Define the layout
+      var mods = {
+        variant: this.variantId,
+      };
 
-        var layout = {
-          state: mods,
-          dashboard: {
-            components: [
-              {type: "download", position: "right"},
-              {type: "download_png", position: "right"},
-            ],
-          },
-          responsive_resize: true,
-          toolbar: LocusZoom.Layouts.get("toolbar", "standard_plot"),
-          panels: [
-            LocusZoom.Layouts.get("panel", "phewas", {
-              height: 600,
-              margin: {bottom: 200},
-              axes: {
-                x: {
-                  ticks: {
-                    transform: ""
-                  }
+      var layout = {
+        state: mods,
+        dashboard: {
+          components: [
+            {type: "download", position: "right"},
+            {type: "download_png", position: "right"},
+          ],
+        },
+        responsive_resize: true,
+        toolbar: LocusZoom.Layouts.get("toolbar", "standard_plot"),
+        panels: [
+          LocusZoom.Layouts.get("panel", "phewas", {
+            height: 600,
+            min_height: 400,
+            margin: {bottom: 200},
+            axes: {
+              x: {
+                ticks: {
+                  transform: "translate(15,0) rotate(50)",
                 }
               }
-            })
-          ]
-        }
-
-        LocusZoom.Layouts.mutate_attrs(layout, '$.panels[?(@.tag === "phewas")].margin.top', 32);
-
-
-        // Modify the tooltips for PheWAS result data layer points to contain more data. The fields in this sample
-        //   tooltip are specific to the LZ-Portal API, and are not guaranteed to be in other PheWAS datasources.
-        LocusZoom.Layouts.mutate_attrs(layout, '$..data_layers[?(@.tag === "phewas")].tooltip.html', [
-          "<strong>trait:</strong> {{phewas:trait_label|htmlescape}}<br>",
-          "<strong>trait Category:</strong> {{phewas:trait_group|htmlescape}}<br>",
-          "<strong>P-value:</strong> {{phewas:log_pvalue|logtoscinotation|htmlescape}}",
-          "{{#if phewas:beta|is_numeric}}<br><strong>&beta;:</strong> {{phewas:beta|scinotation|htmlescape}}{{/if}}",
-          "{{#if phewas:se|is_numeric}}<br><strong>SE (&beta;):</strong> {{phewas:se|scinotation|htmlescape}}{{/if}}",
-          "{{#if phewas:study}}",
-          "<br><br></b><strong>Study:</strong> {{phewas:study|htmlescape}}",
-          "{{/if}}",
-          "{{#if phewas:pmid}} {{#if phewas:description}}",
-          '<br><strong>Description:</strong> <a target=_blank href="https://www.ncbi.nlm.nih.gov/pubmed/?term={{phewas:pmid|htmlescape}}">{{phewas:description|htmlescape}}</a>',
-          "{{/if}} {{/if}}"
-        ].join(""));
-
-        // Generate the plot
-        LocusZoom.populate("#phewas_plot", dataSources, layout);
-
-      } catch (err) {
-        console.error("Failed to render plot: " + err);
+            }
+          })
+        ]
       }
+
+      LocusZoom.Layouts.mutate_attrs(layout, '$.panels[?(@.tag === "phewas")].margin.top', 32);
+
+
+      // Modify the tooltips for PheWAS result data layer points to contain more data. The fields in this sample
+      //   tooltip are specific to the LZ-Portal API, and are not guaranteed to be in other PheWAS datasources.
+      LocusZoom.Layouts.mutate_attrs(layout, '$..data_layers[?(@.tag === "phewas")].tooltip.html', [
+        "<strong>Id:</strong> {{phewas:id|htmlescape}}<br>",
+        "<strong>Description:</strong> {{phewas:trait_label|htmlescape}}<br>",
+        "<strong>Category:</strong> {{phewas:trait_group|htmlescape}}<br>",
+        "<strong>P-value:</strong> {{phewas:pvalue|scinotation|htmlescape}}",
+        "{{#if phewas:beta|is_numeric}}<br><strong>&beta;:</strong> {{phewas:beta|scinotation|htmlescape}}{{/if}}",
+        "{{#if phewas:stderr_beta|is_numeric}}<br><strong>SE (&beta;):</strong> {{phewas:stderr_beta|scinotation|htmlescape}}{{/if}}",
+        "{{#if phewas:alt_allele_freq|is_numeric}}<br><strong>AF:</strong> {{phewas:alt_allele_freq|scinotation|htmlescape}}{{/if}}",
+      ].join(""));
+
+      // Generate the plot
+      LocusZoom.populate("#phewas_plot", dataSources, layout);
     },
 
-    async renderPheWasTable() {
-      const query = encodeURIComponent(`variant eq '${this.variantId}'`);
-      const res = await fetch(`${API_BASE_URL}/variant_phewas/?filter=${query}`);
-      const json = await res.json();
-      this.rows = json.data;
-    },
     download(format) {
       console.log("Downloading in format: " + format);
       const rows = this.rows;
@@ -255,27 +253,34 @@ export default {
 
   mounted() {
     this.renderPheWasPlot();
-    this.renderPheWasTable();
   },
+
   created() {
     this.downloadItems = [
       {
         label: 'Download as CSV',
         icon: 'pi pi-file',
-        command: function() { this.download('csv') }.bind(this)
+        command: function () {
+          this.download('csv')
+        }.bind(this)
       },
       {
         label: 'Download as JSON',
         icon: 'pi pi-file',
-        command: function() { this.download('json') }.bind(this)
+        command: function () {
+          this.download('json')
+        }.bind(this)
       },
       {
         label: 'Download as TXT',
         icon: 'pi pi-file',
-        command: function() { this.download('txt') }.bind(this)
+        command: function () {
+          this.download('txt')
+        }.bind(this)
       }
     ];
   },
+
   watch: {
     headers: {
       handler(newVal) {
@@ -286,13 +291,19 @@ export default {
       },
       immediate: true
     },
-
-    variantId: {
-      handler() {
-        this.renderPheWasPlot();
-        this.renderPheWasTable();
-      },
-      immediate: true
+    rows: {
+      immediate: true,
+      handler(newVal) {
+        // render only when there is data
+        if (Array.isArray(newVal) && newVal.length) {
+          this.$nextTick(() => this.renderPheWasPlot());
+        }
+      }
+    },
+    variantId() {
+      // variant changed -> clear plot and wait for new rows watcher to fire
+      const el = document.getElementById("phewas_plot");
+      if (el) el.innerHTML = "";
     }
   },
 }

@@ -1,11 +1,11 @@
 <template>
   <v-container>
     <!-- Tabs for selecting search mode -->
-    <v-row class="mb-4 align-center">
+    <v-row class="mb-2 align-center">
       <v-col cols="12" class="d-flex align-center">
         <v-tabs v-model="searchMode" align-tabs="center">
-          <v-tab value="rsid">SNP</v-tab>
-          <v-tab value="chromosome">Chromosome Range</v-tab>
+          <v-tab value="rsid">By SNP ID</v-tab>
+          <v-tab value="chromosome">By Chromosome Range</v-tab>
         </v-tabs>
       </v-col>
     </v-row>

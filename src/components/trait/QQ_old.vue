@@ -30,7 +30,7 @@ export default {
     async loadQQPlot() {
       try {
         console.log("trait ID:", this.traitId);
-        const res = await fetch(`${API_BASE_URL}/trait_qq/?id=${this.traitId}`);
+        const res = await fetch(`${API_BASE_URL}/trait_get_qq/?id=${this.traitId}`);
         const data = await res.json();
 
         // Display GC lambda values
