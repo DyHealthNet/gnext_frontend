@@ -26,7 +26,7 @@
             <h1 class="title mt-4" style="display: inline-flex">
               Variant - {{ id }}
               <img
-                src="@/assets/figures/genetic_variants.png"
+                :src="variantIcon"
                 style="width: 50px; height: 50px; margin-left: 10px"
               >
             </h1>
@@ -165,13 +165,16 @@
 
 <script>
 import { useRoute } from 'vue-router';
-import PheWas from '@/components/variant/Variant_PheWas.vue';
+import PheWas from '@/components/variant/PheWAS.vue';
 import VariantProfile from "@/components/variant/VariantProfile.vue";
 import { API_BASE_URL } from "@/config.js";
 import VariantPopulationFrequencies from "@/components/variant/VariantPopulationFrequencies.vue";
 import VariantClosestGene from "@/components/variant/VariantClosestGene.vue";
 import VariantConsequences from "@/components/variant/VariantConsequences.vue";
-import { ref, reactive, onMounted, watch } from 'vue';
+import {ref, reactive, onMounted, watch, computed} from 'vue';
+
+import variantIconBlack from "@/assets/figures/node_variant_black.png"
+import variantIconWhite from "@/assets/figures/node_variant_white.png"
 
 export default {
   name: 'Variant',
@@ -204,17 +207,21 @@ export default {
     const maxAF = ref(null);
     const traitMetrics = reactive({});
 
+    const variantIcon = computed(() =>
+      localStorage.getItem('theme') === 'dyHealthNetThemeDark' ? variantIconWhite : variantIconBlack
+    );
+
     const fetchMetricsData = async () => {
-      const query = encodeURIComponent(`variant eq '${id.value}'`);
-      const res = await fetch(`${API_BASE_URL}/variant_get_metrics?filter=${query}`);
+      const query = encodeURIComponent(id.value);
+      const res = await fetch(`${API_BASE_URL}/variant_get_metrics/?id=${query}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
-      minAF.value = json.meta?.min_af ?? null;
-      maxAF.value = json.meta?.max_af ?? null;
+      minAF.value = json.min_af
+      maxAF.value = json.max_af
 
       // reset then assign to keep reactivity clean
       Object.keys(traitMetrics).forEach(k => delete traitMetrics[k]);
-      Object.assign(traitMetrics, json.data || {});
+      Object.assign(traitMetrics, json.metrics || {});
     };
 
     const fetchAnnotationData = async () => {
@@ -320,7 +327,8 @@ export default {
       regulatoryConsequences,
       minAF,
       maxAF,
-      traitMetrics
+      traitMetrics,
+      variantIcon
     };
   }
 };

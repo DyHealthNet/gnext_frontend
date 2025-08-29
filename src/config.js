@@ -12,3 +12,6 @@ export const STUDY_BIBTEX_CITATION = import.meta.env.VITE_STUDY_BIBTEX_CITATION
 export const STUDY_DOI_LINK = import.meta.env.VITE_STUDY_CITATION_DOI_LINK
 
 export const TYPESENSE_API_KEY = import.meta.env.VITE_TYPESENSE_KEY;
+
+export const COLOR_PRIMARY = import.meta.env.VITE_COLOR_PRIMARY ?? "#A5BFDC"
+export const COLOR_PRIMARY_DARK = import.meta.env.VITE_COLOR_PRIMARY_DARK ?? "#516F84"

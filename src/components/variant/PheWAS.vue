@@ -1,7 +1,48 @@
 <template>
   <v-container>
-    <span>GWAS summary statistics of {{ variantId }} over all phenotypes.</span>
+    <span>GWAS summary statistics of {{ variantId }} over all or a selection of phenotypes.</span>
   </v-container>
+
+  <v-container>
+    <v-row>
+      <v-col cols="4">
+        <v-text-field
+            v-model="pvalCutoff"
+            label="Filter by P-Value"
+            type="number"
+            step="0.01"
+            :rules="[value => (value >= 0 && value <= 1) || 'Must be between 0 and 1']"
+            density="comfortable"
+            variant="outlined"
+            persistent-placeholder
+        />
+      </v-col>
+
+      <v-col cols="4">
+        <v-select
+            v-model="selectedCategory"
+            label="Filter by Trait Category"
+            :items="availableCategories"
+            density="comfortable"
+            variant="outlined"
+            persistent-placeholder
+            multiple
+        />
+      </v-col>
+      <v-col cols="2">
+        <v-btn color="primary" @click="applyPhewasFiltering" block height="48px" prepend-icon="mdi-send-circle-outline">
+          Apply Filtering
+        </v-btn>
+      </v-col>
+      <v-col cols="2">
+        <v-btn color="primary" @click="resetPhewasFiltering" block height="48px" prepend-icon="mdi-undo">
+          Reset
+        </v-btn>
+      </v-col>
+
+    </v-row>
+  </v-container>
+
 
   <v-container>
     <div id="phewas_plot" style="width: 100%; height: 600px;"></div>
@@ -76,6 +117,14 @@
       </template>
     </DataTable>
   </v-container>
+  <v-snackbar
+      v-model="snackbar"
+      :timeout="3000"
+      color="warning"
+      location="top"
+  >
+    {{ snackbarMessage }}
+  </v-snackbar>
 </template>
 
 <script>
@@ -124,17 +173,23 @@ export default {
     },
     downloadItems: [],
     columns: [], // also add columns here
+    pvalCutoff: 1,
+    selectedCategory: [],
+    allRows: [],
+    rows: [],
+    snackbar: false,
+    snackbarMessage: "",
   }),
 
   computed: {
-    // Convert your dict -> array for the table
-    rows() {
-      // If traitMetrics is like { key: {...}, ... }
-      // turn it into an array of objects
-      if (!this.traitMetrics) return [];
-      return Object.values(this.traitMetrics);
-    }
+    availableCategories() {
+      const src = this.allRows || [];
+      const set = new Set();
+      for (const r of src) if (r?.trait_group) set.add(r.trait_group);
+      return Array.from(set).sort();
+    },
   },
+
   methods: {
     onMenuClick(event) {
       this.$refs.menuRef.toggle(event);
@@ -145,23 +200,57 @@ export default {
       this.sortOrder = event.sortOrder;
     },
 
+    applyPhewasFiltering() {
+      const cutoffRaw = this.pvalCutoff;
+      const cutoff = Number.isFinite(+cutoffRaw) ? +cutoffRaw : 1; // sanitize
+      const cats = Array.isArray(this.selectedCategory) ? this.selectedCategory : [];
+
+      const filtered = this.allRows.filter(r => {
+        const lp = r.log_pvalue != null ? Number(r.log_pvalue) : null;
+        const p = r.pvalue != null ? Number(r.pvalue) : (lp != null ? Math.pow(10, -lp) : null);
+
+        // keep NA p-values? (current behavior: keep)
+        const passP = (p == null) ? true : p <= cutoff;
+
+        // multi-select: no categories selected => no filter
+        const passC = !cats.length ? true : cats.includes(r.trait_group);
+
+        return passP && passC;
+      });
+
+      if (!filtered.length) {
+        this.pvalCutoff = 1;
+        this.selectedCategory = [];
+        this.rows = this.allRows.map((d, i) => ({...d, x: i}));
+        this.snackbarMessage = "No matches found. Showing all phenotypes.";
+        this.snackbar = true;
+        this.$nextTick(() => this.renderPheWasPlot());
+        return;
+      }
+
+      this.rows = filtered.map((d, i) => ({...d, x: i}));
+      this.$nextTick(() => this.renderPheWasPlot());
+    },
+
+    resetPhewasFiltering() {
+      this.pvalCutoff = 1;
+      this.selectedCategory = null;
+      this.rows = this.allRows.map((d, i) => ({...d, x: i}));
+      this.$nextTick(() => this.renderPheWasPlot());
+    },
+
     async renderPheWasPlot() {
       if (!this.rows || !this.rows.length) return;
 
       const container = document.getElementById("phewas_plot");
       if (!container) return;
-      container.innerHTML = "";
-
-      // var dataSources = new LocusZoom.DataSources();
-      //
-      // var apiBase = `${API_BASE_URL}/variant_get_metrics/`;
-      // dataSources
-      //     .add("phewas", ["PheWASLZ", {
-      //       url: apiBase,
-      //       build: [GENOME_BUILD]
-      //     }])
+      container.innerHTML = ""
 
       var dataSources = new LocusZoom.DataSources().add("phewas", ["StaticSource", {data: this.rows}]);
+
+      // Threshold Line
+      var neglog10_significance_threshold = -Math.log10(0.05 / this.allRows.length)
+
 
       // Define the layout
       var mods = {
@@ -178,24 +267,28 @@ export default {
         },
         responsive_resize: true,
         toolbar: LocusZoom.Layouts.get("toolbar", "standard_plot"),
-        panels: [
-          LocusZoom.Layouts.get("panel", "phewas", {
+        panels: [LocusZoom.Layouts.get("panel", "phewas", {
             height: 600,
             min_height: 400,
-            margin: {bottom: 200},
+            min_width: 640,
+            margin: {bottom: 200, top: 32},
             axes: {
               x: {
                 ticks: {
                   transform: "translate(15,0) rotate(50)",
                 }
-              }
+              },
             }
           })
         ]
       }
 
-      LocusZoom.Layouts.mutate_attrs(layout, '$.panels[?(@.tag === "phewas")].margin.top', 32);
-
+      // Set the horizontal line to your desired -log10(p) threshold
+      LocusZoom.Layouts.mutate_attrs(
+          layout,
+          '$..data_layers[?(@.type === "orthogonal_line")].offset',
+          neglog10_significance_threshold
+      );
 
       // Modify the tooltips for PheWAS result data layer points to contain more data. The fields in this sample
       //   tooltip are specific to the LZ-Portal API, and are not guaranteed to be in other PheWAS datasources.
@@ -251,6 +344,32 @@ export default {
     }
   },
 
+  watch: {
+    headers: {
+      handler(newVal) {
+        this.columns = newVal.map(col => ({
+          header: col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          field: col
+        }));
+      },
+      immediate: true
+    },
+    traitMetrics: {
+      deep: true,
+      immediate: true,
+      handler(val) {
+        const base = val ? Object.values(val) : [];
+        // ensure x/id for plotting
+        this.allRows = base.map((d, i) => ({...d, x: i}));
+        this.resetPhewasFiltering();
+      }
+    },
+    variantId() {
+      const el = document.getElementById("phewas_plot");
+      if (el) el.innerHTML = "";
+    }
+  },
+
   mounted() {
     this.renderPheWasPlot();
   },
@@ -279,33 +398,7 @@ export default {
         }.bind(this)
       }
     ];
-  },
-
-  watch: {
-    headers: {
-      handler(newVal) {
-        this.columns = newVal.map(col => ({
-          header: col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-          field: col
-        }));
-      },
-      immediate: true
-    },
-    rows: {
-      immediate: true,
-      handler(newVal) {
-        // render only when there is data
-        if (Array.isArray(newVal) && newVal.length) {
-          this.$nextTick(() => this.renderPheWasPlot());
-        }
-      }
-    },
-    variantId() {
-      // variant changed -> clear plot and wait for new rows watcher to fire
-      const el = document.getElementById("phewas_plot");
-      if (el) el.innerHTML = "";
-    }
-  },
+  }
 }
 
 

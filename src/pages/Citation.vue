@@ -133,7 +133,7 @@ export default {
   overflow: auto; /* scroll if content too long */
   font-family: monospace;
   font-size: 0.9rem;
-  background: #f5f5f5;
+  background: rgb(var(--v-theme-surface));
   border: 1px solid #ddd;
   padding: 8px;
   border-radius: 4px;
