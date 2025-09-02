@@ -60,7 +60,7 @@ export default {
     async onApplyFilters(filters) {
       setIsLoading(true);
       try {
-        if (filters.pvalCutoff < this.prev_pvalCutoff) {
+        if (this.prev_mode === "default" && filters.pvalCutoff < this.prev_pvalCutoff) {
           const negLogCutoff = -Math.log10(filters.pvalCutoff);
           // Filter frontend items
           this.tableItems = this.tableItems.filter(
