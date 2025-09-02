@@ -50,6 +50,8 @@ export default {
     return {
       tableHeader: [],
       tableItems: [],
+      prev_mode: "",
+      prev_pvalCutoff: 0.5,
       showLoading: isLoading,
       downloadName: ""
     }
@@ -58,8 +60,18 @@ export default {
     async onApplyFilters(filters) {
       setIsLoading(true);
       try {
-        let url = "";
+        if (filters.pvalCutoff < this.prev_pvalCutoff) {
+          const negLogCutoff = -Math.log10(filters.pvalCutoff);
+          // Filter frontend items
+          this.tableItems = this.tableItems.filter(
+            row => parseFloat(row.neg_log_pvalue) >= negLogCutoff
+          );
+          this.prev_pvalCutoff = filters.pvalCutoff;
+          setIsLoading(false);
+          return; // no backend call
+        }
 
+        let url = "";
         if (filters.mode === "default") {
           // get all variants that pass p-value cutoff also default with cutoff 0.05
           this.downloadName = `${this.pheno}_${filters.pvalCutoff}`;
@@ -80,6 +92,8 @@ export default {
           ...row,
         }));
         this.tableHeader = json.header;
+        this.prev_mode = filters.mode;
+        this.prev_pvalCutoff = filters.pvalCutoff;
 
         // Add ID column first
       } catch (err) {
