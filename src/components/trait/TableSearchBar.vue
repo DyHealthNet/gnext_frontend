@@ -182,7 +182,11 @@ export default {
     };
   },
   mounted() {
-    this.applyFilters();
+    try {
+      this.applyFilters();
+    } catch (err) {
+      console.error("Error applying filters during component mount:", err);
+    }
   },
   watch: {
     pheno() {
