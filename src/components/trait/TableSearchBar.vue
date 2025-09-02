@@ -197,7 +197,7 @@ export default {
       }
     },
   },
-  methods: {Ad
+  methods: {
     applyFilters() {
       this.$emit("apply-filters", {
         mode: this.searchMode,
