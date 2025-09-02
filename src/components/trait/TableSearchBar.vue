@@ -16,6 +16,7 @@
       <v-window-item value="default">
         <v-row class="pt-4">
           <v-col cols="12">
+            Showing variants that pass the P-Value Cutoff (max. 10,000 variants)
           </v-col>
         </v-row>
       </v-window-item>
