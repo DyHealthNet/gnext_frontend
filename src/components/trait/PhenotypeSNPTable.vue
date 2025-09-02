@@ -85,8 +85,6 @@ export default {
       tableHeader: [],
       tableItems: [],
       prevFilters: {},
-      prev_mode: "",
-      prev_pvalCutoff: 0.5,
       showLoading: isLoading,
       downloadName: ""
     }
