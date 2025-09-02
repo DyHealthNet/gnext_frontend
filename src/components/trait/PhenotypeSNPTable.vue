@@ -13,7 +13,7 @@
     <v-row class="mt-6 ml-2">
       <v-col>
         <div v-if="tableItems.length > 0">
-          <v-chip  color="primary-darken-1" text-color="white" small :ripple="false" class="filter-chip mr-2" >
+          <v-chip color="primary-darken-1" text-color="white" small :ripple="false" class="filter-chip mr-2">
            Mode: {{
             {
               default: "P-Value",
