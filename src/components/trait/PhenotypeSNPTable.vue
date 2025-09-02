@@ -60,13 +60,17 @@ export default {
       try {
         let url = "";
 
-        if (filters.mode === "rsid") {
+        if (filters.mode === "default") {
+          // get all variants that pass p-value cutoff also default with cutoff 0.05
+          this.downloadName = `${this.pheno}_${filters.pvalCutoff}`;
+          url = `${API_BASE_URL}/trait_get_variants/?trait=${encodeURIComponent(this.pheno)}&pval_cutoff=${encodeURIComponent(filters.pvalCutoff)}`;
+        } else if (filters.mode === "rsid") {
+          // get all variants in range of given variant that pass pval cutoff
           this.downloadName = `${this.pheno}_${filters.varid}_${filters.neighborRange}_${filters.pvalCutoff}`;
-          // Case 1: Query by rsID + neighbor range
           url = `${API_BASE_URL}/trait_get_variants/?trait=${encodeURIComponent(this.pheno)}&varid=${encodeURIComponent(filters.varid)}&range=${encodeURIComponent(filters.neighborRange)}&pval_cutoff=${encodeURIComponent(filters.pvalCutoff)}`;
         } else if (filters.mode === "chromosome") {
+          // get all variants in given chromosome range that pass pval cutoff
           this.downloadName = `${this.pheno}_${filters.chr}_${filters.start}_${filters.end}_${filters.pvalCutoff}`;
-          // Case 2: Query by chromosome range
           url = `${API_BASE_URL}/trait_get_variants/?trait=${encodeURIComponent(this.pheno)}&chr=${encodeURIComponent(filters.chr)}&start=${encodeURIComponent(filters.start)}&end=${encodeURIComponent(filters.end)}&pval_cutoff=${encodeURIComponent(filters.pvalCutoff)}`;
         }
 
