@@ -189,8 +189,7 @@ export default {
     }
   },
   watch: {
-    pheno() {
-      this.applyFilters()
+      this.applyFilters();
     },
     searchMode() {
       const max = this.maxPvalForMode;
