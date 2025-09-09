@@ -73,7 +73,6 @@ export default {
 
         const res = await fetch(url);
         const json = await res.json();
-        console.log("this.tableHeader", this.tableHeader)
         const desiredHeaders = [
           "description",
           "top_variant",
@@ -88,7 +87,6 @@ export default {
           this.tableHeader = [];
         }
         this.tableItems = json;
-        // Add ID column first
       } catch (err) {
         console.error("Error fetching variants:", err);
       }
