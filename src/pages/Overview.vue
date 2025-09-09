@@ -82,7 +82,11 @@ export default {
           "phenocode",
           "category"
         ];
-        this.tableHeader = desiredHeaders.filter(h => Object.keys(json[0]).includes(h));
+        if (json.length > 0) {
+          this.tableHeader = desiredHeaders.filter(h => Object.keys(json[0]).includes(h));
+        } else {
+          this.tableHeader = [];
+        }
         this.tableItems = json;
         // Add ID column first
       } catch (err) {
