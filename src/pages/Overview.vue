@@ -74,7 +74,6 @@ export default {
         const res = await fetch(url);
         const json = await res.json();
         console.log("this.tableHeader", this.tableHeader)
-        console.log("this.tableItems", this.tableItems)
         const desiredHeaders = [
           "description",
           "top_variant",
