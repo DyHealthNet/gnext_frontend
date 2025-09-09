@@ -22,6 +22,7 @@
         ></v-progress-circular>
       </v-overlay>
       <VariantsGwasAnnotation :headers="tableHeader" :rows="tableItems" :downloadName="downloadName"
+                              :priorityOrder="priorityOrder"
                               :globalFilterFields="['rsid', 'chrom', 'pos']"></VariantsGwasAnnotation>
         </v-col>
     </v-row>
@@ -51,7 +52,8 @@ export default {
       tableHeader: [],
       tableItems: [],
       showLoading: isLoading,
-      downloadName: ""
+      downloadName: "",
+      priorityOrder:  ["rsid", "variant_id", "chrom", "pos", "ref", "alt"],
     }
   },
   methods: {

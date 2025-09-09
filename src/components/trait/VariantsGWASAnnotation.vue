@@ -53,7 +53,7 @@
       </template>
       <template v-for="col in columns" :key="col.field">
         <Column
-            v-if="col.field !== 'variant_id'"
+            v-if="col.field !== 'variant_id' && col.field !== 'description' && col.field !== 'top_variant'"
             :field="col.field"
             :header="col.header"
             sortable
@@ -64,11 +64,35 @@
             :header="col.header"
             sortable
         >
-          <template #body="slotProps">
-            <a :href="`/variant/${encodeURIComponent(slotProps.data.variant_id)}`" class="text-blue-600 hover:underline no-wrap">
-              {{ slotProps.data.variant_id }}
+        <template #body="{ data, field }">
+          <!-- Variant link -->
+          <template v-if="field === 'variant_id'">
+            <a :href="`/variant/${encodeURIComponent(data.variant_id)}`"
+               class="text-blue-600 hover:underline no-wrap">
+              {{ data.variant_id }}
             </a>
           </template>
+
+          <template v-else-if="field === 'top_variant'">
+            <a :href="`/variant/${encodeURIComponent(data.top_variant.split(' ')[0])}`"
+               class="text-blue-600 hover:underline no-wrap">
+              {{ data.top_variant }}
+            </a>
+          </template>
+
+          <!-- Phenotype link -->
+          <template v-else-if="field === 'description'">
+            <a :href="`/trait/${encodeURIComponent(data.phenocode)}`"
+               class="text-green-600 hover:underline no-wrap">
+              {{ data.description }} <!-- show description as text -->
+            </a>
+          </template>
+
+          <!-- Default rendering -->
+          <template v-else>
+            {{ data[field] }}
+          </template>
+        </template>
         </Column>
       </template>
     </DataTable>
@@ -123,7 +147,12 @@ export default {
       type: String,
       required: false,
       default: "",
-    }
+    },
+    priorityOrder: {
+      type: Array,
+      required: false,  // sensible defaults
+      default: () => []
+    },
   },
     data: () => ({
     menuVisible: false,
@@ -190,10 +219,10 @@ export default {
   watch: {
     headers: {
       handler(newVal) {
-        const priorityOrder = ["rsid", "variant_id", "chrom", "pos", "ref", "alt"];
+
         const sorted = [
-          ...priorityOrder.filter(c => newVal.includes(c)),
-          ...newVal.filter(c => !priorityOrder.includes(c))
+          ...this.priorityOrder.filter(c => newVal.includes(c)),
+          ...newVal.filter(c => !this.priorityOrder.includes(c))
         ];
 
         this.columns = sorted.map(col => ({
