@@ -30,12 +30,13 @@
                   The table is limited to the top 10000 hits.
                 </p>
 
-                <VariantsGwasAnnotation
+                <TableSkeleton
                   :headers="tableHeader"
                   :rows="tableItems"
                   :downloadName="downloadName"
+                  :defaultTableRows="defaultTableRows"
                   :priorityOrder="priorityOrder"
-                  :globalFilterFields="['pvalue', 'neg_log_pvalue']"
+                  :globalFilterFields="tableHeader"
                 />
               </v-card-text>
             </v-card>
@@ -49,12 +50,12 @@
 <script>
 import 'locuszoom/dist/locuszoom.css'
 import {API_BASE_URL} from "@/config.js";
-import VariantsGwasAnnotation from "@/components/trait/VariantsGWASAnnotation.vue";
+import TableSkeleton from "@/components/TableSkeleton.vue";
 import {isLoading, setIsLoading} from "@/components/constants.js";
 
 export default {
   name: 'Overview',
-  components: {VariantsGwasAnnotation},
+  components: {TableSkeleton},
   data() {
     return {
       tableHeader: [],
@@ -62,6 +63,7 @@ export default {
       showLoading: isLoading,
       downloadName: "",
       priorityOrder:  ["description", "top_variant", "pvalue", "neg_log_pvalue"],
+      defaultTableRows: 50,
     }
   },
   methods: {

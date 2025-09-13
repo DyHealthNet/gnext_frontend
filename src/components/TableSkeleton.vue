@@ -6,8 +6,8 @@
                class="no-wrap-headers"
                :value="rows"
                paginator
-               :rows="5"
-               :rowsPerPageOptions="[5, 10, 20, 50]"
+               :rows="defaultTableRows"
+               :rowsPerPageOptions="[5, 10, 20, 50, 100]"
                tableStyle="min-width: 50rem"
                :customSort="true"
                :sortField="sortField"
@@ -124,7 +124,7 @@ const FilterMatchMode = {
 };
 
 export default {
-  name: "VariantsGWASAnnotation2",
+  name: "TableSkeleton",
   components: {IconField, Button, InputIcon, DataTable, Column, InputText, Menu, MultiSelect},
   props: {
     headers: {
@@ -152,6 +152,11 @@ export default {
       type: Array,
       required: false,  // sensible defaults
       default: () => []
+    },
+    defaultTableRows: {
+      type: Number,
+      required: false,  // sensible defaults
+      default: 5
     },
   },
     data: () => ({
