@@ -1,17 +1,25 @@
 <template>
   <v-container>
     <!-- Tabs for selecting search mode -->
-    <v-row class="mb-4 align-center">
+    <v-row class="mb-2 align-center">
       <v-col cols="12" class="d-flex align-center">
         <v-tabs v-model="searchMode" align-tabs="center">
-          <v-tab value="rsid">SNP</v-tab>
-          <v-tab value="chromosome">Chromosome Range</v-tab>
+          <v-tab value="default">By P-Value</v-tab>
+          <v-tab value="rsid">By SNP ID</v-tab>
+          <v-tab value="chromosome">By Chromosome Range</v-tab>
         </v-tabs>
       </v-col>
     </v-row>
 
     <!-- Tab contents -->
     <v-window v-model="searchMode">
+      <v-window-item value="default">
+        <v-row class="pt-4">
+          <v-col cols="12">
+            Showing variants that pass the P-Value Cutoff (max. 10,000 variants)
+          </v-col>
+        </v-row>
+      </v-window-item>
       <!-- rsID tab -->
       <v-window-item value="rsid">
         <v-row class="pt-4">
@@ -103,7 +111,8 @@
             label="P-Value Cutoff"
             type="number"
             step="0.01"
-            :rules="[value => (value >= 0 && value <= 1) || 'Must be between 0 and 1']"
+            :max="maxPvalForMode"
+            :rules="[v => (v >= 0 && v <= maxPvalForMode) || `Must be between 0 and ${maxPvalForMode}`]"
             density="comfortable"
             variant="outlined"
             persistent-placeholder
@@ -123,10 +132,7 @@
 </template>
 
 <script>
-import {ref} from "vue";
-import {API_BASE_URL, GENOME_BUILD} from "@/config.js";   // 👈 import once
-
-
+import {API_BASE_URL, GENOME_BUILD} from "@/config.js";
 import AutocompleteVariant from "@/components/trait/AutocompleteVariant.vue";
 import {setIsLoading} from "@/components/constants.js";
 
@@ -140,14 +146,14 @@ export default {
   },
   data() {
     return {
-      searchMode: "rsid",
+      searchMode: "default",
       rsid: "",
       varid: "",
       neighborRange: 5000,
       chr: null,
       startPos: null,
       endPos: null,
-      pvalCutoff: 1.0,
+      pvalCutoff: 0.05,
       chromosomeBounds: {
         "1": {"min": 11063, "max": 249239495},
         "2": {"min": 10181, "max": 243185846},
@@ -177,6 +183,24 @@ export default {
   },
   mounted() {
     this.getChromosomeBounds();
+    try {
+      this.applyFilters();
+    } catch (err) {
+      console.error("Error applying filters during component mount:", err);
+    }
+  },
+  watch: {
+      this.applyFilters();
+    },
+    searchMode() {
+      const max = this.maxPvalForMode;
+      if (this.pvalCutoff > max) {
+        this.pvalCutoff = max;
+      }
+      if (this.pvalCutoff < 0) {
+        this.pvalCutoff = 0;
+      }
+    },
   },
   methods: {
     applyFilters() {
@@ -212,7 +236,10 @@ export default {
       }
       console.log("these bounds: ", this.chromosomeBounds[this.chr])
       return this.chromosomeBounds[this.chr];
-    }
+    },
+    maxPvalForMode() {
+      return this.searchMode === "default" ? 0.05 : 1;
+    },
   },
 };
 </script>

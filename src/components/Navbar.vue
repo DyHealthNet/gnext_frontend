@@ -30,6 +30,15 @@
     </v-menu>
     <v-menu transition="slide-x-transition">
       <template v-slot:activator="{ props }">
+          <v-btn to="/idea" color="primary-darken-1" class="mx-1" v-bind="props">
+            <template v-slot:prepend>
+              <v-icon>mdi-help-circle-outline</v-icon>
+            </template>
+            Idea</v-btn>
+      </template>
+    </v-menu>
+    <v-menu transition="slide-x-transition">
+      <template v-slot:activator="{ props }">
           <v-btn to="/docs" color="primary-darken-1" class="mx-1" v-bind="props">
             <template v-slot:prepend>
               <v-icon>mdi-book-open-outline</v-icon>

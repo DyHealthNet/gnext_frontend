@@ -20,8 +20,6 @@
 </template>
 
 <script>
-// TODO: add allele frequency of the variant in the study
-// TODO: add link to gnomAD and source information !
 import {API_BASE_URL} from "@/config.js";
 
 export default {
@@ -35,30 +33,21 @@ export default {
       type: Object,
       required: true
     },
+    minAF: {
+      type: Number,
+      required: true
+    },
+    maxAF: {
+      type: Number,
+      required: true
+    }
   },
 
   data() {
     return {
       studyName: import.meta.env.VITE_STUDY_NAME,
-      minAF: null,
-      maxAF: null,
     }
-  },
-
-  methods: {
-     async renderStudyAlleleFrequencies() {
-      const query = encodeURIComponent(`variant eq '${this.variantId}'`);
-      const res = await fetch(`${API_BASE_URL}/variant_phewas/?filter=${query}`);
-      const json = await res.json();
-      const afValues = json.data.map(d => d.af);
-      this.minAF = Math.min(...afValues);
-      this.maxAF = Math.max(...afValues);
-    }
-  },
-
-  mounted() {
-    this.renderStudyAlleleFrequencies();
-  },
+  }
 };
 </script>
 

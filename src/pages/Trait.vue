@@ -7,7 +7,7 @@
             <h1 class="title mt-4" style="display: inline-flex">
               Trait - {{id}}
               <img
-              src="@/assets/figures/phenotypes.png"
+              :src="phenotypeIcon"
               style="width: 50px; height: 50px; margin-left: 10px"
             >
             </h1>
@@ -59,18 +59,10 @@
               <v-toolbar color="primary-darken-1" density="compact">
                 <v-toolbar-title>GWAS Table</v-toolbar-title>
               </v-toolbar>
-              <ManhattanPlot :traitId="id" :key="`manhattan-${id}`" />
+              <PhenotypeSNPTable :pheno="id"></PhenotypeSNPTable>
             </v-card>
           </v-col>
         </v-row>
-
-
-        <v-row>
-          <v-col cols="12" style="padding:0px">
-            <PhenotypeSNPTable :pheno="id"></PhenotypeSNPTable>
-          </v-col>
-        </v-row>
-
       </v-container>
     </v-main>
   </v-app>
@@ -81,9 +73,12 @@ import { useRoute} from 'vue-router';
 import ManhattanPlot from "@/components/trait/Manhattan.vue";
 import QQPlot from "@/components/trait/QQ.vue";
 import PhenotypeSNPTable from "@/components/trait/PhenotypeSNPTable.vue";
-import {onMounted, ref, watch} from 'vue';
+import {onMounted, ref, watch, computed} from 'vue';
 import TraitProfile from "@/components/trait/TraitProfile.vue";
 import {API_BASE_URL} from "@/config.js";
+
+import phenotypeIconWhite from "@/assets/figures/node_phenotype_white.png";
+import phenotypeIconBlack from "@/assets/figures/node_phenotype_black.png";
 
 export default {
   name: 'Trait',
@@ -96,6 +91,10 @@ export default {
   setup() {
     const route = useRoute();
     const id = ref(decodeURIComponent(route.params.id));
+
+    const phenotypeIcon = computed(() =>
+      localStorage.getItem('theme') === 'dyHealthNetThemeDark' ? phenotypeIconWhite : phenotypeIconBlack
+    );
 
     watch(() => route.params.id, (newId, oldId) => {
       if (newId !== oldId) {
@@ -115,7 +114,7 @@ export default {
 
     const fetchTraitData = () => {
       const query = encodeURIComponent(id.value);
-      fetch(`${API_BASE_URL}/trait_info/?id=${query}`)
+      fetch(`${API_BASE_URL}/trait_get_info/?id=${query}`)
           .then(response => response.json())
           .then(data => {
             description.value = data["description"]
@@ -125,7 +124,7 @@ export default {
           })
           .catch(error => console.error('Error fetching annotation data:', error));
     };
-    return{id, description, category, external_ref};
+    return{id, description, category, external_ref, phenotypeIcon};
   },
 }
 </script>

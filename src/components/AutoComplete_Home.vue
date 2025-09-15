@@ -66,10 +66,13 @@
 
 <script setup>
 import TypesenseInstantSearchAdapter from "typesense-instantsearch-adapter";
-import {ref} from "vue";
+import {ref, computed} from "vue";
 
-import phenotypeIcon from "@/assets/figures/phenotypes.png";
-import variantIcon from "@/assets/figures/genetic_variants.png"
+import phenotypeIconWhite from "@/assets/figures/node_phenotype_white.png";
+import phenotypeIconBlack from "@/assets/figures/node_phenotype_black.png";
+import variantIconBlack from "@/assets/figures/node_variant_black.png"
+import variantIconWhite from "@/assets/figures/node_variant_white.png"
+
 
 import {useRouter} from "vue-router";
 import {TYPESENSE_API_KEY} from "@/config.js";
@@ -124,6 +127,14 @@ function goToHit(hit) {
     router.push(`/trait/${hit.id}`);
   }
 };
+
+// Dynamic icons based on theme
+const phenotypeIcon = computed(() =>
+   localStorage.getItem('theme') === 'dyHealthNetThemeDark' ? phenotypeIconWhite : phenotypeIconBlack
+);
+const variantIcon = computed(() =>
+  localStorage.getItem('theme') === 'dyHealthNetThemeDark' ? variantIconWhite : variantIconBlack
+);
 
 </script>
 

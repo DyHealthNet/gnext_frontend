@@ -5,6 +5,7 @@ import Variant from "./pages/Variant.vue";
 import Trait from "./pages/Trait.vue";
 import Overview from "./pages/Overview.vue";
 import Citation from "./pages/Citation.vue";
+import Idea from "./pages/Idea.vue";
 
 const routes = [
   {
@@ -16,6 +17,11 @@ const routes = [
     path: '/docs',
     name: 'Documentation',
     component: Documentation
+  },
+    {
+    path: '/idea',
+    name: 'Idea',
+    component: Idea
   },
   {
     path: '/overview',

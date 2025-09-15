@@ -19,7 +19,8 @@ import {definePreset} from '@primeuix/themes';
 // Components
 import App from './App.vue'
 
-import InstantSearch from 'vue-instantsearch/vue3/es' // ← this is critical for Vue 3
+import InstantSearch from 'vue-instantsearch/vue3/es'
+import {COLOR_PRIMARY, COLOR_PRIMARY_DARK} from "@/config.js"; // ← this is critical for Vue 3
 
 const dyHealthNetTheme = {
     dark: false,
@@ -33,8 +34,8 @@ const dyHealthNetTheme = {
         "darken-1": "#333333",
         "white-surface": "#FAFAFA",
 
-        "primary": "#A5BFDC",
-        "primary-darken-1": "#516F84",
+        "primary": COLOR_PRIMARY,
+        "primary-darken-1": COLOR_PRIMARY_DARK,
 
         "error": "#E57373",
         "info": "#3398DB",
@@ -65,8 +66,8 @@ const dyHealthNetThemeDark = {
         "darken-1": "#FFFFFF",
         "white-surface": "#FAFAFA",
 
-        "primary": "#516F84",
-        "primary-darken-1": "#A5BFDC",
+        "primary": COLOR_PRIMARY_DARK,
+        "primary-darken-1": COLOR_PRIMARY,
 
         "error": "#E57373",
         "info": "#3398DB",

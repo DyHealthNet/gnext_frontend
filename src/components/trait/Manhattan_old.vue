@@ -27,7 +27,7 @@ export default {
     async loadManhattanPlot() {
       try {
         console.log("trait ID:", this.traitId);
-        const res = await fetch(`${API_BASE_URL}/trait_manhattan/?trait=${this.traitId}`);
+        const res = await fetch(`${API_BASE_URL}/trait_get_manhattan/?trait=${this.traitId}`);
         const json = await res.json();
         create_gwas_plot(json.variant_bins, json.unbinned_variants, {
           url_prefix: `${API_BASE_URL}/region_view`,
