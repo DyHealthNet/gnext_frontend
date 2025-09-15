@@ -10,6 +10,40 @@
       <v-divider class="my-2" thickness="2"></v-divider>
     </v-row>
 
+    <v-row class="mt-6 ml-2">
+      <v-col>
+        <div v-if="tableItems.length > 0">
+          <v-chip color="primary-darken-1" text-color="white" small :ripple="false" class="filter-chip mr-2">
+           Mode: {{
+            {
+              default: "P-Value",
+              rsid: "SNP ID",
+              chromosome: "Chromosome Range"
+            }[prevFilters.mode] || prevFilters.mode
+          }}
+          </v-chip>
+          <v-chip color="primary-darken-1" text-color="white" small :ripple="false" class="filter-chip mr-2">
+            P-Value Cutoff: {{ prevFilters.pvalCutoff }}
+          </v-chip>
+          <v-chip v-if="prevFilters.mode === 'rsid'" color="primary-darken-1" text-color="white" small :ripple="false" class="filter-chip mr-2">
+            Variant: {{ prevFilters.rsid || prevFilters.varid }}
+          </v-chip>
+          <v-chip v-if="prevFilters.mode === 'rsid'" color="primary-darken-1" text-color="white" small :ripple="false" class="filter-chip mr-2">
+            Neighbor Range: {{ prevFilters.neighborRange }}
+          </v-chip>
+          <v-chip v-if="prevFilters.mode === 'chromosome'" color="primary-darken-1" text-color="white" small :ripple="false" class="filter-chip mr-2">
+            Chr: {{ prevFilters.chr }}
+          </v-chip>
+          <v-chip v-if="prevFilters.mode === 'chromosome'" color="primary-darken-1" text-color="white" small :ripple="false" class="filter-chip mr-2">
+            Start: {{ prevFilters.start }}
+          </v-chip>
+          <v-chip v-if="prevFilters.mode === 'chromosome'" color="primary-darken-1" text-color="white" small :ripple="false" class="filter-chip mr-2">
+            End: {{ prevFilters.end }}
+          </v-chip>
+        </div>
+      </v-col>
+    </v-row>
+
 
     <v-row>
       <v-col>
@@ -50,6 +84,7 @@ export default {
     return {
       tableHeader: [],
       tableItems: [],
+      prevFilters: {},
       showLoading: isLoading,
       downloadName: ""
     }
@@ -58,15 +93,29 @@ export default {
     async onApplyFilters(filters) {
       setIsLoading(true);
       try {
-        let url = "";
+        if (this.prevFilters.mode === "default" && filters.pvalCutoff < this.prevFilters.pvalCutoff) {
+          const negLogCutoff = -Math.log10(filters.pvalCutoff);
+          // Filter frontend items
+          this.tableItems = this.tableItems.filter(
+            row => parseFloat(row.neg_log_pvalue) >= negLogCutoff
+          );
+          this.prevFilters = filters;
+          setIsLoading(false);
+          return; // no backend call
+        }
 
-        if (filters.mode === "rsid") {
+        let url = "";
+        if (filters.mode === "default") {
+          // get all variants that pass p-value cutoff also default with cutoff 0.05
+          this.downloadName = `${this.pheno}_${filters.pvalCutoff}`;
+          url = `${API_BASE_URL}/trait_get_variants/?trait=${encodeURIComponent(this.pheno)}&pval_cutoff=${encodeURIComponent(filters.pvalCutoff)}`;
+        } else if (filters.mode === "rsid") {
+          // get all variants in range of given variant that pass pval cutoff
           this.downloadName = `${this.pheno}_${filters.varid}_${filters.neighborRange}_${filters.pvalCutoff}`;
-          // Case 1: Query by rsID + neighbor range
           url = `${API_BASE_URL}/trait_get_variants/?trait=${encodeURIComponent(this.pheno)}&varid=${encodeURIComponent(filters.varid)}&range=${encodeURIComponent(filters.neighborRange)}&pval_cutoff=${encodeURIComponent(filters.pvalCutoff)}`;
         } else if (filters.mode === "chromosome") {
+          // get all variants in given chromosome range that pass pval cutoff
           this.downloadName = `${this.pheno}_${filters.chr}_${filters.start}_${filters.end}_${filters.pvalCutoff}`;
-          // Case 2: Query by chromosome range
           url = `${API_BASE_URL}/trait_get_variants/?trait=${encodeURIComponent(this.pheno)}&chr=${encodeURIComponent(filters.chr)}&start=${encodeURIComponent(filters.start)}&end=${encodeURIComponent(filters.end)}&pval_cutoff=${encodeURIComponent(filters.pvalCutoff)}`;
         }
 
@@ -76,6 +125,7 @@ export default {
           ...row,
         }));
         this.tableHeader = json.header;
+        this.prevFilters = filters;
 
         // Add ID column first
       } catch (err) {
@@ -88,4 +138,7 @@ export default {
 
 
 </script>
+<style scoped>
+
+</style>
 
