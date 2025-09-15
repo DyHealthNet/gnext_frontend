@@ -190,8 +190,6 @@ export default {
     }
   },
   watch: {
-      this.applyFilters();
-    },
     searchMode() {
       const max = this.maxPvalForMode;
       if (this.pvalCutoff > max) {
