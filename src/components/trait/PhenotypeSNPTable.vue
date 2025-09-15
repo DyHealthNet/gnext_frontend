@@ -55,8 +55,9 @@
             size="60"
         ></v-progress-circular>
       </v-overlay>
-      <VariantsGwasAnnotation :headers="tableHeader" :rows="tableItems" :downloadName="downloadName"
-                              :globalFilterFields="['rsid', 'chrom', 'pos']"></VariantsGwasAnnotation>
+      <TableSkeleton :headers="tableHeader" :rows="tableItems" :downloadName="downloadName"
+                              :priorityOrder="priorityOrder"
+                              :globalFilterFields="['rsid', 'chrom', 'pos']"></TableSkeleton>
         </v-col>
     </v-row>
 
@@ -66,14 +67,14 @@
 <script>
 import 'locuszoom/dist/locuszoom.css'
 import {API_BASE_URL} from "@/config.js";
-import VariantsGwasAnnotation from "@/components/trait/VariantsGWASAnnotation.vue";
+import TableSkeleton from "@/components/TableSkeleton.vue";
 import TableSearchBar from "@/components/trait/TableSearchBar.vue";
 import {isLoading, setIsLoading} from "@/components/constants.js";
 
 
 export default {
   name: "PhenotypeSNPTable",
-  components: {VariantsGwasAnnotation, TableSearchBar},
+  components: {TableSkeleton, TableSearchBar},
   props: {
     pheno: {
       type: String,
@@ -86,7 +87,8 @@ export default {
       tableItems: [],
       prevFilters: {},
       showLoading: isLoading,
-      downloadName: ""
+      downloadName: "",
+      priorityOrder:  ["rsid", "variant_id", "chrom", "pos", "ref", "alt"],
     }
   },
   methods: {
