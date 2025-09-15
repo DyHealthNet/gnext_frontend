@@ -182,6 +182,7 @@ export default {
     };
   },
   mounted() {
+    this.getChromosomeBounds();
     try {
       this.applyFilters();
     } catch (err) {
