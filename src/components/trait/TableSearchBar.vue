@@ -4,7 +4,8 @@
     <v-row class="mb-2 align-center">
       <v-col cols="12" class="d-flex align-center">
         <v-tabs v-model="searchMode" align-tabs="center">
-          <v-tab value="default">By P-Value</v-tab>
+          <v-tab value="loci">All Top Loci</v-tab>
+          <v-tab value="pval">By P-Value</v-tab>
           <v-tab value="rsid">By SNP ID</v-tab>
           <v-tab value="chromosome">By Chromosome Range</v-tab>
         </v-tabs>
@@ -12,14 +13,26 @@
     </v-row>
 
     <!-- Tab contents -->
+    <!-- loci tab -->
     <v-window v-model="searchMode">
-      <v-window-item value="default">
+      <!-- loci tab -->
+      <v-window-item value="loci">
+        <v-row class="pt-4 mb-2">
+          <v-col cols="12">
+            Showing all Top Loci of the current Trait.
+          </v-col>
+        </v-row>
+      </v-window-item>
+
+      <!-- pval tab -->
+      <v-window-item value="pval">
         <v-row class="pt-4">
           <v-col cols="12">
             Showing variants that pass the P-Value Cutoff (max. 10,000 variants)
           </v-col>
         </v-row>
       </v-window-item>
+
       <!-- rsID tab -->
       <v-window-item value="rsid">
         <v-row class="pt-4">
@@ -51,18 +64,10 @@
             <v-text-field
                 v-model="chr"
                 label="Chromosome"
+                ref="chrField"
                 density="comfortable"
                 variant="outlined"
-                :rules="[
-                v => !!v || 'Required',
-                v => {
-                  if (/^[0-9]+$/.test(v)) {
-                    const n = parseInt(v, 10);
-                    return n >= 1 && n <= 22 || 'Must be a valid chromosome number (1-22)';
-                  }
-                  return /^[XY]$/i.test(v) || 'Must be a valid chromosome char (X, Y)';
-                }
-              ]"
+                :rules="chrRules()"
                 persistent-placeholder
             />
           </v-col>
@@ -70,16 +75,11 @@
             <v-text-field
                 v-model="startPos"
                 label="Start Position"
+                ref="startField"
                 type="number"
                 density="comfortable"
                 variant="outlined"
-                :rules="[
-                v => !!v || 'Required',
-                v => v > 0 || 'Must be greater than 0',
-                v => !endPos || v < endPos || 'Must be less than End Position',
-                v => v > currentBounds.min || `Min possible value is ${currentBounds.min}`,
-                v => v < currentBounds.max || `Max possible value is ${currentBounds.max}`,
-              ]"
+                :rules="startRules()"
                 persistent-placeholder
             />
           </v-col>
@@ -87,15 +87,11 @@
             <v-text-field
                 v-model="endPos"
                 label="End Position"
+                ref="endField"
                 type="number"
                 density="comfortable"
                 variant="outlined"
-                :rules="[
-                v => !!v || 'Required',
-                v => !startPos || v > startPos || 'Must be greater than Start Position',
-                v => v > currentBounds.min || `Min possible value is ${currentBounds.min}`,
-                v => v < currentBounds.max || `Max possible value is ${currentBounds.max}`,
-              ]"
+                :rules="endRules()"
                 persistent-placeholder
             />
           </v-col>
@@ -104,7 +100,7 @@
     </v-window>
 
     <!-- P-value cutoff -->
-    <v-row class="pt-4">
+    <v-row v-if="searchMode !== 'loci'" class="pt-4">
       <v-col cols="12" md="6">
         <v-text-field
             v-model="pvalCutoff"
@@ -135,6 +131,7 @@
 import {API_BASE_URL, GENOME_BUILD} from "@/config.js";
 import AutocompleteVariant from "@/components/trait/AutocompleteVariant.vue";
 import {setIsLoading} from "@/components/constants.js";
+import {compressChromosomes} from "@/utils/utils.js"
 
 
 export default {
@@ -146,7 +143,7 @@ export default {
   },
   data() {
     return {
-      searchMode: "default",
+      searchMode: "loci",
       rsid: "",
       varid: "",
       neighborRange: 5000,
@@ -190,6 +187,9 @@ export default {
     }
   },
   watch: {
+    pheno() {
+      this.applyFilters();
+    },
     searchMode() {
       const max = this.maxPvalForMode;
       if (this.pvalCutoff > max) {
@@ -201,7 +201,55 @@ export default {
     },
   },
   methods: {
-    applyFilters() {
+    chrRules() {
+      const validChroms = Object.keys(this.chromosomeBounds);
+      const display = compressChromosomes(validChroms);
+      return [
+        v => !!v || 'Required',
+         v => validChroms.includes(v) ? true : `Must be one of: ${display}`,
+      ];
+    },
+
+    startRules() {
+      return [
+        v => !!v || 'Required',
+        v => (Number(v) > 0) ? true : 'Must be greater than 0',
+        v => (!this.endPos || Number(v) < this.endPos) ? true : 'Must be less than End Position',
+        v => (Number(v) >= this.currentBounds.min) ? true : `Min possible value is ${this.currentBounds.min}`,
+        v => (Number(v) <= this.currentBounds.max) ? true : `Max possible value is ${this.currentBounds.max}`,
+      ];
+    },
+
+    endRules() {
+      return [
+        v => !!v || 'Required',
+        v => (!this.startPos || Number(v) > this.startPos) ? true : 'Must be greater than Start Position',
+        v => (Number(v) >= this.currentBounds.min) ? true : `Min possible value is ${this.currentBounds.min}`,
+        v => (Number(v) <= this.currentBounds.max) ? true : `Max possible value is ${this.currentBounds.max}`,
+      ];
+    },
+    async applyFilters() {
+      if (!this.$refs.startField || !this.$refs.endField || !this.$refs.chrField) {
+        // Refs not ready yet, skip validation for now
+        this.$emit("apply-filters", {
+          mode: this.searchMode,
+          rsid: this.rsid,
+          varid: this.varid,
+          neighborRange: this.neighborRange,
+          chr: this.chr,
+          start: this.startPos,
+          end: this.endPos,
+          pvalCutoff: this.pvalCutoff,
+        });
+        return;
+      }
+      // check if any rules fail / if there are any rules displayed -> if so deny query
+      const startValid = (await this.$refs.startField.validate()).length === 0;
+      const endValid   = (await this.$refs.endField.validate()).length === 0;
+      const chrValid   = (await this.$refs.chrField.validate()).length === 0;
+
+      if (!startValid || !endValid || !chrValid) return;
+
       this.$emit("apply-filters", {
         mode: this.searchMode,
         rsid: this.rsid,
@@ -220,8 +268,6 @@ export default {
         const res = await fetch(url);
         const json = await res.json();
         this.chromosomeBounds = json;
-        console.log("chromosome bounds are updated")
-        console.log("these bounds: ", this.chromosomeBounds["1"])
       } catch (err) {
         console.error("Error fetching chromosome bounds:", err);
       }
@@ -229,14 +275,10 @@ export default {
   },
   computed: {
     currentBounds() {
-      if (!this.chr) {
-        return {min: 0, max: 0};
-      }
-      console.log("these bounds: ", this.chromosomeBounds[this.chr])
-      return this.chromosomeBounds[this.chr];
+      return this.chromosomeBounds[this.chr] || { min: 0, max: 0 };
     },
     maxPvalForMode() {
-      return this.searchMode === "default" ? 0.05 : 1;
+      return this.searchMode === "pval" ? 0.05 : 1;
     },
   },
 };
