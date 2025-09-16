@@ -244,9 +244,12 @@ export default {
         return;
       }
       // check if any rules fail / if there are any rules displayed -> if so deny query
-      const startValid = (await this.$refs.startField.validate()).length === 0;
-      const endValid   = (await this.$refs.endField.validate()).length === 0;
-      const chrValid   = (await this.$refs.chrField.validate()).length === 0;
+      const startValidationResult = await this.$refs.startField.validate();
+      const startValid = Array.isArray(startValidationResult) && startValidationResult.length === 0;
+      const endValidationResult = await this.$refs.endField.validate();
+      const endValid = Array.isArray(endValidationResult) && endValidationResult.length === 0;
+      const chrValidationResult = await this.$refs.chrField.validate();
+      const chrValid = Array.isArray(chrValidationResult) && chrValidationResult.length === 0;
 
       if (!startValid || !endValid || !chrValid) return;
 
