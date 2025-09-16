@@ -2,6 +2,9 @@ export function compressChromosomes(chroms) {
   const nums = chroms.filter(c => /^\d+$/.test(c)).map(Number).sort((a,b) => a-b);
   const letters = chroms.filter(c => /\D/.test(c));
 
+  if (nums.length === 0) {
+    return letters.join(', ');
+  }
   const ranges = [];
   let start = nums[0], end = nums[0];
 
