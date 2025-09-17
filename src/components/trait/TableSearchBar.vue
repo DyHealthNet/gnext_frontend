@@ -213,7 +213,7 @@ export default {
     rangeRules() {
       return [
         v => !!v || 'Required',
-        v => Number(v) >= 0 || 'Must be bigger than 0',
+        v => Number(v) >= 0 || 'Must be greater than 0',
         v => Number(v) <= 100000000 || 'Must be smaller than 100,000,000',
       ];
     },
