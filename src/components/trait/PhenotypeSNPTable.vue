@@ -16,13 +16,14 @@
           <v-chip color="primary-darken-1" text-color="white" small :ripple="false" class="filter-chip mr-2">
            Mode: {{
             {
-              default: "P-Value",
+              loci: "Top Loci",
+              pval: "P-Value",
               rsid: "SNP ID",
               chromosome: "Chromosome Range"
             }[prevFilters.mode] || prevFilters.mode
           }}
           </v-chip>
-          <v-chip color="primary-darken-1" text-color="white" small :ripple="false" class="filter-chip mr-2">
+          <v-chip v-if="prevFilters.mode !== 'loci'" color="primary-darken-1" text-color="white" small :ripple="false" class="filter-chip mr-2">
             P-Value Cutoff: {{ prevFilters.pvalCutoff }}
           </v-chip>
           <v-chip v-if="prevFilters.mode === 'rsid'" color="primary-darken-1" text-color="white" small :ripple="false" class="filter-chip mr-2">

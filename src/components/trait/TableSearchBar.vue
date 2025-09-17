@@ -48,9 +48,11 @@
             <v-text-field
                 v-model="neighborRange"
                 label="Neighbor Range (bp)"
+                ref="rangeField"
                 type="number"
                 density="comfortable"
                 variant="outlined"
+                :rules="rangeRules()"
                 persistent-placeholder
             />
           </v-col>
@@ -105,10 +107,11 @@
         <v-text-field
             v-model="pvalCutoff"
             label="P-Value Cutoff"
+            ref="pvalField"
             type="number"
             step="0.01"
             :max="maxPvalForMode"
-            :rules="[v => (v >= 0 && v <= maxPvalForMode) || `Must be between 0 and ${maxPvalForMode}`]"
+            :rules="pvalRules()"
             density="comfortable"
             variant="outlined"
             persistent-placeholder
@@ -201,6 +204,19 @@ export default {
     },
   },
   methods: {
+    pvalRules() {
+      return [
+          v => !!v || 'Required',
+        v => (Number(v) >= 0 && Number(v) <= this.maxPvalForMode) ? true : `Must be between 0 and ${this.maxPvalForMode}`
+      ];
+    },
+    rangeRules() {
+      return [
+        v => !!v || 'Required',
+        v => Number(v) >= 0 || 'Must be bigger than 0',
+        v => Number(v) <= 100000000 || 'Must be smaller than 100,000,000',
+      ];
+    },
     chrRules() {
       const validChroms = Object.keys(this.chromosomeBounds);
       const display = compressChromosomes(validChroms);
@@ -209,7 +225,6 @@ export default {
          v => validChroms.includes(v) ? true : `Must be one of: ${display}`,
       ];
     },
-
     startRules() {
       return [
         v => !!v || 'Required',
@@ -219,7 +234,6 @@ export default {
         v => (Number(v) <= this.currentBounds.max) ? true : `Max possible value is ${this.currentBounds.max}`,
       ];
     },
-
     endRules() {
       return [
         v => !!v || 'Required',
@@ -229,30 +243,35 @@ export default {
       ];
     },
     async applyFilters() {
-      if (!this.$refs.startField || !this.$refs.endField || !this.$refs.chrField) {
-        // Refs not ready yet, skip validation for now
-        this.$emit("apply-filters", {
-          mode: this.searchMode,
-          rsid: this.rsid,
-          varid: this.varid,
-          neighborRange: this.neighborRange,
-          chr: this.chr,
-          start: this.startPos,
-          end: this.endPos,
-          pvalCutoff: this.pvalCutoff,
-        });
-        return;
+      // Map each mode to the refs/validation fields it cares about
+      const modeValidations = {
+        chromosome: ['startField', 'endField', 'chrField', 'pvalField'],
+        rsid: ['rangeField', 'pvalField'],
+        pval: ['pvalField'],
+        loci: [], // no validation
+      };
+
+      const refsToCheck = modeValidations[this.searchMode] || [];
+
+      let allValid = true;
+      for (const refName of refsToCheck) {
+        const ref = this.$refs[refName];
+        if (!ref) {
+          // Refs not ready yet → skip validation for now
+          allValid = true;
+          break;
+        }
+        const result = await ref.validate();
+        if (Array.isArray(result) && result.length > 0) {
+          allValid = false;
+          break;
+        }
       }
-      // check if any rules fail / if there are any rules displayed -> if so deny query
-      const startValidationResult = await this.$refs.startField.validate();
-      const startValid = Array.isArray(startValidationResult) && startValidationResult.length === 0;
-      const endValidationResult = await this.$refs.endField.validate();
-      const endValid = Array.isArray(endValidationResult) && endValidationResult.length === 0;
-      const chrValidationResult = await this.$refs.chrField.validate();
-      const chrValid = Array.isArray(chrValidationResult) && chrValidationResult.length === 0;
 
-      if (!startValid || !endValid || !chrValid) return;
+      if (!allValid) return; // stop if validation fails
+      if (this.searchMode === "rsid" && !this.varid) return; // stop if entered snp is not selected with typesense and therefore invalid
 
+      // Emit once for all modes
       this.$emit("apply-filters", {
         mode: this.searchMode,
         rsid: this.rsid,
