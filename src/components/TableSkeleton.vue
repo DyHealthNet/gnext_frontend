@@ -132,7 +132,6 @@ export default {
       required: false,
       default: () => ["variant_id","rsid", "chrom","pos","ref","alt","neg_log_pvalue","pvalue","beta","stderr_beta",
 		          "alt_allele_freq"]
-
     },
     rows: {
       type: Array,
@@ -174,6 +173,17 @@ export default {
         { label: 'Download as JSON', icon: 'pi pi-file', command: () => this.download('json') },
         { label: 'Download as TXT', icon: 'pi pi-file', command: () => this.download('txt') }
       ];
+    },
+    columns() {
+      const sorted = [
+        ...this.priorityOrder.filter(c => this.headers.includes(c)),
+        ...this.headers.filter(c => !this.priorityOrder.includes(c))
+      ];
+
+      return sorted.map(col => ({
+        field: col,
+        header: col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      }));
     }
   },
   methods: {
@@ -220,23 +230,6 @@ export default {
       link.click();
       URL.revokeObjectURL(link.href);
     },
-  },
-  watch: {
-    headers: {
-      handler(newVal) {
-
-        const sorted = [
-          ...this.priorityOrder.filter(c => newVal.includes(c)),
-          ...newVal.filter(c => !this.priorityOrder.includes(c))
-        ];
-
-        this.columns = sorted.map(col => ({
-            field: col, // must match row keys
-            header: col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) // nicely formatted
-        }));
-      },
-      immediate: true
-    }
   },
 }
 
