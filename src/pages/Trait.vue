@@ -5,11 +5,12 @@
         <v-row  class="text-center">
           <v-col cols="12">
             <h1 class="title mt-4" style="display: inline-flex">
-              Trait - {{id}}
+              Trait
               <img
               :src="phenotypeIcon"
-              style="width: 50px; height: 50px; margin-left: 10px"
+              style="width: 50px; height: 50px; margin-left: 10px; margin-right: 10px"
             >
+              {{id}}
             </h1>
           </v-col>
         </v-row>
@@ -21,8 +22,8 @@
         </v-row>
 
         <v-row justify="space-around" align="stretch">
-          <v-col xs="6" md="6" lg="3">
-            <v-card outlined class="d-flex flex-column h-100" style="min-height: 500px;">
+          <v-col xs="12" md="12" lg="12">
+            <v-card outlined class="d-flex flex-column h-100" style="min-height: 100px;">
               <v-toolbar color="primary-darken-1" density="compact">
                 <v-toolbar-title>Trait Profile</v-toolbar-title>
               </v-toolbar>
@@ -30,12 +31,35 @@
                               :traitDescription="description"
                               :traitCategory="category"
                               :traitExternalRef="external_ref"
+                            :traitNumberSamples="nr_samples"
               ></TraitProfile>
             </v-card>
           </v-col>
 
-          <v-col xs="12" md="12" lg="9">
-            <v-card outlined class="d-flex flex-column h-100" style="min-height: 500px;">
+           <v-col
+            v-for="(section, index) in availableCards"
+            :key="index"
+          >
+            <v-btn
+              color="primary-darken-1"
+              :base-color="section.enabled ? 'primary' : 'grey'"
+              :disabled="!section.enabled"
+              variant="outlined"
+              class="text-none"
+              block
+              height="70px"
+              @click="scrollTo(section.id)"
+              style="border-width: 2px;"
+            >
+              <v-avatar size="40" class="me-2" color="primary-darken-1" text-color="primary-darken-1">
+                <span><strong>{{ section.short }}</strong></span>
+              </v-avatar>
+              <h3><strong>{{ section.label }}</strong></h3>
+            </v-btn>
+          </v-col>
+
+          <v-col xs="12" md="12" lg="12">
+            <v-card id="manhattan-card" outlined class="d-flex flex-column h-100" style="min-height: 700px;">
               <v-toolbar color="primary-darken-1" density="compact">
                 <v-toolbar-title>Manhattan Plot</v-toolbar-title>
               </v-toolbar>
@@ -43,19 +67,10 @@
             </v-card>
           </v-col>
         </v-row>
-
            <v-row justify="space-around" align="stretch">
-          <v-col xs="6" md="6" lg="3">
-            <v-card outlined class="d-flex flex-column h-100" style="min-height: 500px;">
-              <v-toolbar color="primary-darken-1" density="compact">
-                <v-toolbar-title>QQ Plot</v-toolbar-title>
-              </v-toolbar>
-               <QQPlot :traitId="id" :key="`qq-${id}`" />
-            </v-card>
-          </v-col>
 
-              <v-col xs="12" md="12" lg="9">
-            <v-card outlined class="d-flex flex-column h-100" style="min-height: 500px;">
+              <v-col xs="12" md="12" lg="12">
+            <v-card id="gwas-table-card" outlined class="d-flex flex-column h-100" style="min-height: 500px;">
               <v-toolbar color="primary-darken-1" density="compact">
                 <v-toolbar-title>GWAS Table</v-toolbar-title>
               </v-toolbar>
@@ -63,6 +78,17 @@
             </v-card>
           </v-col>
         </v-row>
+
+              <v-row justify="space-around" align="stretch">
+          <v-col xs="12" md="12" lg="12">
+            <v-card id="qq-card" outlined class="d-flex flex-column h-100" style="min-height: 500px;">
+              <v-toolbar color="primary-darken-1" density="compact">
+                <v-toolbar-title>QQ Plot</v-toolbar-title>
+              </v-toolbar>
+               <QQPlot :traitId="id" :key="`qq-${id}`" />
+            </v-card>
+          </v-col>
+              </v-row>
       </v-container>
     </v-main>
   </v-app>
@@ -70,7 +96,7 @@
 
 <script>
 import { useRoute} from 'vue-router';
-import ManhattanPlot from "@/components/trait/Manhattan.vue";
+import ManhattanPlot from "@/components/trait/Manhattan_old.vue";
 import QQPlot from "@/components/trait/QQ.vue";
 import PhenotypeSNPTable from "@/components/trait/PhenotypeSNPTable.vue";
 import {onMounted, ref, watch, computed} from 'vue';
@@ -111,6 +137,15 @@ export default {
     const description = ref('');
     const category = ref('');
     const external_ref = ref('');
+    const nr_samples = ref(0);
+    const availableCards = ref([]);
+
+    availableCards.value = [
+          { id: "manhattan-card", label: "Manhattan Plot", short: "MH", enabled: true },
+          { id: "gwas-table-card", label: "GWAS Results Table", short: "GT", enabled: true },
+          { id: "qq-card", label: "QQ Plot", short: "QQ", enabled: true },
+
+        ];
 
     const fetchTraitData = () => {
       const query = encodeURIComponent(id.value);
@@ -120,11 +155,21 @@ export default {
             description.value = data["description"]
             category.value = data["category"]
             external_ref.value = data["external_ref"]
+            nr_samples.value = data["nr_samples"]
 
           })
           .catch(error => console.error('Error fetching annotation data:', error));
     };
-    return{id, description, category, external_ref, phenotypeIcon};
+
+     const scrollTo = (id) => {
+      const element = document.getElementById(id);
+      if (element) {
+        const yOffset = -120;
+        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    };
+    return{id, description, category, external_ref, phenotypeIcon, nr_samples, availableCards, scrollTo};
   },
 }
 </script>

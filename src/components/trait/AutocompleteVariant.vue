@@ -70,7 +70,7 @@ export default {
   },
   created() {
     const searchParams = ref({
-      query_by: "description,external_ref,category",
+      query_by: "label,description,external_ref,category",
       num_typos: 0,
     });
     this.typesense = new TypesenseInstantSearchAdapter({

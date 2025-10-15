@@ -53,7 +53,7 @@
       </template>
       <template v-for="col in columns" :key="col.field">
         <Column
-            v-if="col.field !== 'variant_id' && col.field !== 'description' && col.field !== 'top_variant'"
+            v-if="col.field !== 'variant_id' && col.field !== 'trait_id' && col.field !== 'top_variant'"
             :field="col.field"
             :header="col.header"
             sortable
@@ -68,23 +68,23 @@
           <!-- Variant link -->
           <template v-if="field === 'variant_id'">
             <a :href="`/variant/${encodeURIComponent(data.variant_id)}`"
-               class="text-blue-600 hover:underline no-wrap">
+               class="table-link hover:underline no-wrap">
               {{ data.variant_id }}
             </a>
           </template>
 
           <template v-else-if="field === 'top_variant'">
             <a :href="`/variant/${encodeURIComponent(data.top_variant.split(' ')[0])}`"
-               class="text-blue-600 hover:underline no-wrap">
+               class="table-link hover:underline no-wrap">
               {{ data.top_variant }}
             </a>
           </template>
 
           <!-- Phenotype link -->
-          <template v-else-if="field === 'description'">
-            <a :href="`/trait/${encodeURIComponent(data.phenocode)}`"
-               class="text-green-600 hover:underline no-wrap">
-              {{ data.description }} <!-- show description as text -->
+          <template v-else-if="field === 'trait_id'">
+            <a :href="`/trait/${encodeURIComponent(data.trait_id)}`"
+               class="table-link hover:underline no-wrap">
+              {{ data.trait_id }} <!-- show description as text -->
             </a>
           </template>
 
@@ -102,9 +102,7 @@
 </template>
 
 <script>
-import LocusZoom from "locuszoom";
 import 'locuszoom/dist/locuszoom.css'
-import {API_BASE_URL} from "@/config.js";
 import {InputIcon, IconField, InputText, Column, DataTable, MultiSelect, Menu, Button} from "primevue";
 import 'primeicons/primeicons.css'
 
@@ -242,6 +240,14 @@ export default {
 }
 .no-wrap-headers .p-datatable-thead > tr > th {
   white-space: nowrap;
+}
+
+.table-link {
+  color: rgb(var(--v-theme-primary-darken-1));
+}
+
+.table-link:hover {
+  background-color: rgb(var(--v-theme-primary))
 }
 </style>
 

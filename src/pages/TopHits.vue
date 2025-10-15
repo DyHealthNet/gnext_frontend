@@ -4,7 +4,7 @@
       <v-container>
         <v-row  class="text-center">
           <v-col cols="12">
-            <h1 class="title mt-4">Overview of Variants and Traits</h1>
+            <h1 class="title mt-4">Top Hits</h1>
           </v-col>
         </v-row>
 
@@ -22,12 +22,13 @@
               </v-toolbar>
 
               <v-card-text>
-                <p class="text-body-2 mb-4">
+                <p class="text-body-1 mb-4">
                   This table shows only the peaks with a p-value
                   &lt; 10<span style="vertical-align:super">-6</span>.
                   Variants are hidden if any variant within 500kb in the same phenotype has a smaller p-value.
                   Only the top 500 variants of each phenotype are considered.
                   The table is limited to the top 10000 hits.
+                  Entries with a reported p-value of 0 but a valid −log₁₀(p-value) correspond to values smaller than approximately 5×10⁻³²⁴, which are below the representable range of double-precision floating-point numbers and therefore underflow to zero.
                 </p>
 
                 <TableSkeleton
@@ -54,15 +55,14 @@ import TableSkeleton from "@/components/TableSkeleton.vue";
 import {isLoading, setIsLoading} from "@/components/constants.js";
 
 export default {
-  name: 'Overview',
+  name: 'TopHits',
   components: {TableSkeleton},
   data() {
     return {
-      tableHeader: [],
       tableItems: [],
       showLoading: isLoading,
       downloadName: "",
-      priorityOrder:  ["description", "top_variant", "pvalue", "neg_log_pvalue"],
+      priorityOrder:  ["trait_id", "trait_label", "trait_group", "top_variant", "pvalue", "neg_log_pvalue"],
       defaultTableRows: 50,
     }
   },
@@ -76,12 +76,12 @@ export default {
         const res = await fetch(url);
         const json = await res.json();
         const desiredHeaders = [
-          "description",
+          "trait_id",
+          "trait_label",
+          "trait_category",
           "top_variant",
           "pvalue",
-          "neg_log_pvalue",
-          "phenocode",
-          "category"
+          "neg_log_pvalue"
         ];
         if (json.length > 0) {
           this.tableHeader = desiredHeaders.filter(h => Object.keys(json[0]).includes(h));

@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <div class="d-flex justify-space-between align-center">
-      <h3 style="padding-bottom: 10px;"><strong>Allele Frequency of {{studyName}}</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{minAF}} - {{maxAF}}</h3>
+      <h3 style="padding-bottom: 10px;"><strong>Allele frequency range of this study</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{studyAF}}</h3>
       <span>Source: VEP</span>
     </div>
     <div v-for="(value, label) in frequencies"
@@ -47,6 +47,15 @@ export default {
     return {
       studyName: import.meta.env.VITE_STUDY_NAME,
     }
+  },
+
+  computed: {
+    studyAF() {
+        if (this.minAF === this.maxAF) {
+          return this.minAF
+        }
+        return `${this.minAF} - ${this.maxAF}`
+      }
   }
 };
 </script>

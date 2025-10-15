@@ -1,58 +1,73 @@
 <template>
-  <v-app-bar class="page-borders-nav" height="90" scroll-behavior="elevate" app>
-      <router-link to="/" class="logo-link">
+  <v-app-bar class="page-borders-nav" height="80" scroll-behavior="elevate" app>
+    <router-link to="/" class="logo-link">
+    <div class="logo-container">
+
         <img class="forkmeFigure" src="@/assets/figures/DyHealthNet_Logo.png"
-        width="auto"
-        height="120" alt="DyHealthNet Logo">
-      </router-link>
+             width="auto"
+             height="100" alt="DyHealthNet Logo">
 
-     <!-- Correct conditional rendering -->
-    <AutoComplete v-if="$route.path !== '/'" />
-    <v-spacer v-else />
+
+      <div class="divider"></div>
+
+      <img class="formeFigure" src="@/assets/figures/CHRIS_Interval_Logo.png"
+           width="auto"
+           height="60">
+    </div>
+         </router-link>
+
+    <!-- Correct conditional rendering -->
+    <AutoComplete v-if="$route.path !== '/'"/>
+    <v-spacer v-else/>
 
     <v-menu transition="slide-x-transition">
       <template v-slot:activator="{ props }">
-          <v-btn to="/" color="primary-darken-1" cl="mx-1" v-bind="props">
-            <template v-slot:prepend>
-              <v-icon>mdi-home-outline</v-icon>
-            </template>
-            Home</v-btn>
+        <v-btn to="/" color="primary-darken-1" cl="mx-1" v-bind="props">
+          <template v-slot:prepend>
+            <v-icon>mdi-home-outline</v-icon>
+          </template>
+          Home
+        </v-btn>
       </template>
     </v-menu>
     <v-menu transition="slide-x-transition">
       <template v-slot:activator="{ props }">
-          <v-btn to="/overview" color="primary-darken-1" cl="mx-1" v-bind="props">
-            <template v-slot:prepend>
-              <v-icon>mdi-file-table-outline</v-icon>
-            </template>
-            Overview</v-btn>
+        <v-btn to="/tophits" color="primary-darken-1" cl="mx-1" v-bind="props">
+          <template v-slot:prepend>
+            <v-icon>mdi-file-table-outline</v-icon>
+          </template>
+          Top Hits
+        </v-btn>
       </template>
     </v-menu>
     <v-menu transition="slide-x-transition">
       <template v-slot:activator="{ props }">
-          <v-btn to="/idea" color="primary-darken-1" class="mx-1" v-bind="props">
-            <template v-slot:prepend>
-              <v-icon>mdi-help-circle-outline</v-icon>
-            </template>
-            Idea</v-btn>
+        <v-btn to="/docs" color="primary-darken-1" class="mx-1" v-bind="props">
+          <template v-slot:prepend>
+            <v-icon>mdi-help-circle-outline</v-icon>
+          </template>
+          Documentation
+        </v-btn>
       </template>
     </v-menu>
     <v-menu transition="slide-x-transition">
       <template v-slot:activator="{ props }">
-          <v-btn to="/docs" color="primary-darken-1" class="mx-1" v-bind="props">
-            <template v-slot:prepend>
-              <v-icon>mdi-book-open-outline</v-icon>
-            </template>
-            Documentation</v-btn>
+        <v-btn to="/idea" color="primary-darken-1" class="mx-1" v-bind="props">
+          <template v-slot:prepend>
+            <v-icon>mdi-book-open-outline</v-icon>
+          </template>
+          Idea
+        </v-btn>
       </template>
     </v-menu>
     <v-menu transition="slide-x-transition">
       <template v-slot:activator="{ props }">
-          <v-btn to="/cite" color="primary-darken-1" class="mx-1" v-bind="props">
-            <template v-slot:prepend>
-              <v-icon>mdi-pencil</v-icon>
-            </template>
-            Cite</v-btn>
+        <v-btn to="/cite" color="primary-darken-1" class="mx-1" v-bind="props">
+          <template v-slot:prepend>
+            <v-icon>mdi-pencil</v-icon>
+          </template>
+          Cite
+        </v-btn>
       </template>
     </v-menu>
     <v-icon color="primary-darken-1">mdi-white-balance-sunny</v-icon>
@@ -73,14 +88,14 @@ import AutoComplete from "@/components/AutoComplete_Navbar.vue";
 
 export default {
   components: {AutoComplete},
-  data(){
+  data() {
     return {
       isDark: false
     }
   },
 
   computed: {
-    showAutoComplete(){
+    showAutoComplete() {
       return this.$route.path !== '/';
     }
   },
@@ -115,13 +130,22 @@ export default {
 
 <style>
 .page-borders-nav {
-  border-left: 50px solid rgb(var(--v-theme-surface));
-  border-right: 50px solid rgb(var(--v-theme-surface));
 }
 
 .logo-link:hover {
   background-color: transparent !important;
   box-shadow: none !important;
+}
+
+.divider {
+  width: 1px;
+  height: 60px;
+  background-color: rgb(var(--v-theme-primary));
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
 }
 
 .v-application,

@@ -1,10 +1,15 @@
 <template>
   <v-container>
     <v-row>
-      <v-col xs="12" sm="12" md="12" lg="8">
+      <v-col xs="12" sm="12" md="12" lg="4">
         <h3><strong>Trait ID</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{traitId}}</h3>
-        <h3><strong>Description</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{traitDescription}}</h3>
-        <h3><strong>Category</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{traitCategory}}</h3>
+        <h3><strong>Trait Label</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{traitDescription}}</h3>
+        <h3><strong>Trait Group</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{traitCategory}}</h3>
+      </v-col>
+      <v-col xs="12" sm="12" md="12" lg="4">
+        <h3><strong>Number of Samples</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{traitNumberSamples}}</h3>
+      </v-col>
+      <v-col xs="12" sm="12" md="12" lg="4">
         <h3><strong>External Reference</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h3><LinkButton :title="traitExternalRef" :url="`${BASE_URL}${traitExternalRef}`" :disabled="!traitExternalRef"/>
       </v-col>
     </v-row>
@@ -36,6 +41,10 @@ export default {
     },
     traitExternalRef: {
       type: String,
+      required: false
+    },
+    traitNumberSamples: {
+      type: Number,
       required: false
     }
   },

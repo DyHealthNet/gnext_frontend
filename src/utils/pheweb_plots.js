@@ -15,23 +15,31 @@ import $ from 'jquery';
 function fmt(format) {
     // convenience functions- from pheweb common.js
     const args = Array.prototype.slice.call(arguments, 1);
-    return format.replace(/{(\d+)}/g, function(match, number) {
+    return format.replace(/{(\d+)}/g, function (match, number) {
         return (typeof args[number] != 'undefined') ? args[number] : match;
     });
 }
 
-function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, tooltip_template = null} = {}) {
+function create_gwas_plot(variant_bins, unbinned_variants, {
+    url_prefix = null,
+    tooltip_template = null,
+    color1 = "red",
+    color2 = "blue",
+    axes_color = "green"
+} = {}) {
     // FIXME: Replace global variables with options object
     // Order from weakest to strongest pvalue, so that the strongest variant will be on top (z-order) and easily hoverable
     // In the DOM, later siblings are displayed over top of (and occluding) earlier siblings.
-    unbinned_variants = sortBy(unbinned_variants, function(d) { return d.neg_log_pvalue; });
+    unbinned_variants = sortBy(unbinned_variants, function (d) {
+        return d.neg_log_pvalue;
+    });
 
 
-    const get_chrom_offsets = memoize(function() {
-        const  chrom_padding = 2e7;
+    const get_chrom_offsets = memoize(function () {
+        const chrom_padding = 2e7;
         const chrom_extents = {};
 
-        const update_chrom_extents = function(variant) {
+        const update_chrom_extents = function (variant) {
             if (!(variant.chrom in chrom_extents)) {
                 chrom_extents[variant.chrom] = [variant.pos, variant.pos];
             } else if (variant.pos > chrom_extents[variant.chrom][1]) {
@@ -54,7 +62,7 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
         // chrom_offsets are defined to be the numbers that make `get_genomic_position()` work.
         // ie, they leave a gap of `chrom_padding` between the last variant on one chromosome and the first on the next.
         const chrom_offsets = {};
-        Object.keys(chrom_genomic_start_positions).forEach(function(chrom) {
+        Object.keys(chrom_genomic_start_positions).forEach(function (chrom) {
             chrom_offsets[chrom] = chrom_genomic_start_positions[chrom] - chrom_extents[chrom][0];
         });
 
@@ -74,33 +82,51 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
     function get_y_axis_config(max_data_qval, plot_height, includes_pval0) {
 
         let possible_ticks = [];
-        if (max_data_qval <= 14) { possible_ticks = range(0, 14.1, 2); }
-        else if (max_data_qval <= 28) { possible_ticks = range(0, 28.1, 4); }
-        else if (max_data_qval <= 40) { possible_ticks = range(0, 40.1, 8); }
-        else {
+        if (max_data_qval <= 14) {
+            possible_ticks = range(0, 14.1, 2);
+        } else if (max_data_qval <= 28) {
+            possible_ticks = range(0, 28.1, 4);
+        } else if (max_data_qval <= 40) {
+            possible_ticks = range(0, 40.1, 8);
+        } else {
             possible_ticks = range(0, 20.1, 4);
-            if (max_data_qval <= 70) { possible_ticks = possible_ticks.concat([30,40,50,60,70]); }
-            else if (max_data_qval <= 120) { possible_ticks = possible_ticks.concat([40,60,80,100,120]); }
-            else if (max_data_qval <= 220) { possible_ticks = possible_ticks.concat([60,100,140,180,220]); }
-            else {
+            if (max_data_qval <= 70) {
+                possible_ticks = possible_ticks.concat([30, 40, 50, 60, 70]);
+            } else if (max_data_qval <= 120) {
+                possible_ticks = possible_ticks.concat([40, 60, 80, 100, 120]);
+            } else if (max_data_qval <= 220) {
+                possible_ticks = possible_ticks.concat([60, 100, 140, 180, 220]);
+            } else {
                 const power_of_ten = Math.pow(10, Math.floor(Math.log10(max_data_qval)));
                 const first_digit = max_data_qval / power_of_ten;
                 let multipliers;
-                if (first_digit <= 2) { multipliers = [0.5, 1, 1.5, 2]; }
-                else if (first_digit <= 4) { multipliers = [1, 2, 3, 4]; }
-                else { multipliers = [2, 4, 6, 8, 10]; }
-                possible_ticks = possible_ticks.concat(multipliers.map(function(m) { return m * power_of_ten; }));
+                if (first_digit <= 2) {
+                    multipliers = [0.5, 1, 1.5, 2];
+                } else if (first_digit <= 4) {
+                    multipliers = [1, 2, 3, 4];
+                } else {
+                    multipliers = [2, 4, 6, 8, 10];
+                }
+                possible_ticks = possible_ticks.concat(multipliers.map(function (m) {
+                    return m * power_of_ten;
+                }));
             }
         }
         // Include all ticks < qval.  Then also include the next tick.
         // That should mean we'll always have the largest tick >= the largest variant.
-        var ticks = possible_ticks.filter(function(qval) { return qval < max_data_qval; });
-        if (ticks.length < possible_ticks.length) { ticks.push(possible_ticks[ticks.length]); }
+        var ticks = possible_ticks.filter(function (qval) {
+            return qval < max_data_qval;
+        });
+        if (ticks.length < possible_ticks.length) {
+            ticks.push(possible_ticks[ticks.length]);
+        }
 
         // Use the largest tick for the top of our y-axis so that we'll have a tick nicely rendered right at the top.
         let max_plot_qval = ticks[ticks.length - 1];
         // If we have any qval=inf (pval=0) variants, leave space for them.
-        if (includes_pval0) { max_plot_qval *= 1.1; }
+        if (includes_pval0) {
+            max_plot_qval *= 1.1;
+        }
         let scale = d3.scaleLinear().clamp(true);
         if (max_plot_qval <= 40) {
             scale = scale
@@ -112,7 +138,9 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
                 .range([0, plot_height / 2, plot_height]);
         }
 
-        if (includes_pval0) { ticks.push(Infinity); }
+        if (includes_pval0) {
+            ticks.push(Infinity);
+        }
 
         return {
             'scale': scale,
@@ -121,7 +149,7 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
         };
     }
 
-    $(function() {
+    $(function () {
         const svg_width = $('#manhattan_plot_container').width();
         const svg_height = 550;
         const plot_margin = {
@@ -148,10 +176,10 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
         const significance_threshold_tooltip = d3Tip()
             .attr('class', 'd3-tip')
             .html('Significance Threshold: 5E-8')
-            .offset([-8,0]);
+            .offset([-8, 0]);
         gwas_svg.call(significance_threshold_tooltip);
 
-        const genomic_position_extent = (function() {
+        const genomic_position_extent = (function () {
             const extent1 = d3.extent(variant_bins, get_genomic_position);
             const extent2 = d3.extent(unbinned_variants, get_genomic_position);
             return d3.extent(extent1.concat(extent2));
@@ -161,16 +189,20 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
             .domain(genomic_position_extent)
             .range([0, plot_width]);
 
-        const includes_pval0 = some(unbinned_variants, function(variant) { return variant.pvalue === 0; });
+        const includes_pval0 = some(unbinned_variants, function (variant) {
+            return variant.pvalue === 0;
+        });
 
         const highest_plot_qval = Math.max(
             -Math.log10(significance_threshold) + 0.5,
-            (function() {
-                const best_unbinned_qval = -Math.log10(d3.min(unbinned_variants, function(d) {
+            (function () {
+                const best_unbinned_qval = -Math.log10(d3.min(unbinned_variants, function (d) {
                     return (d.pvalue === 0) ? 1 : d.pvalue;
                 }));
-                if (best_unbinned_qval !== undefined) {return best_unbinned_qval;}
-                return d3.max(variant_bins, function(bin) {
+                if (best_unbinned_qval !== undefined) {
+                    return best_unbinned_qval;
+                }
+                return d3.max(variant_bins, function (bin) {
                     return d3.max(bin, property('qval'));
                 });
             })());
@@ -181,37 +213,51 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
         // TODO: draw a small y-axis-break at 20 if `y_axis_config.draw_break_at_20`
         const y_axis = d3.axisLeft(y_scale)
             .tickFormat(d3.format('d'))
-            .tickValues(y_axis_config.ticks);
+            .tickValues(y_axis_config.ticks)
         gwas_plot.append('g')
             .attr('class', 'y axis')
             .attr('transform', 'translate(-8,0)') // avoid letting points spill through the y axis.
-            .call(y_axis);
+            .call(y_axis)
+            .selectAll('text')
+            .style('fill', axes_color);
+
+        // Style axis domain line (the main vertical line)
+        gwas_plot.select('.y.axis path')
+            .style('stroke', axes_color)
+            .style('stroke-width', 1.5);
+
+// Style tick lines (the little horizontal ticks)
+        gwas_plot.selectAll('.y.axis line')
+            .style('stroke', axes_color)
+            .style('stroke-width', 1);
+
 
         if (includes_pval0) {
             const y_axis_break_inf_offset = y_scale(Infinity) + (y_scale(0) - y_scale(Infinity)) * 0.03;
             gwas_plot.append('line')
                 .attr('x1', -8 - 7).attr('x2', -8 + 7)
                 .attr('y1', y_axis_break_inf_offset + 6).attr('y2', y_axis_break_inf_offset - 6)
-                .attr('stroke', '#666').attr('stroke-width', '3px');
+                .attr('stroke-width', '3px').style("stroke", axes_color);
         }
         if (y_axis_config.draw_break_at_20) {
             const y_axis_break_20_offset = y_scale(20);
             gwas_plot.append('line')
                 .attr('x1', -8 - 7).attr('x2', -8 + 7)
                 .attr('y1', y_axis_break_20_offset + 6).attr('y2', y_axis_break_20_offset - 6)
-                .attr('stroke', '#666').attr('stroke-width', '3px');
+                .attr('stroke-width', '3px').style("stroke", axes_color);
         }
 
         gwas_svg.append('text')
             .style('text-anchor', 'middle')
             .attr('transform', fmt('translate({0},{1})rotate(-90)',
-                                   plot_margin.left * .4,
-                                   plot_height / 2 + plot_margin.top))
-            .text('-log\u2081\u2080(p-value)'); // Unicode subscript "10"
+                plot_margin.left * .4,
+                plot_height / 2 + plot_margin.top))
+            .text('-log\u2081\u2080(p-value)')
+            .style('fill', axes_color); // Unicode subscript "10"
 
-        const chroms_and_midpoints = (function() {
+        const chroms_and_midpoints = (function () {
             const v = get_chrom_offsets();
-            return v.chroms.map(function(chrom) {
+            return v.chroms.map(function (chrom) {
                 return {
                     chrom: chrom,
                     midpoint: v.chrom_genomic_start_positions[chrom] + (v.chrom_extents[chrom][1] - v.chrom_extents[chrom][0]) / 2,
@@ -221,22 +267,22 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
 
         const color_by_chrom = d3.scaleOrdinal()
             .domain(get_chrom_offsets().chroms)
-            .range(['#AFAFAF', '#007bff']);
+            .range([color1, color2]);
 
         gwas_svg.selectAll('text.chrom_label')
             .data(chroms_and_midpoints)
             .enter()
             .append('text')
             .style('text-anchor', 'middle')
-            .attr('transform', function(d) {
+            .attr('transform', function (d) {
                 return fmt('translate({0},{1})',
-                           plot_margin.left + x_scale(d.midpoint),
-                           plot_height + plot_margin.top + 20);
+                    plot_margin.left + x_scale(d.midpoint),
+                    plot_height + plot_margin.top + 20);
             })
-            .text(function(d) {
+            .text(function (d) {
                 return d.chrom;
             })
-            .style('fill', function(d) {
+            .style('fill', function (d) {
                 return color_by_chrom(d.chrom);
             });
 
@@ -246,7 +292,7 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
             .attr('y1', y_scale(-Math.log10(significance_threshold)))
             .attr('y2', y_scale(-Math.log10(significance_threshold)))
             .attr('stroke-width', '5px')
-            .attr('stroke', 'lightgray')
+            .attr('stroke', axes_color)
             .attr('stroke-dasharray', '10,10')
             .on('mouseover', significance_threshold_tooltip.show)
             .on('mouseout', significance_threshold_tooltip.hide);
@@ -254,15 +300,14 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
         // Points & labels
         //const tooltip_template = template(window.model.tooltip_underscoretemplate);
         //const tooltip_fn = template(tooltip_template || '<b>{d.chrom}:{d.pos}</b><br>P = {d.pvalue}');
-        console.log(tooltip_template);
         tooltip_template = template(tooltip_template)
 
         const point_tooltip = d3Tip()
             .attr('class', 'd3-tip')
-            .html(function(d) {
+            .html(function (d) {
                 return tooltip_template({d: d});
             })
-            .offset([-6,0]);
+            .offset([-6, 0]);
         gwas_svg.call(point_tooltip);
 
         function get_link_to_LZ(variant) {
@@ -288,12 +333,12 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
             .attr('class', 'genename_text')
             .style('font-style', 'italic')
             .attr('text-anchor', 'middle')
-            .attr('transform', function(d) {
+            .attr('transform', function (d) {
                 return fmt('translate({0},{1})',
-                           x_scale(get_genomic_position(d)),
-                           y_scale(d.neg_log_pvalue) - 5);
+                    x_scale(get_genomic_position(d)),
+                    y_scale(d.neg_log_pvalue) - 5);
             })
-            .text(function(d) {
+            .text(function (d) {
                 // Old datasets: no symbol. New dataset: hash with symbol & ensg keys
                 const genes = (d.nearest_genes || []).map(gene => gene.symbol);
                 if (genes.length <= 2) {
@@ -312,22 +357,23 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
                 .attr('class', 'variant_hover_ring')
                 //.attr('xlink:href', get_link_to_LZ)
                 .append('circle')
-                .attr('cx', function(d) {
+                .attr('cx', function (d) {
                     return x_scale(get_genomic_position(d));
                 })
-                .attr('cy', function(d) {
+                .attr('cy', function (d) {
                     return y_scale(d.neg_log_pvalue);
                 })
                 .attr('r', 7)
                 .style('opacity', 0)
                 .style('stroke-width', 1)
-                .on('mouseover', function(d) {
-                //Note: once a tooltip has been explicitly placed once, it must be explicitly placed forever after.
+                .on('mouseover', function (d) {
+                    //Note: once a tooltip has been explicitly placed once, it must be explicitly placed forever after.
                     const target_node = document.getElementById(fmt('variant-point-{0}-{1}-{2}-{3}', d.chrom, d.pos, d.ref, d.alt));
                     point_tooltip.show(d, target_node);
                 })
                 .on('mouseout', point_tooltip.hide);
         }
+
         pp1();
 
         function pp2() {
@@ -340,25 +386,26 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
                 .attr('class', 'variant_point')
                 //.attr('xlink:href', get_link_to_LZ)
                 .append('circle')
-                .attr('id', function(d) {
+                .attr('id', function (d) {
                     return fmt('variant-point-{0}-{1}-{2}-{3}', d.chrom, d.pos, d.ref, d.alt);
                 })
-                .attr('cx', function(d) {
+                .attr('cx', function (d) {
                     return x_scale(get_genomic_position(d));
                 })
-                .attr('cy', function(d) {
+                .attr('cy', function (d) {
                     return y_scale(d.neg_log_pvalue);
                 })
                 .attr('r', 2.3)
-                .style('fill', function(d) {
+                .style('fill', function (d) {
                     return color_by_chrom(d.chrom);
                 })
-                .on('mouseover', function(d) {
-                //Note: once a tooltip has been explicitly placed once, it must be explicitly placed forever after.
+                .on('mouseover', function (d) {
+                    //Note: once a tooltip has been explicitly placed once, it must be explicitly placed forever after.
                     point_tooltip.show(d, this);
                 })
                 .on('mouseout', point_tooltip.hide);
         }
+
         pp2();
 
         function pp3() { // drawing the ~60k binned variant circles takes ~500ms.  The (far fewer) unbinned variants take much less time.
@@ -369,8 +416,10 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
                 .enter()
                 .append('g')
                 .attr('class', 'bin')
-                .attr('data-index', function(d, i) { return i; }) // make parent index available from DOM
-                .each(function(d) { //todo: do this in a forEach
+                .attr('data-index', function (d, i) {
+                    return i;
+                }) // make parent index available from DOM
+                .each(function (d) { //todo: do this in a forEach
                     d.x = x_scale(get_genomic_position(d));
                     d.color = color_by_chrom(d.chrom);
                 });
@@ -379,15 +428,15 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
                 .enter()
                 .append('circle')
                 .attr('class', 'binned_variant_point')
-                .attr('cx', function(d, i) {
+                .attr('cx', function (d, i) {
                     const parent_i = +this.parentNode.getAttribute('data-index');
                     return variant_bins[parent_i].x;
                 })
-                .attr('cy', function(qval) {
+                .attr('cy', function (qval) {
                     return y_scale(qval);
                 })
                 .attr('r', 2.3)
-                .style('fill', function(d, i) {
+                .style('fill', function (d, i) {
                     const parent_i = +this.parentNode.getAttribute('data-index');
                     return variant_bins[parent_i].color;
                 });
@@ -396,23 +445,28 @@ function create_gwas_plot(variant_bins, unbinned_variants, {url_prefix = null, t
                 .enter()
                 .append('line')
                 .attr('class', 'binned_variant_line')
-                .attr('x1', function(d, i) {
+                .attr('x1', function (d, i) {
                     const parent_i = +this.parentNode.getAttribute('data-index');
                     return variant_bins[parent_i].x;
                 })
-                .attr('x2', function(d, i) {
+                .attr('x2', function (d, i) {
                     const parent_i = +this.parentNode.getAttribute('data-index');
                     return variant_bins[parent_i].x;
                 })
-                .attr('y1', function(d) { return y_scale(d[0]); })
-                .attr('y2', function(d) { return y_scale(d[1]); })
-                .style('stroke', function(d, i) {
+                .attr('y1', function (d) {
+                    return y_scale(d[0]);
+                })
+                .attr('y2', function (d) {
+                    return y_scale(d[1]);
+                })
+                .style('stroke', function (d, i) {
                     const parent_i = +this.parentNode.getAttribute('data-index');
                     return variant_bins[parent_i].color;
                 })
                 .style('stroke-width', 4.6)
                 .style('stroke-linecap', 'round');
         }
+
         pp3();
 
     });
@@ -429,17 +483,17 @@ function create_qq_plot(maf_ranges, qq_ci) {
         return;
     }
 
-    maf_ranges.forEach(function(maf_range, i) {
+    maf_ranges.forEach(function (maf_range, i) {
         maf_range.color = ['#e66101', '#fdb863', '#b2abd2', '#5e3c99'][i];
     });
 
-    $(function() {
-        const exp_max = d3.max(maf_ranges, function(maf_range) {
+    $(function () {
+        const exp_max = d3.max(maf_ranges, function (maf_range) {
             return maf_range.qq.max_exp_qval;
         });
         // Note: we already removed all observed -log10(pvalue)s > ceil(exp_max*2) in python, so we can just use the max observed here.
-        let obs_max = d3.max(maf_ranges, function(maf_range) {
-            return d3.max(maf_range.qq.bins, function(bin) {
+        let obs_max = d3.max(maf_ranges, function (maf_range) {
+            return d3.max(maf_range.qq.bins, function (bin) {
                 return bin[1];
             });
         });
@@ -482,11 +536,11 @@ function create_qq_plot(maf_ranges, qq_ci) {
             .attr('class', 'trumpet_ci')
             .datum(qq_ci)
             .attr('d', d3.area()
-                .x( function(d) {
+                .x(function (d) {
                     return x_scale(d.x);
-                }).y0( function(d) {
+                }).y0(function (d) {
                     return y_scale(d.y_max + .05);
-                }).y1( function(d) {
+                }).y1(function (d) {
                     return y_scale(Math.max(0, d.y_min - .05));
                 }))
             .style('fill', 'lightgray');
@@ -497,14 +551,22 @@ function create_qq_plot(maf_ranges, qq_ci) {
             .data(maf_ranges)
             .enter()
             .append('g')
-            .attr('data-index', function(d, i) { return i; }) // make parent index available from DOM
+            .attr('data-index', function (d, i) {
+                return i;
+            }) // make parent index available from DOM
             .attr('class', 'qq_points')
             .selectAll('circle.qq_point')
-            .data(function(maf_range) { return maf_range.qq.bins; })
+            .data(function (maf_range) {
+                return maf_range.qq.bins;
+            })
             .enter()
             .append('circle')
-            .attr('cx', function(d) { return x_scale(d[0]); })
-            .attr('cy', function(d) { return y_scale(d[1]); })
+            .attr('cx', function (d) {
+                return x_scale(d[0]);
+            })
+            .attr('cy', function (d) {
+                return y_scale(d[1]);
+            })
             .attr('r', 1.5)
             .attr('fill', function (d, i) {
                 // Nested selections, d3 v4 workaround
@@ -512,33 +574,39 @@ function create_qq_plot(maf_ranges, qq_ci) {
                 return maf_ranges[parent_index].color;
             });
 
-        const attempt_two_decimals = function(x) {
-            if (x === 0) {return '0';}
-            if (x >= 0.01) {return x.toFixed(2);}
-            if (x >= 0.001) {return x.toFixed(3);}
+        const attempt_two_decimals = function (x) {
+            if (x === 0) {
+                return '0';
+            }
+            if (x >= 0.01) {
+                return x.toFixed(2);
+            }
+            if (x >= 0.001) {
+                return x.toFixed(3);
+            }
             return x.toExponential(0);
         };
 
         // Legend
         qq_svg.append('g')
             .attr('transform', fmt('translate({0},{1})',
-                                   plot_margin.left + plot_width,
-                                   plot_margin.top + plot_height + 70))
+                plot_margin.left + plot_width,
+                plot_margin.top + plot_height + 70))
             .selectAll('text.legend-items')
             .data(maf_ranges)
             .enter()
             .append('text')
             .attr('text-anchor', 'end')
-            .attr('y', function(d,i) {
+            .attr('y', function (d, i) {
                 return i + 'em';
             })
-            .text(function(d) {
+            .text(function (d) {
                 return fmt('{0} ≤ MAF < {1} ({2})',
-                           attempt_two_decimals(d.maf_range[0] || 0),
-                           attempt_two_decimals(d.maf_range[1] || 0.5),  // If MAF values are missing, MAF 0-0.5
-                           d.count);
+                    attempt_two_decimals(d.maf_range[0] || 0),
+                    attempt_two_decimals(d.maf_range[1] || 0.5),  // If MAF values are missing, MAF 0-0.5
+                    d.count);
             })
-            .attr('fill', function(d) {
+            .attr('fill', function (d) {
                 return d.color;
             });
 
@@ -567,17 +635,17 @@ function create_qq_plot(maf_ranges, qq_ci) {
         qq_svg.append('text')
             .style('text-anchor', 'middle')
             .attr('transform', fmt('translate({0},{1})rotate(-90)',
-                                   plot_margin.left * .4,
-                                   plot_margin.top + plot_height / 2))
+                plot_margin.left * .4,
+                plot_margin.top + plot_height / 2))
             .text('observed -log\u2081\u2080(p)');
 
         qq_svg.append('text')
             .style('text-anchor', 'middle')
             .attr('transform', fmt('translate({0},{1})',
-                                   plot_margin.left + plot_width / 2,
-                                   plot_margin.top + plot_height + 40))
+                plot_margin.left + plot_width / 2,
+                plot_margin.top + plot_height + 40))
             .text('expected -log\u2081\u2080(p)');
     });
 }
 
-export { create_gwas_plot, create_qq_plot};
+export {create_gwas_plot, create_qq_plot};

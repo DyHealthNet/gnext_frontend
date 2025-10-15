@@ -15,34 +15,49 @@
         </v-row>
 
         <!-- Study Citations -->
+        <v-card outlined class="mb-6">
+          <v-toolbar color="primary-darken-1" density="compact">
+            <v-toolbar-title class="d-flex align-center">
+              If you use the study data in your work, please cite as follows:
+            </v-toolbar-title>
+          </v-toolbar>
+          <v-divider></v-divider>
 
-        <h3 class="main-subheader mb-2">If you use the {{ mainHeaderStudyName }} study data in your work, please cite as
-          follows:</h3>
-        <div class="d-flex align-center mb-5">
-          <h3 class="mr-3">Plain</h3>
-          <v-btn size="small" icon="mdi-content-copy" @click="copyStudyPlainToClipboard"></v-btn>
-        </div>
-        <textarea readonly class="citation-box">{{studyPlainEntry}}</textarea>
+          <v-card-text>
+            <div class="d-flex align-center mb-5">
+              <h3 class="mr-3">Plain</h3>
+              <v-btn size="small" icon="mdi-content-copy" @click="copyStudyPlainToClipboard"></v-btn>
+            </div>
+            <textarea readonly class="citation-box">{{ studyPlainEntry }}</textarea>
 
+            <div class="d-flex align-center mb-5 mt-6">
+              <h3 class="mr-3">BibTeX</h3>
+              <v-btn size="small" icon="mdi-content-copy" @click="copyStudyBibtexToClipboard"></v-btn>
+            </div>
+            <textarea readonly class="citation-box">{{ studyBibtexEntry }}</textarea>
 
-        <div class="d-flex align-center mb-5">
-          <h3 class="mr-3">BibTeX</h3>
-          <v-btn size="small" icon="mdi-content-copy" @click="copyStudyBibtexToClipboard"></v-btn>
-        </div>
-        <textarea readonly class="citation-box">{{studyBibtexEntry}}</textarea>
+            <h3 class="mt-6">
+              DOI URL:
+              <a :href="studyDoiLink" target="_blank" class="doi-link">
+                {{ studyDoiLink }}
+              </a>
+            </h3>
+          </v-card-text>
+        </v-card>
 
-         <h3 class="mb-5">
-          DOI URL:
-          <a :href="studyDoiLink" target="_blank" class="doi-link">
-            {{ studyDoiLink }}
-          </a>
-        </h3>
 
         <!-- Software Citations -->
 
-        <h3 class="main-subheader mb-2 mt-10">Additionally, cite the GWAS Explorer paper as follows:</h3>
+        <v-card outlined class="mb-6">
+          <v-toolbar color="primary-darken-1" density="compact">
+            <v-toolbar-title class="d-flex align-center">
+              Additionally, cite the DyHealthNetLight paper as follows:
+            </v-toolbar-title>
+          </v-toolbar>
+          <v-divider></v-divider>
 
-        <div class="d-flex align-center mb-5">
+          <v-card-text>
+             <div class="d-flex align-center mb-5">
           <h3 class="mr-3">Plain</h3>
           <v-btn size="small" icon="mdi-content-copy" @click="copySoftwarePlainToClipboard"></v-btn>
         </div>
@@ -60,6 +75,8 @@
             {{ softwareDoiLink }}
           </a>
         </h3>
+          </v-card-text>
+        </v-card>
 
       </v-container>
     </v-main>

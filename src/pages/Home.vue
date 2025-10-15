@@ -4,11 +4,12 @@
       <v-container width="80%">
         <!-- Part 1: Welcome -->
         <v-row class="mt-12 mb-0">
+           <v-col cols="12" class="text-center">
+            <h2 class="main-subheader">{{ mainHeaderPrefix }}</h2>
+          </v-col>
           <v-col cols="12" class="text-center">
             <h1 class="main-header">
-              <span>{{ mainHeaderPrefix }}</span>
               <span class="main-header-study">{{ mainHeaderStudyName }}</span>
-              <span>{{ mainHeaderSuffix }}</span>
              </h1>
           </v-col>
           <v-col cols="12" class="text-center">
@@ -29,14 +30,13 @@
 
         <v-row align="center" justify="center" class="mt-3" style="gap: 5px; font-size:0.8rem;">
           <v-btn class="example-btn" depressed @click="onTraitClick">
-            Example Trait →
+            Example Trait {{TRAIT_EXAMPLE}} →
           </v-btn>
           <v-btn class="example-btn" depressed @click="onVariantClick">
-            Example Variant →
+            Example Variant {{VARIANT_EXAMPLE}} →
           </v-btn>
         </v-row>
       </v-container>
-
 
     </v-main>
   </v-app>
@@ -50,7 +50,7 @@ import HomeStatsGrid from "@/components/HomeStatsGrid.vue";
 import { STUDY_NAME, VARIANT_EXAMPLE, TRAIT_EXAMPLE } from "@/config";
 import { useRouter } from "vue-router";
 
-const mainHeaderPrefix = "Welcome to the GWAS Explorer of the ";
+const mainHeaderPrefix = "The DyHealthNetLight Platform of";
 const mainHeaderStudyName = STUDY_NAME;
 const mainHeaderSuffix = " Study";
 const mainSubheader = "Your gateway to explore and analyze GWAS summary statistics";
@@ -88,19 +88,19 @@ function onVariantClick() {
 
 
 .main-header {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: bold;
   color: rgb(var(--v-theme-darken-1));
   margin-bottom: 10px;
 }
 
 .main-header-study {
-  color: rgb(var(--v-theme-primary-darken-1));
+  color: rgb(var(--v-theme-primary-darken));
   text-decoration: underline;
 }
 
 .main-subheader {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 400;
   color: rgb(var(--v-theme-primary-darken-1));
 }

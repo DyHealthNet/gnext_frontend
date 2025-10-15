@@ -1,5 +1,5 @@
 <template>
-  <div id="manhattan_plot_container" style="width: 100%; height: 500px"></div>
+  <div id="manhattan_plot_container" style="width: 100%; height: 650px"></div>
 </template>
 
 <script>
@@ -15,7 +15,7 @@ export default {
   data() {
     return {
       plotDivId: 'manhattan_plot_container',
-      plotHeight: 500,
+      plotHeight: 650,
       cached: null
     }
   },
@@ -50,7 +50,7 @@ export default {
       return color
     },
 
-     chromosomeColor2() {
+    chromosomeColor2() {
       let color = "white"
       if (this.$vuetify.theme.global.name === 'dyHealthNetTheme') {
         color = this.$vuetify.theme.themes.dyHealthNetTheme.colors["primary-darken-1"]
@@ -253,7 +253,7 @@ export default {
         type: 'scattergl',
         mode: 'markers',
         x: variants.map(v => xCoord(v)),
-        y: variants.map(v => (v.neg_log_pvalue === Infinity ? 10.2 : v.neg_log_pvalue)),
+        y: variants.map(v => (v.neg_log_pvalue === Infinity ? 400 : v.neg_log_pvalue)),
         text: variants.map(v => this.tooltipHTML(v)),
         hoverinfo: 'text',
         marker: {size: 4.6, opacity: 1, color: variants.map(v => chromToColor[String(v.chrom)] || '#AFAFAF')},

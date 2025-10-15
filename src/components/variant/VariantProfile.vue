@@ -33,7 +33,7 @@
 <script>
 import LinkButton from "@/components/LinkButton.vue";
 import VariantImpactTag from "@/components/variant/VariantImpactTag.vue";
-import {GENOME_BUILD} from "@/config.js";
+import {GENOME_BUILD, HG_BUILD_NUMBER} from "@/config.js";
 
 
 export default {
@@ -84,13 +84,16 @@ export default {
       const gnomADVersion = GENOME_BUILD === "GRCh37" ? "gnomad_r2_1" : "gnomad_r4";
       // replace _ and / by - for gnomAD URL
       const gnomADId = this.variantId.replace(/_/g, '-').replace(/\//g, '-');
+      const chr = this.location.split(':')[0];
+      const pos = this.location.split(':')[1];
       return {
         "GWAS_Catalog": `https://www.ebi.ac.uk/gwas/variants/${id}`,
         "dbSNP": `https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=${id}`,
         "Citations": `https://www.ensembl.org/Homo_sapiens/Variation/Citations?v=${id}`,
         "Ensembl": `https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=${id}`,
-        "UCSC": `https://genome.ucsc.edu/cgi-bin/hgTracks?hgFind.matches=${id}`,
-        "gnomAD": `https://gnomad.broadinstitute.org/variant/${gnomADId}?dataset=${gnomADVersion}`
+        "gnomAD": `https://gnomad.broadinstitute.org/variant/${gnomADId}?dataset=${gnomADVersion}`,
+        "UCSC": `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg${HG_BUILD_NUMBER}&highlight=hg${HG_BUILD_NUMBER}.chr${chr}%3A${pos}-${pos}&position=chr${chr}%3A${pos - 200000}-${pos + 200000}`
+
       }
     }
   }

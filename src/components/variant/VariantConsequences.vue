@@ -1,10 +1,13 @@
 <template>
   <v-container>
     <div v-if="type === 'transcript'">
-      <span>Transcription consequences of {{ variantId }}, as predicted by the Ensembl Variant Effect Predictor.</span>
+      <p class="text-body-1 mb-4">
+
+        Transcription consequences of {{ variantId }}, as predicted by the Ensembl Variant Effect Predictor.
+      </p>
 
       <div class="d-flex flex-wrap align-center mt-4 mb-4">
-        <span class="me-4">Impact:</span>
+        <p class="text-body-1 me-4">Impact:</p>
         <VariantImpactTag impact="HIGH"/>
         <VariantImpactTag impact="MODERATE"/>
         <VariantImpactTag impact="LOW"/>

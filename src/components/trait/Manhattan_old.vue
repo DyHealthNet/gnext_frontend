@@ -1,7 +1,6 @@
 <template>
   <v-container>
-    <h2>Manhattan Plot</h2>
-    <div id="manhattan_plot_container" style="width: 100%; height: 600px; background-color: white"></div>
+    <div id="manhattan_plot_container" style="width: 100%; height: 600px; background-color: transparent"></div>
   </v-container>
 </template>
 
@@ -23,17 +22,61 @@ export default {
     this.loadManhattanPlot();
   },
 
+  computed: {
+    currentAxesColor() {
+      return this.$vuetify.theme.global.name === 'dyHealthNetTheme'
+        ? this.$vuetify.theme.themes.dyHealthNetTheme.colors["darken-1"]
+        : this.$vuetify.theme.themes.dyHealthNetThemeDark.colors["darken-1"]
+    }
+  },
+
+  watch: {
+    currentAxesColor(newColor, oldColor) {
+      if (newColor !== oldColor) {
+        this.loadManhattanPlot()
+      }
+    }
+  },
+
+
   methods: {
+
+    chromosomeColor1() {
+      let color = "white"
+      if (this.$vuetify.theme.global.name === 'dyHealthNetTheme') {
+        color = this.$vuetify.theme.themes.dyHealthNetTheme.colors["primary"]
+      } else {
+        color = this.$vuetify.theme.themes.dyHealthNetThemeDark.colors["primary"]
+      }
+      return color
+    },
+
+    chromosomeColor2() {
+      let color = "white"
+      if (this.$vuetify.theme.global.name === 'dyHealthNetTheme') {
+        color = this.$vuetify.theme.themes.dyHealthNetTheme.colors["primary-darken-1"]
+      } else {
+        color = this.$vuetify.theme.themes.dyHealthNetThemeDark.colors["primary-darken-1"]
+      }
+      return color
+    },
+
     async loadManhattanPlot() {
       try {
         console.log("trait ID:", this.traitId);
-        const res = await fetch(`${API_BASE_URL}/trait_get_manhattan/?trait=${this.traitId}`);
+        const res = await fetch(`${API_BASE_URL}/trait_get_manhattan/?id=${this.traitId}`)
         const json = await res.json();
+        // clear old plot
+        document.getElementById("manhattan_plot_container").innerHTML = "";
+
         create_gwas_plot(json.variant_bins, json.unbinned_variants, {
           url_prefix: `${API_BASE_URL}/region_view`,
           tooltip_template: '<b><%- d.chrom %>_<%- d.pos %>_<%- (d.ref && d.alt) ? (d.ref + "/" + d.alt) : "" %></b><br>-log<sub>10</sub>(p): <%- d.neg_log_pvalue && (+d.neg_log_pvalue).toFixed(3) %><% var ids = Array.isArray(d.rsid) ? d.rsid : (d.rsid ? [d.rsid] : []); if (ids.length) { %>'
   + '<br>ID: <%- ids.join(", ") %>'
-  + '<% } %>'
+  + '<% } %>',
+          color1: this.chromosomeColor1(),
+          color2: this.chromosomeColor2(),
+          axes_color: this.currentAxesColor,
         })
       } catch (error) {
         console.error("Failed to load GWAS plot data:", error);

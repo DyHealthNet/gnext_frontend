@@ -1,7 +1,10 @@
 <template>
   <v-container class="d-flex flex-column align-start ga-2">
 
-    <span>The nearest gene(s) to {{ this.variantId }}, as predicted by the Ensembl Variant Effect Predictor. Click on the gene to go to its Gene page.</span>
+    <p class="text-body-1 mb-4">
+      Predicted gene(s) potentially affected by {{ this.variantId }}, based on annotations from the Ensembl Variant Effect Predictor.
+      Transcripts are ranked by predicted impact, from high to low (including modifiers), and the associated genes are ordered accordingly.
+    </p>
     <v-row dense>
       <v-col
           v-for="gene in symbols"

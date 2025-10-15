@@ -17,24 +17,19 @@
     <v-window v-model="searchMode">
       <!-- loci tab -->
       <v-window-item value="loci">
-        <v-row class="pt-4 mb-2">
-          <v-col cols="12">
-            Showing all Top Loci of the current Trait.
-          </v-col>
-        </v-row>
+        Showing all top loci of the current trait. Only peaks with a p-value < 10⁻⁶ will be returned.
+            Variants are excluded if another variant within 500kb of the same trait has a smaller p-value.
       </v-window-item>
 
       <!-- pval tab -->
       <v-window-item value="pval">
-        <v-row class="pt-4">
-          <v-col cols="12">
-            Showing variants that pass the P-Value Cutoff (max. 10,000 variants)
-          </v-col>
-        </v-row>
+        Showing variants that pass the p-value cutoff (max. 10,000 variants)
       </v-window-item>
 
       <!-- rsID tab -->
       <v-window-item value="rsid">
+        Showing variants that match the selected SNP ID, variants within the specified neighbor range (bp) and pass the p-value cutoff.
+
         <v-row class="pt-4">
           <v-col cols="12" md="6">
             <AutocompleteVariant
@@ -61,6 +56,7 @@
 
       <!-- Chromosome range tab -->
       <v-window-item value="chromosome">
+        Showing variants on the specified chromosome and position range that pass the p-value cutoff.
         <v-row class="pt-4">
           <v-col cols="12" md="4">
             <v-text-field
@@ -120,13 +116,13 @@
     </v-row>
 
     <!-- Submit button -->
-    <v-row>
-      <v-col>
-        <v-btn color="primary" @click="applyFilters">
-          Submit Query
-        </v-btn>
-      </v-col>
-    </v-row>
+    <v-row v-if="searchMode !== 'loci'">
+  <v-col>
+    <v-btn color="primary" @click="applyFilters">
+      Submit Query
+    </v-btn>
+  </v-col>
+</v-row>
   </v-container>
 </template>
 
@@ -154,31 +150,6 @@ export default {
       startPos: null,
       endPos: null,
       pvalCutoff: 0.05,
-      chromosomeBounds: {
-        "1": {"min": 11063, "max": 249239495},
-        "2": {"min": 10181, "max": 243185846},
-        "3": {"min": 60197, "max": 197931768},
-        "4": {"min": 11663, "max": 191041711},
-        "5": {"min": 11882, "max": 180900286},
-        "6": {"min": 151226, "max": 171046503},
-        "7": {"min": 27916, "max": 159128550},
-        "8": {"min": 34440, "max": 146303560},
-        "9": {"min": 11425, "max": 141109216},
-        "10": {"min": 60523, "max": 135523249},
-        "11": {"min": 103365, "max": 134946451},
-        "12": {"min": 70117, "max": 133840247},
-        "13": {"min": 19020095, "max": 115109852},
-        "14": {"min": 19003034, "max": 107289436},
-        "15": {"min": 20001226, "max": 102515926},
-        "16": {"min": 60455, "max": 90291868},
-        "17": {"min": 302, "max": 81189546},
-        "18": {"min": 11275, "max": 78017073},
-        "19": {"min": 218215, "max": 59118704},
-        "20": {"min": 61098, "max": 62963628},
-        "21": {"min": 9412934, "max": 48119634},
-        "22": {"min": 16051249, "max": 51238349},
-        "X": {"min": 2699555, "max": 154930487}
-      }
     };
   },
   mounted() {

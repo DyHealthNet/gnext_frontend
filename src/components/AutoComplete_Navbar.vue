@@ -104,7 +104,7 @@ const searchActivator = ref(null);
 
 // Setup Typesense config object so we can update it reactively
 const searchParams = ref({
-  query_by: "description,external_ref,category",
+  query_by: "label,description,external_ref,category",
   num_typos: 0,
   drop_tokens_threshold: 1.0,
 });

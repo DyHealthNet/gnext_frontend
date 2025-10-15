@@ -1,9 +1,15 @@
 <template>
   <v-container>
-    <div id="qq_plot_container" style="width: 100%; height: 710px;"></div>
-    <p class="gc-control"></p>
-    <i>(Genomic Control lambda calculated based on the 50th percentile (median), 10th percentile, 1st percentile,
-            and 1/10th of a percentile)</i>
+    <v-row>
+      <v-col xs="12" md="6" lg="6">
+        <div id="qq_plot_container" style="width: 100%; height: 700px;"></div>
+      </v-col>
+      <v-col xs="12" md="6" lg="6">
+        <p class="gc-control"></p>
+        <i>(Genomic Control lambda calculated based on the 50th percentile (median), 10th percentile, 1st percentile,
+          and 1/10th of a percentile)</i>
+      </v-col>
+    </v-row>
   </v-container>
 
 
@@ -11,14 +17,14 @@
 
 <script>
 import Plotly from 'plotly.js-dist-min'
-import { API_BASE_URL } from '@/config.js'
-import { sortBy, toPairs } from 'lodash'
+import {API_BASE_URL} from '@/config.js'
+import {sortBy, toPairs} from 'lodash'
 import {create_qq_plot} from "@/utils/pheweb_plots.js";
 
 export default {
   name: 'QQPlot',
   props: {
-    traitId: { type: String, required: true }
+    traitId: {type: String, required: true}
   },
   mounted() {
     this.loadQQPlot()
@@ -53,7 +59,7 @@ export default {
         name: 'Confidence band',
         x,
         y: yLower,
-        line: { width: 0 },
+        line: {width: 0},
         hoverinfo: 'skip',
         showlegend: false
       }
@@ -64,7 +70,7 @@ export default {
         y: yUpper,
         fill: 'tonexty',
         fillcolor: 'lightgray',
-        line: { width: 0 },
+        line: {width: 0},
         hoverinfo: 'skip',
         showlegend: false
       }
@@ -86,7 +92,7 @@ export default {
           name: label,
           x,
           y,
-          marker: { size: 3, color: palette[i % palette.length] },
+          marker: {size: 3, color: palette[i % palette.length]},
           hovertemplate: 'exp: %{x}<br>obs: %{y}<extra></extra>'
         }
       })
@@ -100,7 +106,7 @@ export default {
       const hasBins = mafRanges?.[0]?.qq?.bins?.length
       if (!hasBins) {
         container.textContent =
-          'No QQ Plot could be generated. It is possible that your data contains only very extreme p-values.'
+            'No QQ Plot could be generated. It is possible that your data contains only very extreme p-values.'
         return
       }
 
@@ -111,7 +117,6 @@ export default {
           if (b[1] > maxObs) maxObs = b[1]
         }
       }
-      const obsMax = Math.ceil(Math.max(maxObs, expMax)) + 0.01
 
       const traces = [
         ...this.buildTrumpetTraces(qqCi),
@@ -119,10 +124,10 @@ export default {
       ]
 
       const layout = {
-        margin: { l: 30, r: 20, t: 35, b: 20 },
+        margin: {l: 30, r: 20, t: 35, b: 20},
         xaxis: {
           title: 'expected -log\u2081\u2080(p)',
-          range: [0, expMax],
+          range: [0, Math.ceil(expMax) + 1],
           dtick: 1,
           ticks: 'outside',
           showgrid: true,
@@ -134,13 +139,12 @@ export default {
         },
         yaxis: {
           title: 'observed -log\u2081\u2080(p)',
-          range: [0, obsMax],
+          range: [0, maxObs],
           dtick: 1,
           ticks: 'outside',
           showgrid: true,
           zeroline: false,
           scaleanchor: 'x',
-          scaleratio: obsMax / Math.max(expMax, 1e-9),
           tickfont: {
             color: this.labelColor()
           },
@@ -150,10 +154,10 @@ export default {
         plot_bgcolor: 'rgba(0,0,0,0)',   // plot area background transparent
         legend: {
           orientation: 'v',
-          x: 0.1,
+          x: 0,
           xanchor: "left",
           yanchor: 'top',
-          y: -0.05
+          y: -0.2
         }
       }
       const config = {
@@ -184,14 +188,14 @@ export default {
           await this.drawQQPlot(data.by_maf, data.ci)
         } else {
           await this.drawQQPlot(
-            [{ maf_range: [0, 0.5], qq: data.overall.qq, count: data.overall.count }],
-            data.ci
+              [{maf_range: [0, 0.5], qq: data.overall.qq, count: data.overall.count}],
+              data.ci
           )
         }
       } catch (e) {
         console.error('Failed to load QQ plot data:', e)
         document.getElementById('qq_plot_container').textContent =
-          'Could not fetch QQ plot data.'
+            'Could not fetch QQ plot data.'
       }
     }
   }

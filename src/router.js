@@ -3,7 +3,7 @@ import Home from './pages/Home.vue'
 import Documentation from './pages/Documentation.vue'
 import Variant from "./pages/Variant.vue";
 import Trait from "./pages/Trait.vue";
-import Overview from "./pages/Overview.vue";
+import TopHits from "./pages/TopHits.vue";
 import Citation from "./pages/Citation.vue";
 import Idea from "./pages/Idea.vue";
 
@@ -24,9 +24,9 @@ const routes = [
     component: Idea
   },
   {
-    path: '/overview',
-    name: 'Overview',
-    component: Overview
+    path: '/tophits',
+    name: 'Top Hits',
+    component: TopHits
   },
   {
     path: '/cite',

@@ -1,6 +1,8 @@
 <template>
   <v-container>
-    <span>GWAS summary statistics of {{ variantId }} over all or a selection of phenotypes.</span>
+    <p class="text-body-1 mb-4">
+      GWAS summary statistics of {{ variantId }} over all or a selection of phenotypes.
+    </p>
   </v-container>
 
   <v-container>
@@ -61,7 +63,7 @@
         @sort="onSort"
         filterDisplay="menu"
         :filters="filters"
-        :globalFilterFields="['id', 'trait_label', 'trait_group']"
+        :globalFilterFields="['trait_id', 'trait_label', 'trait_group']"
         paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink PaginatorEnd"
         currentPageReportTemplate="{first} to {last} of {totalRecords}">
       <template #header>
@@ -97,7 +99,7 @@
       </template>
       <template v-for="col in columns" :key="col.field">
         <Column
-            v-if="col.field !== 'id'"
+            v-if="col.field !== 'trait_id'"
             :field="col.field"
             :header="col.header"
             sortable
@@ -109,7 +111,8 @@
             sortable
         >
           <template #body="slotProps">
-            <a :href="`/trait/${slotProps.data.id}`" class="text-blue-600 hover:underline">
+            <a :href="`/trait/${slotProps.data.id}`"
+               class="table-link hover:underline no-wrap">
               {{ slotProps.data.id }}
             </a>
           </template>
@@ -164,9 +167,9 @@ export default {
   },
 
   data: () => ({
-    headers: ["id", "trait_label", "trait_group", "log_pvalue", "pvalue", "beta", "stderr_beta", "alt_allele_freq"],
+    headers: ["trait_id", "trait_label", "trait_group", "neg_log_pvalue", "pvalue", "beta", "stderr_beta", "alt_allele_freq"],
     menuVisible: false,
-    sortField: "log_pvalue",
+    sortField: "neg_log_pvalue",
     sortOrder: -1,
     filters: {
       global: {value: null, matchMode: FilterMatchMode.CONTAINS}
@@ -206,7 +209,7 @@ export default {
       const cats = Array.isArray(this.selectedCategory) ? this.selectedCategory : [];
 
       const filtered = this.allRows.filter(r => {
-        const lp = r.log_pvalue != null ? Number(r.log_pvalue) : null;
+        const lp = r.neg_log_pvalue != null ? Number(r.neg_log_pvalue) : null;
         const p = r.pvalue != null ? Number(r.pvalue) : (lp != null ? Math.pow(10, -lp) : null);
 
         // keep NA p-values? (current behavior: keep)
@@ -410,12 +413,20 @@ export default {
   font-weight: bold !important;
 }
 
-a, .green {
+.green {
   color: rgb(var(--v-theme-primary-darken)) !important;
 }
 
 ::v-deep(#phewas_plot svg.lz-locuszoom) {
   background-color: transparent !important;
+}
+
+.table-link {
+  color: rgb(var(--v-theme-primary-darken-1));
+}
+
+.table-link:hover {
+  background-color: rgb(var(--v-theme-primary))
 }
 </style>
 
