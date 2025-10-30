@@ -15,9 +15,10 @@ import PrimeVue from 'primevue/config'
 import Aura from '@primeuix/themes/aura';
 import {definePreset} from '@primeuix/themes';
 
-
 // Components
 import App from './App.vue'
+
+//localStorage.clear()
 
 import InstantSearch from 'vue-instantsearch/vue3/es'
 import {COLOR_PRIMARY, COLOR_PRIMARY_DARK} from "@/config.js"; // ← this is critical for Vue 3
@@ -179,7 +180,8 @@ const MyPreset = definePreset(Aura, {
     }
 })
 
-createApp(App).use(vuetify).use(router).use(InstantSearch).use(PrimeVue, {
+const app = createApp(App)
+app.use(vuetify).use(router).use(InstantSearch).use(PrimeVue, {
     theme: {
         preset: MyPreset, options: {
             prefix: 'p',
@@ -187,4 +189,6 @@ createApp(App).use(vuetify).use(router).use(InstantSearch).use(PrimeVue, {
             cssLayer: false
         }
     }
-}).mount('#app')
+})
+
+app.mount('#app')

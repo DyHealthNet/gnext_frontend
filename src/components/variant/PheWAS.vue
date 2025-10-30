@@ -32,7 +32,7 @@
         />
       </v-col>
       <v-col cols="2">
-        <v-btn color="primary" @click="applyPhewasFiltering" block height="48px" prepend-icon="mdi-send-circle-outline">
+        <v-btn color="primary" @click="applyPhewasFiltering" :disabled="!isValidPValue" block height="48px" prepend-icon="mdi-send-circle-outline">
           Apply Filtering
         </v-btn>
       </v-col>
@@ -169,7 +169,7 @@ export default {
   data: () => ({
     headers: ["trait_id", "trait_label", "trait_group", "neg_log_pvalue", "pvalue", "beta", "stderr_beta", "alt_allele_freq"],
     menuVisible: false,
-    sortField: "neg_log_pvalue",
+    sortField: "pvalue",
     sortOrder: -1,
     filters: {
       global: {value: null, matchMode: FilterMatchMode.CONTAINS}
@@ -191,7 +191,12 @@ export default {
       for (const r of src) if (r?.trait_group) set.add(r.trait_group);
       return Array.from(set).sort();
     },
+
+    isValidPValue() {
+      return this.pvalCutoff >= 0 && this.pvalCutoff <= 1;
+    }
   },
+
 
   methods: {
     onMenuClick(event) {
@@ -310,7 +315,6 @@ export default {
     },
 
     download(format) {
-      console.log("Downloading in format: " + format);
       const rows = this.rows;
       const variantId = this.variantId;
       let content = "";

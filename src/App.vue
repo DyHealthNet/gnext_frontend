@@ -4,7 +4,7 @@
   <v-app>
 <!--<component :is="isHomeRoute ? 'Navbar' : 'Navbar_AutoComplete'" />-->
     <Navbar/>
-    <v-main>
+    <v-main style="padding-top: 60px;">
       <v-container fluid class="page-borders">
         <v-row>
           <router-view />

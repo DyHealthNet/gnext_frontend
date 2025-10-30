@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-      <TableSearchBar :pheno="pheno" @apply-filters="onApplyFilters"></TableSearchBar>
+      <TableSearchBarGWAS :pheno="pheno" @apply-filters="onApplyFilters"></TableSearchBarGWAS>
         </v-col>
     </v-row>
 
@@ -45,7 +45,6 @@
       </v-col>
     </v-row>
 
-
     <v-row>
       <v-col>
       <v-overlay v-model="showLoading" scroll-strategy="none" contained
@@ -69,13 +68,13 @@
 import 'locuszoom/dist/locuszoom.css'
 import {API_BASE_URL} from "@/config.js";
 import TableSkeleton from "@/components/TableSkeleton.vue";
-import TableSearchBar from "@/components/trait/TableSearchBar.vue";
+import TableSearchBarGWAS from "@/components/trait/TableSearchBarGWAS.vue";
 import {isLoading, setIsLoading} from "@/components/constants.js";
 
 
 export default {
   name: "PhenotypeSNPTable",
-  components: {TableSkeleton, TableSearchBar},
+  components: {TableSkeleton, TableSearchBarGWAS},
   props: {
     pheno: {
       type: String,
@@ -89,7 +88,7 @@ export default {
       prevFilters: {},
       showLoading: isLoading,
       downloadName: "",
-      priorityOrder:  ["rsid", "variant_id", "chrom", "pos", "ref", "alt"],
+      priorityOrder: ["variant_id", "chrom", "pos", "ref", "alt", "beta", "stderr_beta", "alt_allele_freq", "pvalue", "neg_log_pvalue"],
     }
   },
   methods: {
@@ -111,19 +110,19 @@ export default {
         if (filters.mode === "loci") {
           // get all variants that pass p-value cutoff also default with cutoff 0.05
           this.downloadName = `${this.pheno}_top_loci`;
-          url = `${API_BASE_URL}/trait_get_variants/?trait=${encodeURIComponent(this.pheno)}&mode=${encodeURIComponent(filters.mode)}`;
+          url = `${API_BASE_URL}/trait_get_variants/?id=${encodeURIComponent(this.pheno)}&mode=${encodeURIComponent(filters.mode)}`;
         } else if (filters.mode === "pval") {
           // get all variants in range of given variant that pass pval cutoff
           this.downloadName = `${this.pheno}_pval_cutoff_${filters.pvalCutoff}`;
-          url = `${API_BASE_URL}/trait_get_variants/?trait=${encodeURIComponent(this.pheno)}&mode=${encodeURIComponent(filters.mode)}&pval_cutoff=${encodeURIComponent(filters.pvalCutoff)}`;
+          url = `${API_BASE_URL}/trait_get_variants/?id=${encodeURIComponent(this.pheno)}&mode=${encodeURIComponent(filters.mode)}&pval_cutoff=${encodeURIComponent(filters.pvalCutoff)}`;
         } else if (filters.mode === "rsid") {
           // get all variants in range of given variant that pass pval cutoff
           this.downloadName = `${this.pheno}_id_${filters.varid}_range_${filters.neighborRange}_pval_cutoff_${filters.pvalCutoff}`;
-          url = `${API_BASE_URL}/trait_get_variants/?trait=${encodeURIComponent(this.pheno)}&mode=${encodeURIComponent(filters.mode)}&varid=${encodeURIComponent(filters.varid)}&range=${encodeURIComponent(filters.neighborRange)}&pval_cutoff=${encodeURIComponent(filters.pvalCutoff)}`;
+          url = `${API_BASE_URL}/trait_get_variants/?id=${encodeURIComponent(this.pheno)}&mode=${encodeURIComponent(filters.mode)}&varid=${encodeURIComponent(filters.varid)}&range=${encodeURIComponent(filters.neighborRange)}&pval_cutoff=${encodeURIComponent(filters.pvalCutoff)}`;
         } else if (filters.mode === "chromosome") {
           // get all variants in given chromosome range that pass pval cutoff
           this.downloadName = `${this.pheno}_chr_${filters.chr}_range_${filters.start}_${filters.end}_pval_cutoff_${filters.pvalCutoff}`;
-          url = `${API_BASE_URL}/trait_get_variants/?trait=${encodeURIComponent(this.pheno)}&mode=${encodeURIComponent(filters.mode)}&chr=${encodeURIComponent(filters.chr)}&start=${encodeURIComponent(filters.start)}&end=${encodeURIComponent(filters.end)}&pval_cutoff=${encodeURIComponent(filters.pvalCutoff)}`;
+          url = `${API_BASE_URL}/trait_get_variants/?id=${encodeURIComponent(this.pheno)}&mode=${encodeURIComponent(filters.mode)}&chr=${encodeURIComponent(filters.chr)}&start=${encodeURIComponent(filters.start)}&end=${encodeURIComponent(filters.end)}&pval_cutoff=${encodeURIComponent(filters.pvalCutoff)}`;
         }
 
         const res = await fetch(url);

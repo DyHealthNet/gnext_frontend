@@ -5,13 +5,19 @@
         <h3><strong>Trait ID</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{traitId}}</h3>
         <h3><strong>Trait Label</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{traitDescription}}</h3>
         <h3><strong>Trait Group</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{traitCategory}}</h3>
+
       </v-col>
       <v-col xs="12" sm="12" md="12" lg="4">
         <h3><strong>Number of Samples</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{traitNumberSamples}}</h3>
+        <h3 v-if="traitExternalRef"><strong>External Reference</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h3><LinkButton v-if="traitExternalRef" :title="traitExternalRef" :url="`${BASE_URL}${traitExternalRef}`" :disabled="!traitExternalRef"/>
       </v-col>
-      <v-col xs="12" sm="12" md="12" lg="4">
-        <h3><strong>External Reference</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h3><LinkButton :title="traitExternalRef" :url="`${BASE_URL}${traitExternalRef}`" :disabled="!traitExternalRef"/>
+
+      <v-col v-if="showMAGMAParams" xs="12" sm="12" md="12" lg="4">
+        <h3><strong>MAGMA Flank Window</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{MAGMA_window_up}} kb upstream, and {{MAGMA_window_down}} kb downstream</h3>
+        <h3><strong>MAGMA Reference Population</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{MAGMA_ref_pop}}</h3>
+        <h3><strong>MAGMA Gene Location</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{MAGMA_gene_loc}}</h3>
       </v-col>
+
     </v-row>
   </v-container>
 </template>
@@ -20,7 +26,7 @@
 <script>
 
 import LinkButton from "@/components/LinkButton.vue";
-import {TRAIT_EXTERNAL_REF_URL} from "@/config.js";
+import {TRAIT_EXTERNAL_REF_URL, MAGMA_SHOW, API_BASE_URL} from "@/config.js";
 
 
 export default {
@@ -50,7 +56,30 @@ export default {
   },
   data(){
     return {
-      BASE_URL: TRAIT_EXTERNAL_REF_URL
+      BASE_URL: TRAIT_EXTERNAL_REF_URL,
+      showMAGMAParams: MAGMA_SHOW,
+      MAGMA_window_up: 0,
+      MAGMA_window_down: 0,
+      MAGMA_ref_pop: "",
+      MAGMA_gene_loc: ""
+    }
+  },
+
+  mounted(){
+    this.getMAGMAParams()
+  },
+
+  methods: {
+    getMAGMAParams(){
+      fetch(`${API_BASE_URL}/overview_get_magma_config`)
+          .then(response => response.json())
+          .then(data => {
+            this.MAGMA_window_up = data.magma_window_up;
+            this.MAGMA_window_down = data.magma_window_down;
+            this.MAGMA_ref_pop = data.magma_ref_pop;
+            this.MAGMA_gene_loc = data.magma_ref_gene_loc;
+          })
+          .catch(error => console.error('Error fetching annotation data:', error));
     }
   }
 }

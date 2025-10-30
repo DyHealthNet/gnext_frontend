@@ -1,20 +1,28 @@
 <template>
   <v-container>
     <div class="d-flex justify-space-between align-center">
-      <h3 style="padding-bottom: 10px;"><strong>Allele frequency range of this study</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{studyAF}}</h3>
+      <h3 style="padding-bottom: 10px;"><strong>Allele frequency range of this study</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ studyAF }}
+      </h3>
       <span>Source: VEP</span>
     </div>
-    <div v-for="(value, label) in frequencies"
-         :key="label"
-         class="row">
-      <div class="label">{{ label }}</div>
-      <div class="bar-container">
-        <div
-            class="bar"
-            :style="{ width: value * 100 + '%'}"
-        ></div>
+    <div v-if="frequencies && Object.keys(frequencies).length">
+      <div v-for="(value, label) in frequencies"
+           :key="label"
+           class="row">
+        <div class="label">{{ label }}</div>
+        <div class="bar-container">
+          <div
+              class="bar"
+              :style="{ width: value * 100 + '%'}"
+          ></div>
+        </div>
+        <div class="value">{{ value.toFixed(3) }}</div>
       </div>
-      <div class="value">{{ value.toFixed(3) }}</div>
+    </div>
+    <div v-else class="no-freq">
+      <p class="text-body-1 mb-4">
+        For this variant, no allele frequencies were extracted from VEP.
+      </p>
     </div>
   </v-container>
 </template>
@@ -51,11 +59,11 @@ export default {
 
   computed: {
     studyAF() {
-        if (this.minAF === this.maxAF) {
-          return this.minAF
-        }
-        return `${this.minAF} - ${this.maxAF}`
+      if (this.minAF === this.maxAF) {
+        return this.minAF
       }
+      return `${this.minAF} - ${this.maxAF}`
+    }
   }
 };
 </script>

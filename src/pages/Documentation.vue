@@ -33,7 +33,7 @@
         <v-row class="my-4">
           <v-col cols="12">
             <v-card outlined>
-              <v-toolbar color="primary-darken-1" density="compact">
+              <v-toolbar color="primary-darken-1" density="compact" @click="expanded_home = !expanded_home">
                 <v-toolbar-title class="d-flex align-center gap-2">
                   <v-icon icon="mdi-numeric-1-circle"/>
                   Home Page
@@ -43,7 +43,6 @@
                     size="small"
                     variant="text"
                     icon="mdi-chevron-down"
-                    @click="expanded_home = !expanded_home"
                     :class="{ 'rotate-180': expanded_home }"
                 ></v-btn>
               </v-toolbar>
@@ -104,7 +103,7 @@
         <v-row class="my-4">
           <v-col cols="12">
             <v-card outlined>
-              <v-toolbar color="primary-darken-1" density="compact">
+              <v-toolbar color="primary-darken-1" density="compact" @click="expanded_tophits = !expanded_tophits">
                 <v-toolbar-title class="d-flex align-center gap-2">
                   <v-icon icon="mdi-numeric-2-circle"/>
                   Top Hits Page
@@ -114,7 +113,6 @@
                     size="small"
                     variant="text"
                     icon="mdi-chevron-down"
-                    @click="expanded_tophits = !expanded_tophits"
                     :class="{ 'rotate-180': expanded_tophits }"
                 ></v-btn>
               </v-toolbar>
@@ -157,9 +155,9 @@
           <v-col cols="12">
 
             <v-card outlined>
-              <v-toolbar color="primary-darken-1" density="compact">
+              <v-toolbar color="primary-darken-1" density="compact" @click="expanded_variant = !expanded_variant">
                 <v-toolbar-title class="d-flex align-center">
-                  <v-icon icon="mdi-numeric-4-circle"/>
+                  <v-icon icon="mdi-numeric-3-circle"/>
                   Variant Page
                 </v-toolbar-title>
 
@@ -167,7 +165,6 @@
                     size="small"
                     variant="text"
                     icon="mdi-chevron-down"
-                    @click="expanded_variant = !expanded_variant"
                     :class="{ 'rotate-180': expanded_variant }"
                 ></v-btn>
               </v-toolbar>
@@ -301,9 +298,9 @@
         <v-row class="my-4">
           <v-col cols="12">
             <v-card outlined>
-              <v-toolbar color="primary-darken-1" density="compact">
+              <v-toolbar color="primary-darken-1" density="compact" @click="expanded_trait = !expanded_trait">
                 <v-toolbar-title class="d-flex align-center gap-2">
-                  <v-icon icon="mdi-numeric-3-circle"/>
+                  <v-icon icon="mdi-numeric-4-circle"/>
                   Trait Page
                 </v-toolbar-title>
 
@@ -311,7 +308,6 @@
                     size="small"
                     variant="text"
                     icon="mdi-chevron-down"
-                    @click="expanded_trait = !expanded_trait"
                     :class="{ 'rotate-180': expanded_trait }"
                 ></v-btn>
               </v-toolbar>
@@ -403,7 +399,7 @@
         <v-row class="my-4">
           <v-col cols="12">
             <v-card outlined>
-              <v-toolbar color="primary-darken-1" density="compact">
+              <v-toolbar color="primary-darken-1" density="compact" @click="expanded_preprocessing = !expanded_preprocessing">
                 <v-toolbar-title class="d-flex align-center gap-2">
                   <v-icon icon="mdi-laptop"/>
                   Preprocessing Workflow
@@ -413,7 +409,6 @@
                     size="small"
                     variant="text"
                     icon="mdi-chevron-down"
-                    @click="expanded_preprocessing = !expanded_preprocessing"
                     :class="{ 'rotate-180': expanded_preprocessing }"
                 ></v-btn>
               </v-toolbar>

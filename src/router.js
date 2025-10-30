@@ -6,6 +6,8 @@ import Trait from "./pages/Trait.vue";
 import TopHits from "./pages/TopHits.vue";
 import Citation from "./pages/Citation.vue";
 import Idea from "./pages/Idea.vue";
+import Drugstone from "@/pages/Drugstone.vue";
+import {MAGMA_SHOW} from "@/config.js";
 
 const routes = [
   {
@@ -46,6 +48,15 @@ const routes = [
     props: true
   }
 ]
+
+if(MAGMA_SHOW === true){
+  routes.push({
+    path: '/drugstone',
+    name: 'Drugst.One',
+    component: Drugstone,
+  })
+}
+
 
 const router = createRouter({
   history: createWebHistory(),

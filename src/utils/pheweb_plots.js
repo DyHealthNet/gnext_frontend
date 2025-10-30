@@ -34,7 +34,6 @@ function create_gwas_plot(variant_bins, unbinned_variants, {
         return d.neg_log_pvalue;
     });
 
-
     const get_chrom_offsets = memoize(function () {
         const chrom_padding = 2e7;
         const chrom_extents = {};
@@ -179,6 +178,7 @@ function create_gwas_plot(variant_bins, unbinned_variants, {
             .offset([-8, 0]);
         gwas_svg.call(significance_threshold_tooltip);
 
+
         const genomic_position_extent = (function () {
             const extent1 = d3.extent(variant_bins, get_genomic_position);
             const extent2 = d3.extent(unbinned_variants, get_genomic_position);
@@ -226,7 +226,7 @@ function create_gwas_plot(variant_bins, unbinned_variants, {
             .style('stroke', axes_color)
             .style('stroke-width', 1.5);
 
-// Style tick lines (the little horizontal ticks)
+        // Style tick lines (the little horizontal ticks)
         gwas_plot.selectAll('.y.axis line')
             .style('stroke', axes_color)
             .style('stroke-width', 1);
@@ -291,9 +291,9 @@ function create_gwas_plot(variant_bins, unbinned_variants, {
             .attr('x2', plot_width)
             .attr('y1', y_scale(-Math.log10(significance_threshold)))
             .attr('y2', y_scale(-Math.log10(significance_threshold)))
-            .attr('stroke-width', '5px')
+            .attr('stroke-width', 4)
             .attr('stroke', axes_color)
-            .attr('stroke-dasharray', '10,10')
+            .attr('stroke-dasharray', '6,6')
             .on('mouseover', significance_threshold_tooltip.show)
             .on('mouseout', significance_threshold_tooltip.hide);
 
@@ -472,7 +472,7 @@ function create_gwas_plot(variant_bins, unbinned_variants, {
     });
 }
 
-function create_qq_plot(maf_ranges, qq_ci) {
+function create_qq_plot(maf_ranges, qq_ci, axes_color) {
     // Escape hatch: for highly filtered datasets ("only the most extreme hits"), it may not be possible to draw a qq
     // plot at all; the backend code clips all values past a cap. This manifests as empty bins, and drawing would fail
     // Physically, this means a QQ plot would be meaningless: ALL the values are *way* more extreme than explained by
@@ -500,17 +500,16 @@ function create_qq_plot(maf_ranges, qq_ci) {
         obs_max = Math.max(obs_max, exp_max);
         obs_max = Math.ceil(obs_max) + 0.01; // The 0.01 makes sure the integer tick will be shown.
 
-
         const svg_width = $('#qq_plot_container').width();
         const plot_margin = {
             'left': 70,
             'right': 30,
             'top': 10,
-            'bottom': 120,
+            'bottom': 200,
         };
         const plot_width = svg_width - plot_margin.left - plot_margin.right;
         // Size the plot to make things square.  This way, x_scale and y_scale should be exactly equivalent.
-        const plot_height = plot_width / exp_max * obs_max;
+        const plot_height = 600;
         const svg_height = plot_height + plot_margin.top + plot_margin.bottom;
 
         // TODO: use a clip path to keep qq_ci below the upper edge
@@ -519,7 +518,8 @@ function create_qq_plot(maf_ranges, qq_ci) {
             .attr('width', svg_width)
             .attr('height', svg_height)
             .style('display', 'block')
-            .style('margin', 'auto');
+            .style('margin', 'auto')
+
         const qq_plot = qq_svg.append('g')
             .attr('id', 'qq_plot')
             .attr('transform', fmt('translate({0},{1})', plot_margin.left, plot_margin.top));
@@ -620,7 +620,10 @@ function create_qq_plot(maf_ranges, qq_ci) {
         qq_plot.append('g')
             .attr('class', 'x axis')
             .attr('transform', fmt('translate(0,{0})', plot_height))
-            .call(xAxis);
+            .call(xAxis)
+            .selectAll('text')
+            .style('fill', axes_color);
+
 
         const y_axis = d3.axisLeft(y_scale)
             .tickSizeInner(-plot_width)
@@ -630,21 +633,31 @@ function create_qq_plot(maf_ranges, qq_ci) {
             .tickValues(range(obs_max)); //prevent unlabeled, non-integer ticks.
         qq_plot.append('g')
             .attr('class', 'y axis')
-            .call(y_axis);
+            .call(y_axis)
+            .selectAll('text')
+            .style('fill', axes_color);
+
+        qq_plot.select('.x.axis path')
+            .style('stroke', axes_color);
+
+        qq_plot.selectAll('.y.axis path')
+            .style('stroke', axes_color);
 
         qq_svg.append('text')
             .style('text-anchor', 'middle')
             .attr('transform', fmt('translate({0},{1})rotate(-90)',
                 plot_margin.left * .4,
                 plot_margin.top + plot_height / 2))
-            .text('observed -log\u2081\u2080(p)');
+            .text('observed -log\u2081\u2080(p-value)')
+            .style('fill', axes_color);
 
         qq_svg.append('text')
             .style('text-anchor', 'middle')
             .attr('transform', fmt('translate({0},{1})',
                 plot_margin.left + plot_width / 2,
                 plot_margin.top + plot_height + 40))
-            .text('expected -log\u2081\u2080(p)');
+            .text('expected -log\u2081\u2080(p-value)')
+            .style('fill', axes_color);
     });
 }
 

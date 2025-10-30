@@ -17,19 +17,24 @@
     <v-window v-model="searchMode">
       <!-- loci tab -->
       <v-window-item value="loci">
+        <p class="text-body-1 mb-4">
         Showing all top loci of the current trait. Only peaks with a p-value < 10⁻⁶ will be returned.
             Variants are excluded if another variant within 500kb of the same trait has a smaller p-value.
+        </p>
       </v-window-item>
 
       <!-- pval tab -->
       <v-window-item value="pval">
+        <p class="text-body-1 mb-4">
         Showing variants that pass the p-value cutoff (max. 10,000 variants)
+        </p>
       </v-window-item>
 
       <!-- rsID tab -->
       <v-window-item value="rsid">
+        <p class="text-body-1 mb-4">
         Showing variants that match the selected SNP ID, variants within the specified neighbor range (bp) and pass the p-value cutoff.
-
+        </p>
         <v-row class="pt-4">
           <v-col cols="12" md="6">
             <AutocompleteVariant
@@ -56,7 +61,9 @@
 
       <!-- Chromosome range tab -->
       <v-window-item value="chromosome">
+        <p class="text-body-1 mb-4">
         Showing variants on the specified chromosome and position range that pass the p-value cutoff.
+        </p>
         <v-row class="pt-4">
           <v-col cols="12" md="4">
             <v-text-field
@@ -105,7 +112,7 @@
             label="P-Value Cutoff"
             ref="pvalField"
             type="number"
-            step="0.01"
+            step="0.001"
             :max="maxPvalForMode"
             :rules="pvalRules()"
             density="comfortable"
@@ -116,7 +123,7 @@
     </v-row>
 
     <!-- Submit button -->
-    <v-row v-if="searchMode !== 'loci'">
+    <v-row>
   <v-col>
     <v-btn color="primary" @click="applyFilters">
       Submit Query
@@ -134,7 +141,7 @@ import {compressChromosomes} from "@/utils/utils.js"
 
 
 export default {
-  name: "TraitSearchBar",
+  name: "TraitSearchBarGWAS",
   components: {AutocompleteVariant},
   emits: ["apply-filters"],
   props: {
@@ -149,7 +156,7 @@ export default {
       chr: null,
       startPos: null,
       endPos: null,
-      pvalCutoff: 0.05,
+      pvalCutoff: 5e-8,
     };
   },
   mounted() {
@@ -256,7 +263,7 @@ export default {
     },
     async getChromosomeBounds() {
       try {
-        let url = `${API_BASE_URL}/trait_get_chromosomeBounds/?trait=${encodeURIComponent(this.pheno)}`;
+        let url = `${API_BASE_URL}/trait_get_chromosomeBounds/?id=${encodeURIComponent(this.pheno)}`;
 
         const res = await fetch(url);
         const json = await res.json();
@@ -271,7 +278,7 @@ export default {
       return this.chromosomeBounds[this.chr] || { min: 0, max: 0 };
     },
     maxPvalForMode() {
-      return this.searchMode === "pval" ? 0.05 : 1;
+      return this.searchMode === "pval" ? 5e-8 : 1;
     },
   },
 };

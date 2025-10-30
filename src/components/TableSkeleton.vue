@@ -1,102 +1,103 @@
 <template>
   <v-container>
 
-      <div class="table-wrapper" style="overflow-x: auto;">
+    <div class="table-wrapper" style="overflow-x: auto;">
       <DataTable
-               class="no-wrap-headers"
-               :value="rows"
-               paginator
-               :rows="defaultTableRows"
-               :rowsPerPageOptions="[5, 10, 20, 50, 100]"
-               tableStyle="min-width: 50rem"
-               :customSort="true"
-               :sortField="sortField"
-               :sortOrder="sortOrder"
-               @sort="onSort"
-               filterDisplay="menu"
-               :filters="filters"
-               :globalFilterFields="globalFilterFields"
-               paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink PaginatorEnd"
-               currentPageReportTemplate="{first} to {last} of {totalRecords}"
-              :scrollable="true">
-       <template #header>
-        <v-row class="align-center mb-1">
-          <IconField>
-            <InputIcon>
-              <i class="pi pi-search"/>
-            </InputIcon>
-            <InputText v-model="filters['global'].value" placeholder="Keyword Search"/>
-          </IconField>
-        </v-row>
-      </template>
-      <template #empty> Nothing found.</template>
-      <template #loading> Loading data. Please wait.</template>
-      <template #paginatorend>
-              <!-- Download Button outside scrollable table -->
-      <div style="margin-left: auto; display: flex; align-items: center;">
-        <Button
-          type="button"
-          icon="pi pi-download"
-          class="p-button-text p-button-secondary"
-          @click="onMenuClick"
-          aria-haspopup="true"
-          aria-controls="download_menu"
-        />
-        <Menu
-          id="download_menu"
-          ref="menuRef"
-          :model="downloadItems"
-          :popup="true"
-          :visible="menuVisible"
-        />
-      </div>
-      </template>
-      <template v-for="col in columns" :key="col.field">
-        <Column
-            v-if="col.field !== 'variant_id' && col.field !== 'trait_id' && col.field !== 'top_variant'"
-            :field="col.field"
-            :header="col.header"
-            sortable
-        />
-        <Column
-            v-else
-            :field="col.field"
-            :header="col.header"
-            sortable
-        >
-        <template #body="{ data, field }">
-          <!-- Variant link -->
-          <template v-if="field === 'variant_id'">
-            <a :href="`/variant/${encodeURIComponent(data.variant_id)}`"
-               class="table-link hover:underline no-wrap">
-              {{ data.variant_id }}
-            </a>
-          </template>
-
-          <template v-else-if="field === 'top_variant'">
-            <a :href="`/variant/${encodeURIComponent(data.top_variant.split(' ')[0])}`"
-               class="table-link hover:underline no-wrap">
-              {{ data.top_variant }}
-            </a>
-          </template>
-
-          <!-- Phenotype link -->
-          <template v-else-if="field === 'trait_id'">
-            <a :href="`/trait/${encodeURIComponent(data.trait_id)}`"
-               class="table-link hover:underline no-wrap">
-              {{ data.trait_id }} <!-- show description as text -->
-            </a>
-          </template>
-
-          <!-- Default rendering -->
-          <template v-else>
-            {{ data[field] }}
-          </template>
+          class="no-wrap-headers"
+          :value="rows"
+          paginator
+          :rows="defaultTableRows"
+          :rowsPerPageOptions="[5, 10, 20, 50, 100]"
+          tableStyle="min-width: 50rem"
+          :customSort="true"
+          :sortField="sortField"
+          :sortOrder="sortOrder"
+          @sort="onSort"
+          filterDisplay="menu"
+          :filters="filters"
+          :globalFilterFields="globalFilterFields"
+          paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink PaginatorEnd"
+          currentPageReportTemplate="{first} to {last} of {totalRecords}"
+          :scrollable="true">
+        <template #header>
+          <v-row class="align-center mb-1">
+            <IconField>
+              <InputIcon>
+                <i class="pi pi-search"/>
+              </InputIcon>
+              <InputText v-model="filters['global'].value" placeholder="Keyword Search"/>
+            </IconField>
+          </v-row>
         </template>
-        </Column>
-      </template>
-    </DataTable>
-        </div>
+        <template #empty> Nothing found.</template>
+        <template #loading> Loading data. Please wait.</template>
+        <template #paginatorend>
+          <!-- Download Button outside scrollable table -->
+          <div style="margin-left: auto; display: flex; align-items: center;">
+            <Button
+                type="button"
+                icon="pi pi-download"
+                class="p-button-text p-button-secondary"
+                @click="onMenuClick"
+                aria-haspopup="true"
+                aria-controls="download_menu"
+            />
+            <Menu
+                id="download_menu"
+                ref="menuRef"
+                :model="downloadItems"
+                :popup="true"
+                :visible="menuVisible"
+            />
+          </div>
+        </template>
+
+        <template v-for="col in columns" :key="col.field">
+          <Column
+              v-if="col.field !== 'variant_id' && col.field !== 'trait_id' && col.field !== 'top_variant'"
+              :field="col.field"
+              :header="col.header"
+              sortable
+          />
+          <Column
+              v-else
+              :field="col.field"
+              :header="col.header"
+              sortable
+          >
+            <template #body="{ data, field }">
+              <!-- Variant link -->
+              <template v-if="field === 'variant_id'">
+                <a :href="`/variant/${encodeURIComponent(data.variant_id)}`"
+                   class="table-link hover:underline no-wrap">
+                  {{ data.variant_id }}
+                </a>
+              </template>
+
+              <template v-else-if="field === 'top_variant'">
+                <a :href="`/variant/${encodeURIComponent(data.top_variant.split(' ')[0])}`"
+                   class="table-link hover:underline no-wrap">
+                  {{ data.top_variant }}
+                </a>
+              </template>
+
+              <!-- Phenotype link -->
+              <template v-else-if="field === 'trait_id'">
+                <a :href="`/trait/${encodeURIComponent(data.trait_id)}`"
+                   class="table-link hover:underline no-wrap">
+                  {{ data.trait_id }} <!-- show description as text -->
+                </a>
+              </template>
+
+              <!-- Default rendering -->
+              <template v-else>
+                {{ data[field] }}
+              </template>
+            </template>
+          </Column>
+        </template>
+      </DataTable>
+    </div>
 
   </v-container>
 </template>
@@ -128,8 +129,8 @@ export default {
     headers: {
       type: Array,
       required: false,
-      default: () => ["variant_id","rsid", "chrom","pos","ref","alt","neg_log_pvalue","pvalue","beta","stderr_beta",
-		          "alt_allele_freq"]
+      default: () => ["variant_id", "chrom", "pos", "ref", "alt", "beta", "stderr_beta",
+        "alt_allele_freq", "pvalue", "neg_log_pvalue"]
     },
     rows: {
       type: Array,
@@ -156,20 +157,21 @@ export default {
       default: 5
     },
   },
-    data: () => ({
+  data: () => ({
     menuVisible: false,
-    sortField: "log_pvalue",
-    sortOrder: -1,
+    sortField: "Pvalue",
+    sortOrder: 1,
     filters: {
       global: {value: null, matchMode: FilterMatchMode.CONTAINS}
     },
+    selectedRows: []
   }),
   computed: {
     downloadItems() {
       return [
-        { label: 'Download as CSV', icon: 'pi pi-file', command: () => this.download('csv') },
-        { label: 'Download as JSON', icon: 'pi pi-file', command: () => this.download('json') },
-        { label: 'Download as TXT', icon: 'pi pi-file', command: () => this.download('txt') }
+        {label: 'Download as CSV', icon: 'pi pi-file', command: () => this.download('csv')},
+        {label: 'Download as JSON', icon: 'pi pi-file', command: () => this.download('json')},
+        {label: 'Download as TXT', icon: 'pi pi-file', command: () => this.download('txt')}
       ];
     },
     columns() {
@@ -178,10 +180,12 @@ export default {
         ...this.headers.filter(c => !this.priorityOrder.includes(c))
       ];
 
-      return sorted.map(col => ({
+      const sorted_renamed =  sorted.map(col => ({
         field: col,
-        header: col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+        header:
+            col === 'neg_log_pvalue' ? '-Log10(Pvalue)' : col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
       }));
+      return sorted_renamed;
     }
   },
   methods: {
@@ -194,7 +198,6 @@ export default {
       this.sortOrder = event.sortOrder;
     },
     download(format) {
-      console.log("Downloading in format: " + format);
       const rows = this.rows;
       let content = "";
       let mimeType = "text/plain";
@@ -203,23 +206,23 @@ export default {
       if (!rows.length) return;
 
       if (format === 'json') {
-      content = JSON.stringify(rows, null, 2);
-      mimeType = "application/json";
+        content = JSON.stringify(rows, null, 2);
+        mimeType = "application/json";
       } else if (format === 'csv') {
-      const headers = Object.keys(rows[0]);
-      const csvRows = [
-        headers.join(','),
-        ...rows.map(row => headers.map(h => `"${(row[h] ?? '').toString().replace(/"/g, '""')}"`).join(','))
-      ];
-      content = csvRows.join('\n');
-      mimeType = "text/csv";
+        const headers = Object.keys(rows[0]);
+        const csvRows = [
+          headers.join(','),
+          ...rows.map(row => headers.map(h => `"${(row[h] ?? '').toString().replace(/"/g, '""')}"`).join(','))
+        ];
+        content = csvRows.join('\n');
+        mimeType = "text/csv";
       } else if (format === 'txt') {
-      const headers = Object.keys(rows[0]);
-      const headerLine = headers.join('\t');
-      const lines = rows.map(row =>
-          headers.map(h => row[h] ?? '').join('\t')
-      );
-      content = [headerLine, ...lines].join('\n');
+        const headers = Object.keys(rows[0]);
+        const headerLine = headers.join('\t');
+        const lines = rows.map(row =>
+            headers.map(h => row[h] ?? '').join('\t')
+        );
+        content = [headerLine, ...lines].join('\n');
       }
       const blob = new Blob([content], {type: mimeType});
       const link = document.createElement('a');
@@ -238,6 +241,7 @@ export default {
 .no-wrap {
   white-space: nowrap;
 }
+
 .no-wrap-headers .p-datatable-thead > tr > th {
   white-space: nowrap;
 }

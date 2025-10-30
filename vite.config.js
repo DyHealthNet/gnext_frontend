@@ -6,9 +6,6 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
-  console.log('Loaded env variables:', env) // <-- check here
-
-
   const backendOrigin = env.VITE_API_URL || 'http://localhost:8000'
 
   const tsProto = 'http'
@@ -22,8 +19,28 @@ export default defineConfig(({ mode }) => {
     define: {
       'process.env': env
     },
-    plugins: [vue(), vueDevTools()],
+    plugins: [
+      vue({
+        template: {
+          compilerOptions: {
+            isCustomElement: (tag) => tag === 'drugst-one'
+          }
+        }
+      }),
+      vueDevTools()
+    ],
     resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
+    // prevent bundling of the external web component <drugst-one>
+    build: {
+      rollupOptions: {
+        external: ['drugst-one'],
+        output: {
+          globals: {
+            'drugst-one': 'ELEMENT',
+          },
+        },
+      },
+    },
     server: {
       port: 5173,
       proxy: {

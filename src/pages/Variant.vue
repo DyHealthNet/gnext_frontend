@@ -26,7 +26,7 @@
             <h1 class="title mt-4" style="display: inline-flex">
               Variant
               <img
-                :src="variantIcon"
+                  :src="theme.global.name.value === 'dyHealthNetThemeDark' ? variantIconWhite : variantIconBlack"
                 style="width: 50px; height: 50px; margin-left: 10px; margin-right: 10px"
               >
               {{id}}
@@ -173,7 +173,7 @@ import VariantPopulationFrequencies from "@/components/variant/VariantPopulation
 import VariantClosestGene from "@/components/variant/VariantClosestGene.vue";
 import VariantConsequences from "@/components/variant/VariantConsequences.vue";
 import {ref, reactive, onMounted, watch, computed} from 'vue';
-
+import { useTheme } from 'vuetify';
 import variantIconBlack from "@/assets/figures/node_variant_black.png"
 import variantIconWhite from "@/assets/figures/node_variant_white.png"
 
@@ -189,6 +189,7 @@ export default {
   setup() {
     const route = useRoute();
     const id = ref(decodeURIComponent(route.params.id));
+    const theme = useTheme();
 
     const pageLoading = ref(false); // overlay controller
 
@@ -207,10 +208,6 @@ export default {
     const minAF = ref(null);
     const maxAF = ref(null);
     const traitMetrics = reactive({});
-
-    const variantIcon = computed(() =>
-      localStorage.getItem('theme') === 'dyHealthNetThemeDark' ? variantIconWhite : variantIconBlack
-    );
 
     const fetchMetricsData = async () => {
       const query = encodeURIComponent(id.value);
@@ -329,7 +326,9 @@ export default {
       minAF,
       maxAF,
       traitMetrics,
-      variantIcon
+      theme,
+      variantIconBlack,
+      variantIconWhite
     };
   }
 };

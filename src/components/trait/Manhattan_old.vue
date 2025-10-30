@@ -1,6 +1,22 @@
 <template>
   <v-container>
     <div id="manhattan_plot_container" style="width: 100%; height: 600px; background-color: transparent"></div>
+    <div class="d-flex justify-end mt-4">
+
+    <v-menu offset-y>
+  <template #activator="{ props }">
+    <v-btn color="primary" v-bind="props" prepend-icon="mdi-download">
+      Download
+    </v-btn>
+  </template>
+
+  <v-list>
+    <v-list-item @click="handleDownload('png')">PNG</v-list-item>
+    <v-list-item @click="handleDownload('svg')">SVG</v-list-item>
+    <v-list-item @click="handleDownload('jpg')">JPG</v-list-item>
+  </v-list>
+</v-menu>
+    </div>
   </v-container>
 </template>
 
@@ -8,6 +24,7 @@
 <script>
 import {create_gwas_plot} from '../../utils/pheweb_plots.js';
 import {API_BASE_URL} from "@/config.js";
+import {downloadPlot} from "@/utils/utils.js";
 
 export default {
   name: "ManhattanPlot",
@@ -63,7 +80,6 @@ export default {
 
     async loadManhattanPlot() {
       try {
-        console.log("trait ID:", this.traitId);
         const res = await fetch(`${API_BASE_URL}/trait_get_manhattan/?id=${this.traitId}`)
         const json = await res.json();
         // clear old plot
@@ -82,10 +98,12 @@ export default {
         console.error("Failed to load GWAS plot data:", error);
         document.getElementById('gwas_plot_container').textContent = 'Could not fetch GWAS plot data.';
       }
+    },
+
+    handleDownload(format){
+      downloadPlot('#manhattan_plot_container', `manhattan_gwas_${this.traitId}`, format);
     }
   }
-
-
 }
 </script>
 

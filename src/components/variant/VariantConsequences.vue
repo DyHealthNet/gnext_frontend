@@ -192,7 +192,6 @@ export default {
     },
 
     download(format) {
-      console.log("Downloading in format: " + format);
       const rows = this.rows;
       const variantId = this.variantId;
       let content = "";

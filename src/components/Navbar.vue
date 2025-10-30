@@ -1,18 +1,10 @@
 <template>
-  <v-app-bar class="page-borders-nav" height="80" scroll-behavior="elevate" app>
-    <router-link to="/" class="logo-link">
+    <v-toolbar class="navbar" elevation="4">
+      <router-link to="/" class="logo-link">
     <div class="logo-container">
-
         <img class="forkmeFigure" src="@/assets/figures/DyHealthNet_Logo.png"
              width="auto"
              height="100" alt="DyHealthNet Logo">
-
-
-      <div class="divider"></div>
-
-      <img class="formeFigure" src="@/assets/figures/CHRIS_Interval_Logo.png"
-           width="auto"
-           height="60">
     </div>
          </router-link>
 
@@ -37,6 +29,16 @@
             <v-icon>mdi-file-table-outline</v-icon>
           </template>
           Top Hits
+        </v-btn>
+      </template>
+    </v-menu>
+    <v-menu v-if="magmaShow" transition="slide-x-transition">
+      <template v-slot:activator="{ props }">
+        <v-btn to="/drugstone" color="primary-darken-1" cl="mx-1" v-bind="props">
+          <template v-slot:prepend>
+            <v-icon>mdi-pill-multiple</v-icon>
+          </template>
+          Drugst.One
         </v-btn>
       </template>
     </v-menu>
@@ -80,17 +82,20 @@
     </v-switch>
     <v-icon class="mr-5" color="primary-darken-1">mdi-weather-night</v-icon>
 
-  </v-app-bar>
+  </v-toolbar>
 </template>
 
 <script>
 import AutoComplete from "@/components/AutoComplete_Navbar.vue";
+import {MAGMA_SHOW} from "@/config.js";
 
 export default {
   components: {AutoComplete},
   data() {
     return {
-      isDark: false
+      isDark: false,
+      magmaShow: MAGMA_SHOW,
+
     }
   },
 
@@ -129,9 +134,6 @@ export default {
 </script>
 
 <style>
-.page-borders-nav {
-}
-
 .logo-link:hover {
   background-color: transparent !important;
   box-shadow: none !important;
@@ -148,9 +150,25 @@ export default {
   align-items: center;
 }
 
-.v-application,
-.v-app-bar,
-body {
-  overflow: visible;
+.navbar {
+  background-color: rgb(var(--v-theme-surface));
+  position: fixed;
+  z-index: 1;
+  width: 100%;
+  height: 70px
 }
+
+.v-application--wrap {
+  overflow: visible !important;
+}
+
+.v-application--wrap,
+.v-main,
+.v-container,
+.v-card {
+  position: static !important;
+  z-index: auto !important;
+}
+
+
 </style>

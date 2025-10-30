@@ -32,7 +32,7 @@
                 </p>
 
                 <TableSkeleton
-                  :headers="tableHeader"
+                  :headers="tableHeaders"
                   :rows="tableItems"
                   :downloadName="downloadName"
                   :defaultTableRows="defaultTableRows"
@@ -60,9 +60,20 @@ export default {
   data() {
     return {
       tableItems: [],
+      tableHeaders: [],
       showLoading: isLoading,
       downloadName: "",
-      priorityOrder:  ["trait_id", "trait_label", "trait_group", "top_variant", "pvalue", "neg_log_pvalue"],
+      priorityOrder:  [
+          "trait_id",
+          "trait_label",
+          "trait_category",
+          "top_variant",
+          "beta",
+          "stderr_beta",
+          "alt_allele_freq",
+          "pvalue",
+          "neg_log_pvalue"
+        ],
       defaultTableRows: 50,
     }
   },
@@ -80,13 +91,16 @@ export default {
           "trait_label",
           "trait_category",
           "top_variant",
+          "beta",
+          "stderr_beta",
+          "alt_allele_freq",
           "pvalue",
           "neg_log_pvalue"
         ];
         if (json.length > 0) {
-          this.tableHeader = desiredHeaders.filter(h => Object.keys(json[0]).includes(h));
+          this.tableHeaders = desiredHeaders.filter(h => Object.keys(json[0]).includes(h));
         } else {
-          this.tableHeader = [];
+          this.tableHeaders = [];
         }
         this.tableItems = json;
       } catch (err) {

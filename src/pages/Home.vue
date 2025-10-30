@@ -29,10 +29,20 @@
 
 
         <v-row align="center" justify="center" class="mt-3" style="gap: 5px; font-size:0.8rem;">
-          <v-btn class="example-btn" depressed @click="onTraitClick">
+          <v-btn
+              v-if="TRAIT_EXAMPLE !== ''"
+              class="example-btn"
+              depressed
+              @click="onTraitClick"
+          >
             Example Trait {{TRAIT_EXAMPLE}} →
           </v-btn>
-          <v-btn class="example-btn" depressed @click="onVariantClick">
+          <v-btn
+              v-if="VARIANT_EXAMPLE !== ''"
+              class="example-btn"
+              depressed
+              @click="onVariantClick"
+          >
             Example Variant {{VARIANT_EXAMPLE}} →
           </v-btn>
         </v-row>
@@ -58,12 +68,10 @@ const mainSubheader = "Your gateway to explore and analyze GWAS summary statisti
 const router = useRouter();
 
 function onTraitClick() {
-  console.log("Trait button pressed");
   router.push(`/trait/${TRAIT_EXAMPLE}`);
 }
 
 function onVariantClick() {
-  console.log("Variant button pressed");
   router.push(`/variant/${encodeURIComponent(VARIANT_EXAMPLE)}`);
 }
 </script>
