@@ -2,7 +2,7 @@
   <v-container>
     <v-row class="text-center">
       <v-col cols="12">
-        <h1 class="title mt-4">Drugst.One Page</h1>
+        <h1 class="title mt-4">Network Medicine</h1>
       </v-col>
     </v-row>
 
@@ -51,10 +51,16 @@
                 </v-col>
               </v-row>
               <v-row>
-                <v-col sm="6" md="6" lg="3">
+                <v-col sm="6" md="6" lg="2">
                   <v-btn color="primary" block height="48px" :disabled="emptyGeneLists"
                          prepend-icon="mdi-send-circle-outline" @click="addNodesToNetwork">
-                    Add to Drugst.One Interface
+                    Add to Drugst.One
+                  </v-btn>
+                </v-col>
+                <v-col sm="6" md="6" lg="2" class="ml-auto">
+                  <v-btn color="error" block height="48px"
+                         prepend-icon="mdi-close-circle-outline" @click="clearGeneLists">
+                    Clear All Seed Gene Lists
                   </v-btn>
                 </v-col>
               </v-row>
@@ -71,7 +77,7 @@
             <v-toolbar-title>Drugst.One</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <div style="max-height: 650px; overflow-y:auto;">
+            <div style="max-height: 1000px; overflow-y:auto;">
               <drugst-one
                   id='drugstone-component-id'
                   :key="networkKey"
@@ -83,31 +89,65 @@
               >
               </drugst-one>
             </div>
+            <DrugstoneGeneForwarding v-if="loadedName != null" :name="loadedName" :trait="loadedTrait"/>
             <DrugstoneNetworkSettings v-model:config="config"/>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
+
+    <!-- Confirmation Dialog -->
+    <v-dialog v-model="showConfirmDialog" max-width="400">
+      <v-card>
+        <v-card-title class="text-h5">
+          Confirm Action
+        </v-card-title>
+        <v-card-text>
+          Are you sure you want to clear all seed gene lists? This action cannot be undone.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="grey"
+            variant="text"
+            @click="showConfirmDialog = false"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="red"
+            variant="text"
+            @click="confirmClearGeneLists"
+          >
+            Clear All
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
 
-import DrugstoneNetworkSettings from "@/components/DrugstoneNetworkSettings.vue";
+import DrugstoneNetworkSettings from "@/components/drugstone/DrugstoneNetworkSettings.vue";
+import DrugstoneGeneForwarding from "@/components/drugstone/DrugstoneGeneForwarding.vue";
 import {GENE_ID_SPACE} from "@/config.js";
 import {drugstone_themes} from "@/utils/drugstone_themes.js";
 
 export default {
-  name: 'Drugstone',
-  components: {DrugstoneNetworkSettings},
+  name: 'NetworkMedicine',
+  components: {DrugstoneNetworkSettings, DrugstoneGeneForwarding},
   data() {
     return {
+      loadedTrait: null,
+      loadedName: null,
       selectedList: null,
       selectedGenes: [],
       listNames: [],
       network: {nodes: [], edges: []},
       networkKey: 0,  // Add this to force re-render
       networkName: '',
+      showConfirmDialog: false,
       config: {
         identifier: GENE_ID_SPACE,
         title: 'Empty Network',
@@ -172,7 +212,7 @@ export default {
     },
     loadGenes(listName) {
       const geneLists = JSON.parse(localStorage.getItem("geneLists") || "{}")
-      const genes = geneLists[listName] || []
+      const genes = geneLists[listName]["genes"] || []
       // join as comma-separated or newline-separated str
       this.selectedGenes = genes.join(", ")
     },
@@ -192,12 +232,14 @@ export default {
       const storedName = localStorage.getItem('drugstoneName')
       if (storedName) {
         this.config['title'] = storedName + " Network"
+        this.loadedName = storedName
+        this.loadedTrait = JSON.parse(localStorage.getItem("geneLists"))[storedName]["trait"] || null
       }
     },
 
     addNodesToNetwork() {
       const geneLists = JSON.parse(localStorage.getItem("geneLists") || "{}")
-      const genes = geneLists[this.selectedList] || []
+      const genes = geneLists[this.selectedList]["genes"] || []
 
       // Update the reactive network object
       this.network = {
@@ -206,6 +248,8 @@ export default {
       }
 
       this.config['title'] = this.selectedList + " Network"
+      this.loadedName = this.selectedList
+      this.loadedTrait = geneLists[this.selectedList]["trait"] || null
 
       const geneTasks = JSON.parse(localStorage.getItem("geneTasks") || "{}")
 
@@ -241,6 +285,37 @@ export default {
 
       geneTasks[storedName] = currentTasks.concat(event.detail.taskId)
       localStorage.setItem("geneTasks", JSON.stringify(geneTasks))
+    },
+
+    clearGeneLists(){
+      // Show confirmation dialog
+      this.showConfirmDialog = true
+    },
+
+    confirmClearGeneLists(){
+      // Clear all gene lists from localStorage
+      localStorage.removeItem("geneLists")
+      localStorage.removeItem("geneTasks")
+      localStorage.removeItem('drugstoneNetwork')
+      localStorage.removeItem('drugstoneName')
+      localStorage.removeItem("drugstone-tokens-" + window.location.host)
+      
+      // Reset component state
+      this.listNames = []
+      this.selectedList = null
+      this.selectedGenes = []
+      this.loadedTrait = null
+      this.loadedName = null
+      this.network = {nodes: [], edges: []}
+      this.config.title = 'Empty Network'
+      
+      // Close dialog
+      this.showConfirmDialog = false
+      
+      // Force network re-render
+      this.networkKey++
+      
+      console.log("All seed gene lists cleared")
     }
   }
 }
@@ -255,7 +330,5 @@ export default {
   margin: 0 auto !important;
   box-sizing: border-box;
 }
-
-
 </style>
 

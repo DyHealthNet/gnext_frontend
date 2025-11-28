@@ -18,8 +18,9 @@
       <!-- loci tab -->
       <v-window-item value="loci">
         <p class="text-body-1 mb-4">
-        Showing all top loci of the current trait. Only peaks with a p-value < 10⁻⁶ will be returned.
-            Variants are excluded if another variant within 500kb of the same trait has a smaller p-value.
+        Showing all top loci of the current trait. Only peaks with a p-value < {{manhattan_peak_pval_threshold}} ({{manhattan_peak_pval_threshold.toExponential()}}) will be returned.
+            Variants are excluded if another variant within {{manhattan_peak_sprawl_dist/1000}} kb of the same trait has a smaller p-value.
+          A maximum of {{manhattan_peak_max_count}} loci are returned.
         </p>
       </v-window-item>
 
@@ -157,10 +158,14 @@ export default {
       startPos: null,
       endPos: null,
       pvalCutoff: 5e-8,
+      manhattan_peak_max_count: 0,
+      manhattan_peak_sprawl_dist: 0,
+      manhattan_peak_pval_threshold: 0,
     };
   },
   mounted() {
     this.getChromosomeBounds();
+    this.getTopLociConfigs();
     try {
       this.applyFilters();
     } catch (err) {
@@ -182,10 +187,31 @@ export default {
     },
   },
   methods: {
+     getTopLociConfigs(){
+      const cached = localStorage.getItem('configs')
+      if (cached) {
+        const data = JSON.parse(cached)
+        this.manhattan_peak_max_count = data.manhattan_peak_max_count;
+        this.manhattan_peak_sprawl_dist = data.manhattan_peak_sprawl_dist;
+        this.manhattan_peak_pval_threshold = data.manhattan_peak_pval_threshold;
+      } else {
+        // Otherwise fetch from API
+        fetch(`${API_BASE_URL}/overview_get_config`)
+            .then(res => res.json())
+            .then(data => {
+              localStorage.setItem('configs', JSON.stringify(data))
+              this.manhattan_peak_max_count = data.manhattan_peak_max_count;
+              this.manhattan_peak_sprawl_dist = data.manhattan_peak_sprawl_dist;
+              this.manhattan_peak_pval_threshold = data.manhattan_peak_pval_threshold;
+            })
+            .catch(err => console.error('Error fetching config:', err))
+      }
+    },
+
     pvalRules() {
       return [
           v => !!v || 'Required',
-        v => (Number(v) >= 0 && Number(v) <= this.maxPvalForMode) ? true : `Must be between 0 and ${this.maxPvalForMode}`
+        v => (Number(v) >= 0 && Number(v) <= 1) ? true : 'Must be between 0 and 1'
       ];
     },
     rangeRules() {

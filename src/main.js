@@ -23,6 +23,7 @@ import App from './App.vue'
 import InstantSearch from 'vue-instantsearch/vue3/es'
 import {COLOR_PRIMARY, COLOR_PRIMARY_DARK} from "@/config.js"; // ← this is critical for Vue 3
 
+
 const dyHealthNetTheme = {
     dark: false,
     colors: {
@@ -180,7 +181,9 @@ const MyPreset = definePreset(Aura, {
     }
 })
 
+
 const app = createApp(App)
+
 app.use(vuetify).use(router).use(InstantSearch).use(PrimeVue, {
     theme: {
         preset: MyPreset, options: {

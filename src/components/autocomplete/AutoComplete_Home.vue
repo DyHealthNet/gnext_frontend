@@ -5,7 +5,7 @@
         <template #default="{ currentRefinement, refine, indices }">
           <v-text-field
               v-model="searchQuery"
-              label="Search for a trait or a variant"
+              label="Search for a trait, variant, or gene"
               prepend-inner-icon="mdi-magnify"
               outlined
               dense
@@ -25,7 +25,7 @@
                   <v-col cols="auto">
                     <v-avatar size="40">
                       <v-img
-                          :src="hit.type === 'trait' ? phenotypeIcon : variantIcon"
+                          :src="hit.type === 'trait' ? phenotypeIcon : hit.type === 'variant' ? variantIcon : geneIcon"
                           alt="Icon"
                           max-width="32"
                           max-height="32"
@@ -45,6 +45,10 @@
                       </template>
                       <template v-else-if="hit.type === 'variant'">
                         <span v-html="hit._highlightResult.external_ref.value"></span>
+                      </template>
+                       <template v-else-if="hit.type === 'gene'">
+                         <span v-html="hit._highlightResult.external_ref.value"></span> -
+                        <span v-html="hit._highlightResult.description.value"></span>
                       </template>
                     </v-list-item-subtitle>
                   </v-col>
@@ -68,10 +72,12 @@
 import TypesenseInstantSearchAdapter from "typesense-instantsearch-adapter";
 import {ref, computed} from "vue";
 
-import phenotypeIconWhite from "@/assets/figures/node_phenotype_white.png";
-import phenotypeIconBlack from "@/assets/figures/node_phenotype_black.png";
+import phenotypeIconWhite from "@/assets/figures/node_phenotype_white.png"
+import phenotypeIconBlack from "@/assets/figures/node_phenotype_black.png"
 import variantIconBlack from "@/assets/figures/node_variant_black.png"
 import variantIconWhite from "@/assets/figures/node_variant_white.png"
+import geneIconBlack from "@/assets/figures/node_gene_black.png"
+import geneIconWhite from "@/assets/figures/node_gene_white.png"
 
 
 import {useRouter} from "vue-router";
@@ -109,8 +115,8 @@ const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
       {
         host: window.location.hostname,
         path: "/typesense",
-        port:window.location.port,
-        protocol: window.location.protocol.replace(":",""),
+        port: window.location.port,
+        protocol: window.location.protocol.replace(":", ""),
       },
     ],
     cacheSearchResultsForSeconds: 120,
@@ -125,15 +131,21 @@ function goToHit(hit) {
     router.push(`/variant/${encodeURIComponent(hit.id)}`);
   } else if (hit.type === "trait") {
     router.push(`/trait/${hit.id}`);
+  } else if (hit.type === "gene") {
+    router.push(`/gene/${hit.id}`)
   }
 };
 
 // Dynamic icons based on theme
 const phenotypeIcon = computed(() =>
-   localStorage.getItem('theme') === 'dyHealthNetThemeDark' ? phenotypeIconWhite : phenotypeIconBlack
+    localStorage.getItem('theme') === 'dyHealthNetThemeDark' ? phenotypeIconWhite : phenotypeIconBlack
 );
 const variantIcon = computed(() =>
-  localStorage.getItem('theme') === 'dyHealthNetThemeDark' ? variantIconWhite : variantIconBlack
+    localStorage.getItem('theme') === 'dyHealthNetThemeDark' ? variantIconWhite : variantIconBlack
+);
+
+const geneIcon = computed(() =>
+    localStorage.getItem('theme') === 'dyHealthNetThemeDark' ? geneIconWhite : geneIconBlack
 );
 
 </script>

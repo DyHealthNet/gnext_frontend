@@ -8,7 +8,7 @@
 
       </v-col>
       <v-col xs="12" sm="12" md="12" lg="4">
-        <h3><strong>Number of Samples</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{traitNumberSamples}}</h3>
+        <h3 v-if="traitNumberSamples && traitNumberSamples !== 0"><strong>Number of Samples</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{traitNumberSamples}}</h3>
         <h3 v-if="traitExternalRef"><strong>External Reference</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h3><LinkButton v-if="traitExternalRef" :title="traitExternalRef" :url="`${BASE_URL}${traitExternalRef}`" :disabled="!traitExternalRef"/>
       </v-col>
 
@@ -70,16 +70,27 @@ export default {
   },
 
   methods: {
-    getMAGMAParams(){
-      fetch(`${API_BASE_URL}/overview_get_magma_config`)
-          .then(response => response.json())
-          .then(data => {
-            this.MAGMA_window_up = data.magma_window_up;
-            this.MAGMA_window_down = data.magma_window_down;
-            this.MAGMA_ref_pop = data.magma_ref_pop;
-            this.MAGMA_gene_loc = data.magma_ref_gene_loc;
-          })
-          .catch(error => console.error('Error fetching annotation data:', error));
+    getMAGMAParams() {
+      const cached = localStorage.getItem('configs')
+      if (cached) {
+        const data = JSON.parse(cached)
+        this.MAGMA_window_up = data.window_up;
+        this.MAGMA_window_down = data.window_down;
+        this.MAGMA_ref_pop = data.magma_ref_pop;
+        this.MAGMA_gene_loc = data.magma_ref_gene_loc;
+      } else {
+        // Otherwise fetch from API
+        fetch(`${API_BASE_URL}/overview_get_config`)
+            .then(res => res.json())
+            .then(data => {
+              localStorage.setItem('configs', JSON.stringify(data))
+              this.MAGMA_window_up = data.window_up;
+              this.MAGMA_window_down = data.window_down;
+              this.MAGMA_ref_pop = data.magma_ref_pop;
+              this.MAGMA_gene_loc = data.magma_ref_gene_loc;
+            })
+            .catch(err => console.error('Error fetching config:', err))
+      }
     }
   }
 }

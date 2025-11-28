@@ -57,7 +57,7 @@
       </v-overlay>
       <TableSkeleton :headers="tableHeader" :rows="tableItems" :downloadName="downloadName"
                               :priorityOrder="priorityOrder"
-                              :globalFilterFields="tableHeader"></TableSkeleton>
+                              :globalFilterFields="tableHeader" :selectedTrait="pheno"></TableSkeleton>
         </v-col>
     </v-row>
 
@@ -88,7 +88,7 @@ export default {
       prevFilters: {},
       showLoading: isLoading,
       downloadName: "",
-      priorityOrder: ["variant_id", "chrom", "pos", "ref", "alt", "beta", "stderr_beta", "alt_allele_freq", "pvalue", "neg_log_pvalue"],
+      priorityOrder: ["variant_id", "nearest_genes","beta", "stderr_beta", "alt_allele_freq", "pvalue", "neg_log_pvalue"],
     }
   },
   methods: {

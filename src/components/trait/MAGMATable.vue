@@ -11,7 +11,8 @@
 
     <v-container>
       <v-row>
-        <v-col cols="3">
+        <v-col cols="12" sm="6" md="5" lg="3">
+
           <v-text-field
               v-model="pvalCutoff"
               label="Bonferroni Pvalue Threshold"
@@ -26,7 +27,7 @@
           />
         </v-col>
 
-        <v-col cols="3">
+        <v-col cols="12" sm="6" md="5" lg="3">
           <v-select
               v-model="selectedChr"
               label="Filter by Chromosome"
@@ -37,13 +38,13 @@
               multiple
           />
         </v-col>
-        <v-col cols="2">
+        <v-col cols="12" sm="5" md="3" lg="2">
           <v-btn color="primary" @click="applyMAGMATableFiltering" :disabled="!isValidPValue" block height="48px"
                  prepend-icon="mdi-send-circle-outline">
             Apply Filtering
           </v-btn>
         </v-col>
-        <v-col cols="2">
+        <v-col cols="12" sm="5" md="3" lg="2">
           <v-btn color="primary" @click="resetMAGMATableFiltering" block height="48px" prepend-icon="mdi-undo">
             Reset
           </v-btn>
@@ -72,6 +73,10 @@
 
        <p class="text-body-1 mb-4 mt-4">
         Add {{this.tableItems.length}} genes as list to seed lists
+        <span v-if="geneCountExceedsLimit" class="text-warning ml-2">
+          <v-icon>mdi-alert</v-icon>
+          (Exceeds limit of {{geneLimit}} genes)
+        </span>
       </p>
       </v-container>
     <v-container>
@@ -88,17 +93,17 @@
           />
         </v-col>
 
-         <v-col cols="2">
+        <v-col cols="12" sm="5" md="3" lg="2">
           <v-btn color="primary" @click="addGeneList" :disabled="!isValidGeneListName" block height="48px"
                  prepend-icon="mdi-plus">
-            Add to Seed Lists
+            Seed Lists
           </v-btn>
         </v-col>
 
-        <v-col cols="2">
+        <v-col cols="12" sm="5" md="3" lg="2">
                <v-btn color="primary" @click="moveToSeedsPage" block height="48px"
              prepend-icon="mdi-open-in-new">
-        Redirect to Drugst.One
+        Network Medicine
       </v-btn>
         </v-col>
     </v-row>
@@ -107,6 +112,37 @@
     <v-snackbar v-model="showAlert" :color="alertType" timeout="2000">
       {{ alertMessage}}
     </v-snackbar>
+
+    <!-- Gene Limit Warning Dialog -->
+    <v-dialog v-model="showGeneLimitDialog" max-width="500">
+      <v-card>
+        <v-card-title class="text-h5 text-warning">
+          <v-icon class="mr-2">mdi-alert</v-icon>
+          Gene List Limit Exceeded
+        </v-card-title>
+        <v-card-text>
+          <p>You are trying to add <strong>{{ tableItems.length }}</strong> genes to the gene list, but the maximum limit is <strong>150 genes</strong>.</p>
+          <p class="text-body-2 mt-3">
+            <strong>Suggestions:</strong>
+          </p>
+          <ul class="text-body-2">
+            <li>Apply more stringent filtering to reduce the number of genes</li>
+            <li>Use a lower p-value threshold</li>
+            <li>Filter by specific chromosomes</li>
+          </ul>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            variant="text"
+            @click="showGeneLimitDialog = false"
+          >
+            OK
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -136,7 +172,9 @@ export default {
       showAlert: false,
       alertMessage: "",
       alertType: "success",
-      priorityOrder: ["Gene", "Chrom", "Start", "End", "#SNPs", "Zvalue", "Pvalue"],
+      showGeneLimitDialog: false,
+      geneLimit: 150,
+      priorityOrder: ["Gene","Symbol","Chrom", "Start", "End", "#SNPs", "Zvalue", "Pvalue"],
     }
   },
 
@@ -146,7 +184,11 @@ export default {
     },
 
     isValidGeneListName() {
-      return this.geneNameList.trim().length > 0 & this.tableItems.length > 0;
+      return this.geneNameList.trim().length > 0 && this.tableItems.length > 0 && this.tableItems.length <= this.geneLimit;
+    },
+
+    geneCountExceedsLimit() {
+      return this.tableItems.length > this.geneLimit;
     }
   },
 
@@ -200,6 +242,13 @@ export default {
     addGeneList() {
       const name = this.geneNameList.trim()
       if (!name) return
+
+      // Check gene limit
+      if (this.tableItems.length > this.geneLimit) {
+        this.showGeneLimitDialog = true
+        return
+      }
+
       // retrieve existing gene lists from local storage
       const geneLists = JSON.parse(localStorage.getItem('geneLists') || '{}')
       console.log("Gene Lists from local storage:", geneLists.value);
@@ -212,7 +261,7 @@ export default {
       }
 
       // add list
-      geneLists[name] = this.tableItems.map(item => item.Gene)
+      geneLists[name] = {"genes": this.tableItems.map(item => item.Symbol), "trait": this.traitId}
       localStorage.setItem('geneLists', JSON.stringify(geneLists))
 
       this.alertMessage = `Gene list "${name}" added successfully with ${this.tableItems.length} genes.`
@@ -224,7 +273,7 @@ export default {
     },
 
     moveToSeedsPage() {
-      this.$router.push('/drugstone')
+      this.$router.push('/networkmedicine')
     },
   }
 

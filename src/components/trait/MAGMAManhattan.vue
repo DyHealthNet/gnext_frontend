@@ -122,9 +122,10 @@ export default {
           neg_log_pvalue: row['-Log10(Pvalue)'],
           pvalue: row['Pvalue'],
           gene: row['Gene'],
+          symbol: row['Symbol'],
         }));
         const tooltip_template = `
-  <b>Gene: <%- d.gene || "N/A" %></b><br>
+  <b>Gene: <%- d.gene || "N/A" %> (<%- d.symbol || "N/A" %>)</b><br>
    Chr <%- d.chrom %>: <%- d.start %>-<%- d.end %></b><br>
   -log<sub>10</sub>(p): <%- d.neg_log_pvalue ? (+d.neg_log_pvalue).toFixed(3) : "N/A" %>
 `;

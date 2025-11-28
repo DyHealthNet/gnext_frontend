@@ -4,8 +4,10 @@
       <v-container width="80%">
         <!-- Part 1: Welcome -->
         <v-row class="mt-12 mb-0">
-           <v-col cols="12" class="text-center">
-            <h2 class="main-subheader">{{ mainHeaderPrefix }}</h2>
+           <v-col cols="12" class="d-flex align-center justify-center">
+            <span class="main-subheader">Welcome to the </span>
+            <img :src="logoSrc" alt="GNExT Logo" class="gnext-logo" />
+            <span class="main-subheader"> platform of the </span>
           </v-col>
           <v-col cols="12" class="text-center">
             <h1 class="main-header">
@@ -55,14 +57,20 @@
 
 
 <script setup>
-import AutoComplete from "@/components/AutoComplete_Home.vue";
+import AutoComplete from "@/components/autocomplete/AutoComplete_Home.vue";
 import HomeStatsGrid from "@/components/HomeStatsGrid.vue";
-import { STUDY_NAME, VARIANT_EXAMPLE, TRAIT_EXAMPLE } from "@/config";
+import {STUDY_NAME, VARIANT_EXAMPLE, TRAIT_EXAMPLE, API_BASE_URL} from "@/config";
 import { useRouter } from "vue-router";
+import { onMounted, computed } from "vue"
+import { useTheme } from 'vuetify'
+import logoBlack from "@/assets/figures/GNExT_Logo_Black.png";
+import logoWhite from "@/assets/figures/GNExT_Logo_White.png";
 
-const mainHeaderPrefix = "The DyHealthNetLight Platform of";
+const theme = useTheme()
+const logoSrc = computed(() => {
+  return theme.global.current.value.dark ? logoWhite : logoBlack;
+})
 const mainHeaderStudyName = STUDY_NAME;
-const mainHeaderSuffix = " Study";
 const mainSubheader = "Your gateway to explore and analyze GWAS summary statistics";
 
 const router = useRouter();
@@ -74,6 +82,31 @@ function onTraitClick() {
 function onVariantClick() {
   router.push(`/variant/${encodeURIComponent(VARIANT_EXAMPLE)}`);
 }
+
+function loadConfigs() {
+  // Try to load from localStorage first
+  const cached = localStorage.getItem('configs')
+  if (cached) {
+    const data = JSON.parse(cached)
+    console.log('Loaded configs from localStorage:', data)
+    return data
+  }
+
+  // Otherwise fetch from API
+  fetch(`${API_BASE_URL}/overview_get_config`)
+    .then(res => res.json())
+    .then(data => {
+      localStorage.setItem('configs', JSON.stringify(data))
+      console.log('Fetched and stored configs:', data)
+      return data
+    })
+    .catch(err => console.error('Error fetching config:', err))
+}
+
+onMounted(() => {
+  loadConfigs()
+})
+
 </script>
 
 <style scoped>
@@ -98,7 +131,7 @@ function onVariantClick() {
 .main-header {
   font-size: 2.5rem;
   font-weight: bold;
-  color: rgb(var(--v-theme-darken-1));
+  color: rgb(var(--v-theme-primary-darken-1));
   margin-bottom: 10px;
 }
 
@@ -110,6 +143,12 @@ function onVariantClick() {
 .main-subheader {
   font-size: 1.5rem;
   font-weight: 400;
-  color: rgb(var(--v-theme-primary-darken-1));
+  color: rgb(var(--v-theme-darken-1));
+}
+
+.gnext-logo {
+  max-width: 110px;
+  height: auto;
+  margin: 0 10px;
 }
 </style>

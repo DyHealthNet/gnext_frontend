@@ -18,6 +18,10 @@
           :globalFilterFields="globalFilterFields"
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink PaginatorEnd"
           currentPageReportTemplate="{first} to {last} of {totalRecords}"
+          :selectionMode="selection ? 'single' : null"
+          v-model:selection="selectedRow"
+          @row-select="onRowSelect"
+          @row-unselect="onRowUnselect"
           :scrollable="true">
         <template #header>
           <v-row class="align-center mb-1">
@@ -54,11 +58,12 @@
 
         <template v-for="col in columns" :key="col.field">
           <Column
-              v-if="col.field !== 'variant_id' && col.field !== 'trait_id' && col.field !== 'top_variant'"
+              v-if="col.field !== 'variant_id' && col.field !== 'trait_id' && col.field !== 'top_variant' && col.field !== 'location' && col.field !== 'distance' && col.field !== 'nearest_genes'"
               :field="col.field"
               :header="col.header"
               sortable
           />
+
           <Column
               v-else
               :field="col.field"
@@ -89,6 +94,28 @@
                 </a>
               </template>
 
+              <!-- Location of Gene -->
+              <template v-else-if="field === 'location'">
+                <GeneLocationTag :location="data.location"/>
+              </template>
+
+              <template v-else-if="field === 'distance'">
+                {{ data.distance }}
+              </template>
+
+              <!-- Nearest Genes -->
+              <template v-else-if="field === 'nearest_genes'">
+                <template v-if="data.nearest_genes && Object.keys(data.nearest_genes).length > 0">
+                  <span v-for="(symbol, ensg_id, index) in data.nearest_genes" :key="ensg_id">
+                    <a :href="`/gene/${encodeURIComponent(ensg_id)}?trait=${data.trait_id || selectedTrait}`" class="table-link hover:underline">
+                      {{ symbol }}
+                    </a>
+                    <span v-if="index < Object.keys(data.nearest_genes).length - 1">, </span>
+                  </span>
+                </template>
+                <span v-else>-</span>
+              </template>
+
               <!-- Default rendering -->
               <template v-else>
                 {{ data[field] }}
@@ -104,8 +131,9 @@
 
 <script>
 import 'locuszoom/dist/locuszoom.css'
-import {InputIcon, IconField, InputText, Column, DataTable, MultiSelect, Menu, Button} from "primevue";
+import {InputIcon, IconField, InputText, Column, DataTable, MultiSelect, Menu, Button, ProgressBar} from "primevue";
 import 'primeicons/primeicons.css'
+import GeneLocationTag from './gene/GeneLocationTag.vue';
 
 // Define this at the top
 const FilterMatchMode = {
@@ -124,13 +152,14 @@ const FilterMatchMode = {
 
 export default {
   name: "TableSkeleton",
-  components: {IconField, Button, InputIcon, DataTable, Column, InputText, Menu, MultiSelect},
+  components: {IconField, Button, InputIcon, DataTable, Column, InputText, Menu, MultiSelect, GeneLocationTag, ProgressBar},
+  emits: ['row-selected', 'row-unselected'],
   props: {
     headers: {
       type: Array,
       required: false,
       default: () => ["variant_id", "chrom", "pos", "ref", "alt", "beta", "stderr_beta",
-        "alt_allele_freq", "pvalue", "neg_log_pvalue"]
+        "alt_allele_freq", "pvalue", "neg_log_pvalue", "location"]
     },
     rows: {
       type: Array,
@@ -156,6 +185,16 @@ export default {
       required: false,  // sensible defaults
       default: 5
     },
+    selection: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    selectedTrait: {
+      type: String,
+      required: false,
+      default: null,
+    }
   },
   data: () => ({
     menuVisible: false,
@@ -164,9 +203,11 @@ export default {
     filters: {
       global: {value: null, matchMode: FilterMatchMode.CONTAINS}
     },
-    selectedRows: []
+    selectedRow: null,
+    
   }),
   computed: {
+
     downloadItems() {
       return [
         {label: 'Download as CSV', icon: 'pi pi-file', command: () => this.download('csv')},
@@ -180,7 +221,7 @@ export default {
         ...this.headers.filter(c => !this.priorityOrder.includes(c))
       ];
 
-      const sorted_renamed =  sorted.map(col => ({
+      const sorted_renamed = sorted.map(col => ({
         field: col,
         header:
             col === 'neg_log_pvalue' ? '-Log10(Pvalue)' : col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
@@ -188,10 +229,46 @@ export default {
       return sorted_renamed;
     }
   },
+  watch: {
+    // Watch for changes in rows and selection prop
+    rows: {
+      handler(newRows) {
+        if (this.selection && newRows.length > 0 && !this.selectedRow) {
+          // Select first row if selection is enabled and no row is selected
+          this.selectedRow = newRows[0];
+          this.$emit('row-selected', newRows[0]);
+        }
+      },
+      immediate: true
+    },
+    selection: {
+      handler(newValue) {
+        if (newValue && this.rows.length > 0 && !this.selectedRow) {
+          // Select first row when selection is enabled
+          this.selectedRow = this.rows[0];
+          this.$emit('row-selected', this.rows[0]);
+        }
+      },
+      immediate: true
+    }
+  },
   methods: {
+    onRowSelect(event) {
+      console.log('Selected row:', event.data);
+      this.$emit('row-selected', event.data);
+    },
+    onRowUnselect(event) {
+      console.log('Attempted to unselect row:', event.data);
+      // Prevent unselection by immediately reselecting
+      this.$nextTick(() => {
+        if (!this.selectedRow) {
+          this.selectedRow = event.data;
+        }
+      });
+      // Don't emit row-unselected to enforce always-selected behavior
+    },
     onMenuClick(event) {
       this.$refs.menuRef.toggle(event);
-
     },
     onSort(event) {
       this.sortField = event.sortField;
@@ -253,5 +330,5 @@ export default {
 .table-link:hover {
   background-color: rgb(var(--v-theme-primary))
 }
-</style>
 
+</style>

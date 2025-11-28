@@ -58,13 +58,11 @@
 import {ref} from "vue";
 import TypesenseInstantSearchAdapter from "typesense-instantsearch-adapter";
 import {TYPESENSE_API_KEY} from "@/config.js";
-import variantIcon from "@/assets/figures/genetic_variants.png"
 
 export default {
   data() {
     return {
       rsid: "",
-      variantIcon,
       searchClient: null,
     };
   },

@@ -23,11 +23,12 @@
 
               <v-card-text>
                 <p class="text-body-1 mb-4">
-                  This table shows only the peaks with a p-value
-                  &lt; 10<span style="vertical-align:super">-6</span>.
-                  Variants are hidden if any variant within 500kb in the same phenotype has a smaller p-value.
-                  Only the top 500 variants of each phenotype are considered.
-                  The table is limited to the top 10000 hits.
+                  This table shows only the peaks with a p-value below {{top_hits_pval_thr}} ({{top_hits_pval_thr.toExponential()}}).
+                  Variants are hidden if any variant within {{top_hits_peak_sprawl_distance/1000}} kb  in the same phenotype has a smaller p-value.
+                  Only the top {{top_hits_peak_max_count}} variants of each phenotype are considered.
+                  The table is limited to the top {{top_hits_max_entries}} hits.
+                  </p>
+                <p class="text-body-1 mb-4">
                   Entries with a reported p-value of 0 but a valid −log₁₀(p-value) correspond to values smaller than approximately 5×10⁻³²⁴, which are below the representable range of double-precision floating-point numbers and therefore underflow to zero.
                 </p>
 
@@ -68,6 +69,7 @@ export default {
           "trait_label",
           "trait_category",
           "top_variant",
+          "nearest_genes",
           "beta",
           "stderr_beta",
           "alt_allele_freq",
@@ -75,6 +77,10 @@ export default {
           "neg_log_pvalue"
         ],
       defaultTableRows: 50,
+      top_hits_pval_thr: 0,
+      top_hits_max_entries: 0,
+      top_hits_peak_max_count: 0,
+      top_hits_peak_sprawl_distance: 0,
     }
   },
   methods: {
@@ -91,6 +97,7 @@ export default {
           "trait_label",
           "trait_category",
           "top_variant",
+          "nearest_genes",
           "beta",
           "stderr_beta",
           "alt_allele_freq",
@@ -107,10 +114,33 @@ export default {
         console.error("Error fetching variants:", err);
       }
       setIsLoading(false);
+    },
+    async get_top_hits_configs(){
+      const cached = localStorage.getItem('configs')
+      if (cached) {
+        const data = JSON.parse(cached)
+        this.top_hits_pval_thr = data.top_hits_pval_cutoff;
+        this.top_hits_max_entries = data.top_hits_max_limit;
+        this.top_hits_peak_max_count = data.manhattan_peak_max_count;
+        this.top_hits_peak_sprawl_distance = data.manhattan_peak_sprawl_dist;
+      } else {
+        // Otherwise fetch from API
+        fetch(`${API_BASE_URL}/overview_get_config`)
+            .then(res => res.json())
+            .then(data => {
+              localStorage.setItem('configs', JSON.stringify(data))
+              this.top_hits_pval_thr = data.top_hits_pval_cutoff;
+              this.top_hits_max_entries = data.top_hits_max_limit;
+              this.top_hits_peak_max_count = data.manhattan_peak_max_count;
+              this.top_hits_peak_sprawl_distance = data.manhattan_peak_sprawl_dist;
+            })
+            .catch(err => console.error('Error fetching config:', err))
+      }
     }
   },
   mounted() {
     this.get_top_hits_data();
+    this.get_top_hits_configs();
   }
 }
 

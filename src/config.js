@@ -4,8 +4,8 @@ export const GENOME_BUILD = import.meta.env.VITE_GENOME_BUILD ?? "GRCh38";
 export const HG_BUILD_NUMBER = import.meta.env.VITE_HG_BUILD_NUMBER
 
 export const STUDY_NAME   = import.meta.env.VITE_STUDY_NAME   ?? "DefaultStudy";
-export const TRAIT_EXAMPLE = import.meta.env.VITE_TRAIT_EXAMPLE
-export const VARIANT_EXAMPLE = import.meta.env.VITE_VARIANT_EXAMPLE
+export const TRAIT_EXAMPLE = import.meta.env.VITE_TRAIT_EXAMPLE ?? "";
+export const VARIANT_EXAMPLE = import.meta.env.VITE_VARIANT_EXAMPLE ?? "";
 
 export const TRAIT_EXTERNAL_REF_URL = import.meta.env.VITE_TRAIT_EXTERNAL_REF_URL ?? ""
 

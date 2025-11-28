@@ -99,9 +99,9 @@
           <v-col cols="12" v-if="isCardEnabled('closest-genes')">
             <v-card outlined id="closest-genes">
               <v-toolbar color="primary-darken-1" density="compact">
-                <v-toolbar-title>Predicted Genes</v-toolbar-title>
+                <v-toolbar-title>Closest Genes</v-toolbar-title>
               </v-toolbar>
-              <VariantClosestGene :symbols="closestGene" :variantId="id" />
+              <VariantClosestGene :genes="closestGene" :variantId="id" />
             </v-card>
           </v-col>
 
@@ -251,7 +251,7 @@ export default {
         const hasMotif = motifConsequences.rows.length > 0;
 
         availableCards.value = [
-          { id: "closest-genes", label: "Predicted Genes", short: "PG", enabled: hasClosest },
+          { id: "closest-genes", label: "Closest Genes", short: "CG", enabled: hasClosest },
           { id: "transcript-consequences", label: "Transcript Consequences", short: "TC", enabled: hasTranscript },
           { id: "regulatory-consequences", label: "Regulatory Consequences", short: "RC", enabled: hasRegulatory },
           { id: "motif-consequences", label: "Motif Consequences", short: "MC", enabled: hasMotif },

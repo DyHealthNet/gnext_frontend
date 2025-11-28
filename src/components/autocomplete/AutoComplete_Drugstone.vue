@@ -1,12 +1,12 @@
 <template>
-  <v-container width="30%" style="background:rgb(var(--v-theme-surface)); border-radius: 10px; padding: 20px;">
+  <v-container width="100%" style="background:rgb(var(--v-theme-surface)); border-radius: 10px; padding: 20px;">
     <ais-instant-search :search-client="searchClient" index-name="autocomplete">
       <ais-autocomplete>
         <template #default="{ currentRefinement, refine, indices, indicesAreEmpty }">
           <v-text-field
               v-model="searchQuery"
               ref="searchActivator"
-              label="Search for a trait or a variant"
+              label="Search for a gene"
               prepend-inner-icon="mdi-magnify"
               outlined
               dense
@@ -34,7 +34,7 @@
                     <v-col cols="auto">
                       <v-avatar size="40">
                         <v-img
-                            :src="hit.type === 'trait' ? phenotypeIcon : variantIcon"
+                            :src="geneIcon"
                             alt="Icon"
                             max-width="32"
                             max-height="32"
@@ -48,13 +48,8 @@
                         <span v-html="hit._highlightResult.id.value"/>
                       </v-list-item-title>
                       <v-list-item-subtitle>
-                        <template v-if="hit.type === 'trait'">
-                          <span v-html="hit._highlightResult.description.value"></span> -
-                          <span v-html="hit._highlightResult.category.value"></span>
-                        </template>
-                        <template v-else-if="hit.type === 'variant'">
-                          <span v-html="hit._highlightResult.external_ref.value"></span>
-                        </template>
+                         <span v-html="hit._highlightResult.external_ref.value"></span> -
+                        <span v-html="hit._highlightResult.description.value"></span>
                       </v-list-item-subtitle>
                     </v-col>
                   </v-row>
@@ -77,10 +72,8 @@
 import TypesenseInstantSearchAdapter from "typesense-instantsearch-adapter";
 import {ref, computed} from "vue";
 
-import phenotypeIconWhite from "@/assets/figures/node_phenotype_white.png";
-import phenotypeIconBlack from "@/assets/figures/node_phenotype_black.png";
-import variantIconBlack from "@/assets/figures/node_variant_black.png"
-import variantIconWhite from "@/assets/figures/node_variant_white.png"
+import geneIconBlack from "@/assets/figures/node_gene_black.png"
+import geneIconWhite from "@/assets/figures/node_gene_white.png"
 import {TYPESENSE_API_KEY} from "@/config.js";
 
 
@@ -91,6 +84,11 @@ const router = useRouter();
 // Define props
 const props = defineProps({
   typeFilter: {
+    type: String,
+    required: false,
+    default: null,
+  },
+  trait: {
     type: String,
     required: false,
     default: null,
@@ -107,6 +105,7 @@ const searchParams = ref({
   query_by: "label,description,external_ref,category",
   num_typos: 0,
   drop_tokens_threshold: 1.0,
+  filter_by: "type:=gene",
 });
 
 const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
@@ -128,24 +127,23 @@ const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
 const searchClient = typesenseInstantsearchAdapter.searchClient;
 
 function goToHit(hit) {
-  if (hit.type === "variant") {
-    router.push(`/variant/${encodeURIComponent(hit.id)}`);
-    // remove text from v-text-field
+    // If trait is provided, pass it as a query parameter
+    if (props.trait) {
+      router.push({
+        path: `/gene/${hit.id}`,
+        query: { trait: props.trait }
+      });
+      console.log("Navigating to gene with trait:", props.trait);
+    } else {
+      router.push(`/gene/${hit.id}`);
+    }
     searchQuery.value = "";
     this.hits = [];
-  } else if (hit.type === "trait") {
-    router.push(`/trait/${hit.id}`);
-    searchQuery.value = "";
-    this.hits = [];
-  }
 };
 
-// Dynamic icons based on theme
-const phenotypeIcon = computed(() =>
-   localStorage.getItem('theme') === 'dyHealthNetThemeDark' ? phenotypeIconWhite : phenotypeIconBlack
-);
-const variantIcon = computed(() =>
-  localStorage.getItem('theme') === 'dyHealthNetThemeDark' ? variantIconWhite : variantIconBlack
+
+const geneIcon = computed(() =>
+    localStorage.getItem('theme') === 'dyHealthNetThemeDark' ? geneIconWhite : geneIconBlack
 );
 
 </script>

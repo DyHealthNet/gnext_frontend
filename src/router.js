@@ -6,8 +6,9 @@ import Trait from "./pages/Trait.vue";
 import TopHits from "./pages/TopHits.vue";
 import Citation from "./pages/Citation.vue";
 import Idea from "./pages/Idea.vue";
-import Drugstone from "@/pages/Drugstone.vue";
+import NetworkMedicine from "@/pages/NetworkMedicine.vue";
 import {MAGMA_SHOW} from "@/config.js";
+import Gene from "./pages/Gene.vue";
 
 const routes = [
   {
@@ -46,14 +47,20 @@ const routes = [
     name: 'Trait',
     component: Trait,
     props: true
+  },
+  {
+    path: '/gene/:id',
+    name: 'Gene',
+    component: Gene,
+    props: true
   }
 ]
 
 if(MAGMA_SHOW === true){
   routes.push({
-    path: '/drugstone',
-    name: 'Drugst.One',
-    component: Drugstone,
+    path: '/networkmedicine',
+    name: 'NetworkMedicine',
+    component: NetworkMedicine,
   })
 }
 

@@ -1,17 +1,17 @@
 <template>
   <v-container>
     <v-row justify="space-around" align="stretch">
-      <v-col xs="12" sm="12" md="12" lg="8">
+      <v-col xs="12" sm="12" md="12" :lg="hasExternalIds ? 8 : 12">
         <h3><strong>Location</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ this.location }}</h3>
         <h3><strong>Reference Allele</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ this.refAllele }}</h3>
         <h3><strong>Alternate Allele</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ this.altAllele }}</h3>
         <h3><strong>Most Severe Consequence</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ this.mostSevereConsequence }}&nbsp;&nbsp;<VariantImpactTag
             :impact="mostSevereConsequenceImpact"/>
         </h3>
-        <h3><strong>External IDs</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ this.externalIds }}</h3>
+        <h3 v-if="hasExternalIds"><strong>External IDs</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ this.externalIds }}</h3>
       </v-col>
 
-      <v-col xs="12" sm="12" md="12" lg="4">
+      <v-col v-if="hasExternalIds" xs="12" sm="12" md="12" lg="4">
         <h3><strong>External References</strong></h3>
         <v-row dense>
           <v-col
@@ -71,7 +71,15 @@ export default {
   },
 
   computed: {
+    hasExternalIds() {
+      // Check if externalIds is not empty, not [""], and not just whitespace
+      if (!this.externalIds) return false;
+      const cleaned = this.externalIds.trim();
+      return cleaned !== '' && cleaned !== '[""]' && cleaned !== '[]';
+    },
+
     rsId(){
+      if (!this.hasExternalIds) return null;
       const match = this.externalIds.match(/rs\d+/);
       return match ? match[0] : null;
     },

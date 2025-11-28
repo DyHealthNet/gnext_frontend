@@ -16,7 +16,7 @@
               :style="{ width: value * 100 + '%'}"
           ></div>
         </div>
-        <div class="value">{{ value.toFixed(3) }}</div>
+        <div class="value">{{ value.toFixed(4) }}</div>
       </div>
     </div>
     <div v-else class="no-freq">
