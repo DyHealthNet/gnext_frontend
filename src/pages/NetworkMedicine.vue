@@ -275,7 +275,7 @@ export default {
       if (storedName) {
         this.config['title'] = storedName + " Network"
         this.loadedName = storedName
-        this.loadedTrait = JSON.parse(localStorage.getItem("geneLists"))[storedName]["trait"] || null
+        this.loadedTrait = JSON.parse(localStorage.getItem("geneLists"))[storedName]["trait_id"] || null
       }
     },
 
@@ -291,7 +291,7 @@ export default {
 
       this.config['title'] = this.selectedList + " Network"
       this.loadedName = this.selectedList
-      this.loadedTrait = geneLists[this.selectedList]["trait"] || null
+      this.loadedTrait = geneLists[this.selectedList]["trait_id"] || null
 
       const geneTasks = JSON.parse(localStorage.getItem("geneTasks") || "{}")
 

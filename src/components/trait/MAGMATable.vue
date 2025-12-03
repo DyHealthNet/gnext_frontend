@@ -213,7 +213,7 @@ export default {
       }
 
       // add list
-      geneLists[name] = this.tableItems.map(item => item.gene_symbol)
+      geneLists[name] = { "genes": this.tableItems.map(item => item.gene_symbol), "trait_id": this.traitId}
       localStorage.setItem('geneLists', JSON.stringify(geneLists))
 
       this.alertMessage = `Gene list "${name}" added successfully with ${this.tableItems.length} genes.`
@@ -225,7 +225,7 @@ export default {
     },
 
     moveToSeedsPage() {
-      this.$router.push('/drugstone')
+      this.$router.push('/networkmedicine')
     },
   }
 

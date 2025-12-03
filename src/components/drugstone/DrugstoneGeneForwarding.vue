@@ -3,7 +3,7 @@
     <v-expansion-panel value="geneForwarding">
       <v-expansion-panel-title>
         <v-icon start class="mr-2">mdi-open-in-new</v-icon>
-        <p class="text-body-1">Redirect to Genes from {{ trait }}</p>
+        <p class="text-body-1">Redirect to Gene Page to View GWAS Signals</p>
       </v-expansion-panel-title>
 
       <v-expansion-panel-text>
