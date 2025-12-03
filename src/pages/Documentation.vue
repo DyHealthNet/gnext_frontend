@@ -14,6 +14,18 @@
           </v-col>
         </v-row>
 
+        <v-row class="text-center my-4">
+          <v-col cols="12">
+            <v-img
+              :src="logo"
+              alt="GNext Logo"
+              max-width="300"
+              class="mx-auto"
+              contain
+            />
+          </v-col>
+        </v-row>
+
         <p class="text-body-1 mb-4">
           This page provides an overview of the main components and features of the application. Each section includes a
           concise explanation of its purpose, accompanied by visual snapshots and examples to help you understand how
@@ -51,48 +63,22 @@
                 <div v-show="expanded_home">
                   <v-divider></v-divider>
                   <v-card-text>
-                    <div class="d-flex align-start flex-nowrap" style="gap: 24px;">
-                      <!-- Text -->
-                      <div style="flex: 1;">
-                        <p class="text-body-1 mb-4">
-                          The <b>Home page</b> serves as the central hub for users to initiate their exploration of the
-                          platform.
-                          It displays the number of traits and variants currently available in the database, providing
-                          users
-                          with a quick overview of the data scope.
-                        </p>
-                        <p class="text-body-1 mb-4">
-                          One of the key features of the platform is the <b>autocomplete search bar</b>, positioned
-                          centrally on the Home page and accessible from all other pages. Once you start typing, it will
-                          suggest relevant traits and variants based on your input, making it easier to find specific
-                          items.
-                        </p>
-                        <p class="text-body-1 mb-4">
-                          You can search for two main entities and by clicking you will be redirected to their
-                          respective
-                          pages:
-                        </p>
-                        <ul class="text-body-1 mb-4 pl-6">
-                          <li><b>traits</b> by trait ID, description, trait group, or external ID.</li>
-                          <li><b>variants</b> by variant ID (<code>chr_pos_ref/alt</code>) or rsID (from VEP).
-                          </li>
-                        </ul>
-                        <p class="text-body-1 mb-4">
-                          When navigating away from the Home page, the <b>search bar dynamically relocates</b> to the
-                          navigation bar, ensuring continuous
-                          accessibility across the interface.
-                        </p>
-                      </div>
-
-                      <!-- Image -->
-                      <v-img
-                          :src="homepageimg"
-                          alt="Home Page Tutorial"
-                          width="1%"
-                          class="rounded-lg flex-shrink-0"
-                          contain
-                      />
-                    </div>
+                    <p class="text-body-1 mb-4">
+                      The <b>Home page</b> serves as the central hub for users to initiate their exploration of the
+                      platform.
+                      It displays the number of traits, variants, and genes currently available in the database, providing
+                      users with a quick overview of the data scope.
+                    </p>
+                    <p class="text-body-1 mb-4">
+                      One of the key features of the platform is the <b>autocomplete search bar</b>, positioned
+                      centrally on the Home page and accessible from all other pages. Once you start typing, it will
+                      suggest relevant traits, variants, and genes based on your input, making it easier to find specific
+                      items.
+                    </p>
+                    <p class="text-body-1 mb-4">
+                      You can search for three main entities and by clicking you will be redirected to their
+                      respective pages.
+                    </p>
                   </v-card-text>
                 </div>
               </v-expand-transition>
@@ -128,22 +114,21 @@
                       significant traits and variants identified in this study. Just navigate through the Top Hits table
                       via
                       the navigation bar.
-                      You can use the trait ID or top variant column to navigate to the respective trait or variant page
+                      You can use the trait ID, top variant, or nearest genes columns to navigate to the respective trait, variant, or gene page
                       of
                       interest.
                     </p>
 
                     <p class="text-body-1 mb-4">
-                      This table shows only the peaks with a p-value < 10⁻⁶.
-                      Variants are excluded if another variant within 500kb of the same trait has a smaller p-value.
-                      For each phenotype, only the top 500 variants are retained, and the table is limited to the top
-                      10,000
-                      hits overall.
-                      Entries with a reported p-value of 0 but a valid −log₁₀(p-value)
-                      represent values smaller than approximately 5×10⁻³²⁴, which fall below the representable range of
-                      double-precision
-                      floating-point numbers and consequently underflow to zero.
-                    </p>
+                  This table shows only the peaks with a p-value below {{top_hits_pval_thr}} ({{top_hits_pval_thr.toExponential()}}).
+                  Variants are hidden if any variant within {{top_hits_peak_sprawl_distance/1000}} kb  in the same phenotype has a smaller p-value.
+                  Only the top {{top_hits_peak_max_count}} variants of each phenotype are considered.
+                  The table is limited to the top {{top_hits_max_entries}} hits.
+                  </p>
+                <p class="text-body-1 mb-4">
+                  Entries with a reported p-value of 0 but a valid −log₁₀(p-value) correspond to values smaller than approximately 5×10⁻³²⁴, which are below the representable range of double-precision floating-point numbers and therefore underflow to zero.
+                </p>
+
                   </v-card-text>
                 </div>
               </v-expand-transition>
@@ -174,15 +159,12 @@
                   <v-divider></v-divider>
 
                   <v-card-text>
-                    <v-row align="start" justify="space-between" no-gutters>
-                      <!-- Text column -->
-                      <v-col cols="12" md="6">
-                        <p class="text-body-1 mb-4">
-                          The <b>Variant page</b> provides a comprehensive overview of a specific genetic variant,
-                          including its
-                          <b>functional annotations</b> derived from the Ensembl Variant Effect Predictor (VEP) and <b>association
-                          results</b> across all analyzed traits.
-                        </p>
+                    <p class="text-body-1 mb-4">
+                      The <b>Variant page</b> provides a comprehensive overview of a specific genetic variant,
+                      including its
+                      <b>functional annotations</b> derived from the Ensembl Variant Effect Predictor (VEP) and <b>association
+                      results</b> across all analyzed traits.
+                    </p>
 
                         <p class="text-body-1 mb-4">
                           The <b>Variant Profile</b> card summarizes fundamental information about the variant, such as
@@ -204,11 +186,7 @@
 
                         <ul class="text-body-1 mb-4 pl-6">
                           <li>
-                            <b>Predicted Genes</b>: Lists the genes predicted to be affected by the variant based on VEP
-                            annotations.
-                            Genes are ordered by predicted impact (high, moderate, low, modifier), followed by
-                            consequence
-                            type and genomic distance from the variant.
+                            <b>Closest Genes</b>: For variant to gene mapping, variants located within the gene body as well as variants located within 10 kb upstream or 10 kb downstream of the gene are considered.
                           </li>
 
                           <li>
@@ -261,32 +239,11 @@
                           button.
                         </p>
 
-                        <p class="text-body-1 mb-4">
-                          The PheWAS plot is complemented by a <b>detailed table</b> summarizing all or a subset of
-                          association results for the selected variant across traits,
-                          allowing direct navigation to the corresponding trait-specific pages.
-                        </p>
-                      </v-col>
-
-                      <!-- Image column -->
-                      <v-col cols="12" md="6">
-                        <v-img
-                            :src="variantpageimg1"
-                            alt="Variant Page Tutorial"
-                            max-width="100%"
-                            class="rounded-lg mb-10"
-                            contain
-                        />
-
-                        <v-img
-                            :src="variantpageimg2"
-                            alt="Variant Page Tutorial 2"
-                            max-width="100%"
-                            class="rounded-lg"
-                            contain
-                        />
-                      </v-col>
-                    </v-row>
+                    <p class="text-body-1 mb-4">
+                      The PheWAS plot is complemented by a <b>detailed table</b> summarizing all or a subset of
+                      association results for the selected variant across traits,
+                      allowing direct navigation to the corresponding trait-specific pages.
+                    </p>
                   </v-card-text>
                 </div>
               </v-expand-transition>
@@ -316,11 +273,8 @@
                 <div v-show="expanded_trait">
                   <v-divider></v-divider>
                   <v-card-text>
-                    <div class="d-flex align-start flex-nowrap" style="gap: 24px;">
-                      <!-- Text -->
-                      <div style="flex: 1;">
-                        <p class="text-body-1 mb-4">
-                          The <b>Trait page</b> provides detailed GWAS results for a specific phenotype.
+                    <p class="text-body-1 mb-4">
+                      The <b>Trait page</b> provides detailed GWAS results for a specific trait.
                           At the top, similar to the Variant page, the Trait Profile card summarizes essential
                           information about the trait, and directly below, users can navigate to different analytical
                           sections of the page for in-depth exploration of the association data:
@@ -371,18 +325,153 @@
                           The current filter mode is always indicated above the table to ensure clarity on the displayed
                           results.
                         </p>
+              
 
-                      </div>
+                      <p class="text-body-1 mb-4">
+                          If gene-based analyses have been performed, additional panels will be available on the Trait page to explore gene-level association results computed using MAGMA.
+                      </p>
 
-                      <!-- Image -->
-                      <v-img
-                          :src="traitpageimg"
-                          alt="Trait Page Tutorial"
-                          width="1%"
-                          class="rounded-lg flex-shrink-0"
-                          contain
-                      />
-                    </div>
+                      <ul class="text-body-1 mb-4 pl-6">
+                          <li>
+                            <b>MAGMA Manhattan plot</b>: Displays the −log₁₀(p-value) results across all chromosomes,
+                            highlighting genomic regions with significant gene signals. This plot is generated using code
+                            from LocusZoom and PheWeb.
+                          </li>
+                          <li>
+                            <b>MAGMA results table</b>: Provides exploration options to examine the gene-level
+                            association results for the selected trait in greater detail. <b>Importantly</b>, at the bottom of this table, users can define a seed gene list to be added to the Network Medicine page.
+                          </li>
+                          <li>
+                            <b>MAGMA QQ plot</b>: The QQ plot compares the distribution of observed p-values to the expected
+                            distribution under the null hypothesis. It's used to check the overall quality of the MAGMA
+                            results. This has also been created
+                            using code from PheWeb and LocusZoom.
+                            </li> 
+                        </ul>
+                  </v-card-text>
+                </div>
+              </v-expand-transition>
+            </v-card>
+          </v-col>
+        </v-row>
+
+        <v-row class="my-4">
+          <v-col cols="12">
+            <v-card outlined>
+              <v-toolbar color="primary-darken-1" density="compact" @click="expanded_networkmedicine = !expanded_networkmedicine">
+                <v-toolbar-title class="d-flex align-center gap-2">
+                  <v-icon icon="mdi-numeric-5-circle"/>
+                  Network Medicine Page
+                </v-toolbar-title>
+
+                <v-btn
+                    size="small"
+                    variant="text"
+                    icon="mdi-chevron-down"
+                    :class="{ 'rotate-180': expanded_networkmedicine }"
+                ></v-btn>
+              </v-toolbar>
+
+              <v-expand-transition>
+                <div v-show="expanded_networkmedicine">
+                  <v-divider></v-divider>
+                  <v-card-text>
+                    <p class="text-body-1 mb-4">
+                      <b>Note:</b> This page is only accessible if gene-based analyses have been performed.
+                    </p>
+                    <p class="text-body-1 mb-4">
+                      The <b>Network Medicine page</b> integrates with <b>Drugst.One</b>, a comprehensive platform for drug repurposing and network-based drug discovery.
+                          This page enables users to explore the therapeutic potential of genes identified through GWAS analyses by mapping them onto protein-protein interaction networks
+                          and identifying potential drug targets.
+                        </p>
+
+                        <p class="text-body-1 mb-4">
+                          To use the Network Medicine functionality, users must first create <b>seed gene lists</b> from their analysis results.
+                          These gene lists can be generated from <b>Trait pages</b> by filtering the gene-based association results from MAGMA analyses.
+                        </p>
+
+                        <p class="text-body-1 mb-4">
+                          The Network Medicine page provides the following key features:
+                        </p>
+
+                        <ul class="text-body-1 mb-4 pl-6">
+                          <li>
+                            <b>Seed Gene Selection</b>: Users can select from stored gene lists created during their exploration of GWAS results.
+                            The selected genes serve as starting points (seeds) for network-based analyses.
+                          </li>
+
+                          <li>
+                            <b>Drugst.One Integration</b>: The platform seamlessly integrates with Drugst.One. For detailed instructions on Drugst.One, please refer to the <a href="https://drugst.one/" target="_blank" rel="noopener">official Drugst.One documentation</a>.
+                          </li>
+
+                          <li>
+                            <b>Interactive Network Visualization</b>: The embedded Drugst.One interface provides interactive network visualization
+                            with customizable layouts, filtering options, and analytical tools for exploring the biological context of GWAS findings.
+                          </li>
+
+                         
+                        </ul>
+
+                    <p class="text-body-1 mb-4">
+                      The Network Medicine approach bridges the gap between statistical genetics and therapeutic applications,
+                      enabling researchers to translate GWAS discoveries into actionable insights for drug discovery and development.
+                    </p>
+
+                    <p class="text-body-1 mb-4">
+                      Importantly, if new genes have been added to the seed genes to form a module, you can redirect to the Gene page to explore the GWAS signals of the newly added genes by using the panel below the Drust.One interface.
+                    </p>
+
+                    <p class="text-body-1 mb-4">
+                      Furthermore, different network settings can be selected to be integrated into Drugst.One.
+                    </p>
+                  </v-card-text>
+                </div>
+              </v-expand-transition>
+            </v-card>
+          </v-col>
+        </v-row>
+
+        <v-row class="my-4">
+          <v-col cols="12">
+            <v-card outlined>
+              <v-toolbar color="primary-darken-1" density="compact" @click="expanded_gene = !expanded_gene">
+                <v-toolbar-title class="d-flex align-center gap-2">
+                  <v-icon icon="mdi-numeric-6-circle"/>
+                  Gene Page
+                </v-toolbar-title>
+
+                <v-btn
+                    size="small"
+                    variant="text"
+                    icon="mdi-chevron-down"
+                    :class="{ 'rotate-180': expanded_gene }"
+                ></v-btn>
+              </v-toolbar>
+
+              <v-expand-transition>
+                <div v-show="expanded_gene">
+                  <v-divider></v-divider>
+                  <v-card-text>
+                    <p class="text-body-1 mb-4">
+                      The <b>Gene page</b> provides comprehensive information about individual genes, including their association
+                          patterns across all analyzed traits and detailed functional annotations.
+                          This page serves as a gene-centric hub for exploring how specific genes contribute to various traits.
+                        </p>
+
+                        <p class="text-body-1 mb-4">
+                          Similar to the Variant and Trait pages, the Gene page begins with a <b>Gene Profile</b> card that summarizes
+                          essential information about the gene, including its symbol, full name, genomic coordinates, and external database links.
+                        </p>
+
+                        <ul class="text-body-1 mb-4 pl-6">
+                          <li>
+                            The <b>Top Signals in Genes</b> panel shows the most significant variant associations located within or near the gene across all traits and displays the MAGMA results if available of the specific gene for the specific trait. Similar to the other tables, you can navigate to the respective Trait or Variant page by clicking on the trait ID or variant ID.
+                          </li>
+
+                          <li>
+                            By clicking on a specific row/trait, a corresponding LocusZoom plot will be generated below the table to visualize the association signals around the gene for the selected trait. Here, users can explore the local association landscape and identify potential causal variants within the gene region.
+                          </li>
+                        </ul>
                   </v-card-text>
                 </div>
               </v-expand-transition>
@@ -417,66 +506,74 @@
                 <div v-show="expanded_preprocessing ">
                   <v-divider></v-divider>
                   <v-card-text>
-                    <div class="d-flex align-start flex-nowrap" style="gap: 24px;">
-                      <!-- Text -->
-                      <!-- Text -->
-<div style="flex: 1;">
-  <p class="text-body-1 mb-4">
-    The <b>data preprocessing workflow</b>, implemented in <b>Nextflow</b>, defines the sequence of steps required to prepare the raw GWAS summary statistics for integration into this web application.
-    Importantly, this workflow focuses solely on reformatting and indexing the data for efficient querying and visualization—while the original association results (e.g., p-values, effect sizes, and standard errors) remain unaltered.
-  </p>
+                    <p class="text-body-1 mb-4">
+                      The <b>data preprocessing workflow</b>, implemented in <b>Nextflow</b>, defines the sequence of steps required to prepare the raw GWAS summary statistics for integration into this web application.
+                          Importantly, this workflow focuses solely on reformatting and indexing the data for efficient querying and visualization—while the original association results (e.g., p-values, effect sizes, and standard errors) remain unaltered.
+                        </p>
 
-  <p class="text-body-1 mb-4">
-    The preprocessing comprises the following main stages:
-  </p>
+                        <p class="text-body-1 mb-4">
+                          The preprocessing comprises the following main stages:
+                        </p>
 
-  <ul class="text-body-1 mb-4 pl-6">
-    <li>
-      <b>Harmonization</b>: Because GWAS summary statistics are produced by various tools using different formats, the first step involves harmonizing the data into a unified structure.
-      This includes standardizing column names and data types, verifying field completeness, and ensuring compatibility for downstream analyses.
-    </li>
+                        <ul class="text-body-1 mb-4 pl-6">
+                          <li>
+                            <b>Harmonization</b>: Because GWAS summary statistics are produced by various tools using different formats, the first step involves harmonizing the data into a unified structure.
+                            This includes standardizing column names and data types, verifying field completeness, and ensuring compatibility for downstream analyses.
+                          </li>
 
-    <li>
-      <b>Variant Reference File</b>: A comprehensive VCF file is created that contains all unique variants across traits.
-      This design ensures that variant annotation must be performed only once, rather than for each individual GWAS file.
-    </li>
+                          <li>
+                            <b>Variant Reference File</b>: A comprehensive VCF file is created that contains all unique variants across traits.
+                            This design ensures that variant annotation must be performed only once, rather than for each individual GWAS file.
+                          </li>
 
-    <li>
-      <b>VEP Annotation</b>: The variant reference file is annotated using the Ensembl Variant Effect Predictor (VEP),
-      resulting in an annotated VCF that stores all relevant variant-level functional information.
-    </li>
+                          <li>
+                            <b>VEP Annotation</b>: The variant reference file is annotated using the Ensembl Variant Effect Predictor (VEP),
+                            resulting in an annotated VCF that stores all relevant variant-level functional information.
+                          </li>
 
-    <li>
-      <b>Variant-ID LMDB</b>: To avoid repeatedly inserting rsIDs into each GWAS file, an LMDB database is built that maps variant identifiers (chr_pos_ref/alt) to rsIDs.
-      This enables rapid lookup of rsIDs during downstream analyses without altering the harmonized data.
-    </li>
+                          <li>
+                            <b>Variant-ID LMDB</b>: To avoid repeatedly inserting rsIDs into each GWAS file, an LMDB database is built that maps variant identifiers (chr_pos_ref/alt) to rsIDs.
+                            This enables rapid lookup of rsIDs during downstream analyses without altering the harmonized data.
+                          </li>
 
-    <li>
-      <b>PheWAS Preparation</b>: The harmonized GWAS files are transformed into a <i>variant-centric</i> structure to support efficient PheWAS queries.
-      Instead of storing data per trait, each variant-centric file aggregates all trait-specific association results for that variant,
-      allowing fast retrieval of PheWAS data for any given locus.
-    </li>
+                          <li>
+                            <b>Variant-Gene LMDB</b>: To facilitate efficient gene-based queries, an LMDB database is constructed that maps variants to their predicted affected genes based on positional mapping, i.e. the variant is mapped to a gene if it falls within the gene body or within a predefined flanking distance.
+                          </li>
 
-    <li>
-      <b>Manhattan & QQ Data</b>: For each trait, precomputed data for Manhattan and QQ plots is generated to enable fast rendering and interactive visualization on the Trait page.
-    </li>
+                          <li>
+                            <b>Manhattan & QQ Data</b>: For each trait, precomputed data for Manhattan and QQ plots is generated to enable fast rendering and interactive visualization on the Trait page.
+                          </li>
 
-    <li>
-      <b>Top Hits Extraction</b>: Once the Manhattan JSON files are produced, top variants are extracted according to predefined criteria (as detailed in the Top Hits section)
-      to populate the Top Hits table used throughout the web interface.
-    </li>
-  </ul>
-</div><!---->
+                          <li>
+                            <b>Top Hits Extraction</b>: Once the Manhattan JSON files are produced, top variants are extracted according to predefined criteria (as detailed in the Top Hits section)
+                            to populate the Top Hits table used throughout the web interface.
+                          </li>
 
-                      <!-- Image -->
-                      <v-img
-                          :src="preprocessingimag"
-                          alt="Preprocessing Tutorial"
-                          width="1%"
-                          class="rounded-lg flex-shrink-0"
-                          contain
-                      />
-                    </div>
+                           <li>
+                            <b>Chromosomal BGZ Files</b>: The harmonized GWAS files are transformed into a <i>variant-centric</i> structure to support efficient PheWAS queries.
+                            Instead of storing data per trait, each variant-centric file aggregates all trait-specific association results for that variant,
+                            allowing fast retrieval of PheWAS data for any given locus.
+                          </li>
+                        </ul>
+
+                        <p class="text-body-1 mb-4">
+                          If gene-based analyses are desired, additional steps can be incorporated into the workflow to compute gene-level association statistics using MAGMA. This involves:
+                        </p>
+
+                         <ul class="text-body-1 mb-4 pl-6">
+                          <li>
+                            <b>MAGMA Annotation</b>: SNP-to-gene mappings are generated using the MAGMA annotation step.
+                          </li>
+                          <li>
+                            <b>MAGMA Input</b>: The harmonized GWAS summary statistics are reformatted into MAGMA-compatible input files.
+                          </li>
+                          <li>
+                            <b>MAGMA Gene Analysis</b>: Gene-level association statistics are computed using MAGMA's gene analysis functionality.
+                          </li>
+                          <li>
+                            <b>MAGMA BGZ Files</b>: The resulting MAGMA gene-level results are reformatted and indexed for efficient querying within the web application.
+                            </li> 
+                        </ul>
                   </v-card-text>
                 </div>
               </v-expand-transition>
@@ -495,8 +592,10 @@ import homepageimg from "@/assets/figures/Home_Page_Tutorial.png"
 import variantpageimg1 from "@/assets/figures/Variant_Page_Tutorial_1.png"
 import variantpageimg2 from "@/assets/figures/Variant_Page_Tutorial_2.png"
 import traitpageimg from "@/assets/figures/Trait_Page_Tutorial.png"
-import preprocessingimag from "@/assets/figures/DyHealthNetLight_Preprocessing.png"
+import preprocessingimag from "@/assets/figures/GNExT_Pipeline.png"
 import {GENOME_BUILD} from "@/config.js"
+import logoWhite from "@/assets/figures/GNExT_Logo_White.png"
+import logoBlack from "@/assets/figures/GNExT_Logo_Black.png"
 
 export default {
   name: 'Documentation',
@@ -513,9 +612,51 @@ export default {
       expanded_home: true,
       expanded_tophits: false,
       expanded_trait: false,
+      expanded_networkmedicine: false,
+      expanded_gene: false,
       expanded_preprocessing: false,
+      top_hits_pval_thr: 0,
+      top_hits_max_entries: 0,
+      top_hits_peak_max_count: 0,
+      top_hits_peak_sprawl_distance: 0,
     };
   },
+
+  computed: {
+    logo() {
+      return this.$vuetify.theme.global.current.dark ? logoWhite : logoBlack;
+    }
+  },
+
+  methods: {
+    async get_top_hits_configs(){
+      const cached = localStorage.getItem('configs')
+      if (cached) {
+        const data = JSON.parse(cached)
+        this.top_hits_pval_thr = data.top_hits_pval_cutoff;
+        this.top_hits_max_entries = data.top_hits_max_limit;
+        this.top_hits_peak_max_count = data.manhattan_peak_max_count;
+        this.top_hits_peak_sprawl_distance = data.manhattan_peak_sprawl_dist;
+      } else {
+        // Otherwise fetch from API
+        fetch(`${API_BASE_URL}/overview_get_config`)
+            .then(res => res.json())
+            .then(data => {
+              localStorage.setItem('configs', JSON.stringify(data))
+              this.top_hits_pval_thr = data.top_hits_pval_cutoff;
+              this.top_hits_max_entries = data.top_hits_max_limit;
+              this.top_hits_peak_max_count = data.manhattan_peak_max_count;
+              this.top_hits_peak_sprawl_distance = data.manhattan_peak_sprawl_dist;
+            })
+            .catch(err => console.error('Error fetching config:', err))
+      }
+    }
+  },
+
+  mounted() {
+    this.get_top_hits_configs();
+  }
+
 }
 </script>
 

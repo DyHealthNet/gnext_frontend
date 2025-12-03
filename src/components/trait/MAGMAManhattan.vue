@@ -115,17 +115,17 @@ export default {
           return;
         }
         const manhattan_json = this.magmaResults.map(row => ({
-          chrom: row['Chrom'],
-          pos: (row['Start'] + row['End']) / 2,
-          start: row['Start'],
-          end: row['End'],
-          neg_log_pvalue: row['-Log10(Pvalue)'],
-          pvalue: row['Pvalue'],
-          gene: row['Gene'],
-          symbol: row['Symbol'],
+          chrom: row['chrom'],
+          pos: (row['start'] + row['end']) / 2,
+          start: row['start'],
+          end: row['end'],
+          neg_log_pvalue: row['-log10(pvalue)'],
+          pvalue: row['pvalue'],
+          gene_id: row['gene_id'],
+          gene_symbol: row['gene_symbol'],
         }));
         const tooltip_template = `
-  <b>Gene: <%- d.gene || "N/A" %> (<%- d.symbol || "N/A" %>)</b><br>
+  <b>Gene: <%- d.gene_id || "N/A" %> (<%- d.gene_symbol || "N/A" %>)</b><br>
    Chr <%- d.chrom %>: <%- d.start %>-<%- d.end %></b><br>
   -log<sub>10</sub>(p): <%- d.neg_log_pvalue ? (+d.neg_log_pvalue).toFixed(3) : "N/A" %>
 `;

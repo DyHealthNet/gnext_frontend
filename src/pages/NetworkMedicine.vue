@@ -1,5 +1,47 @@
 <template>
-  <v-container>
+  <v-container class="position-relative">
+    <!-- No Gene Lists Overlay -->
+    <v-overlay
+      :model-value="emptyGeneLists && showNoGeneListsOverlay"
+      contained
+      class="align-center justify-center"
+    >
+      <div class="text-center pa-8">
+        <v-card max-width="500" class="mx-auto position-relative" elevation="8">
+          <!-- Close Button -->
+          <v-btn
+            icon="mdi-close"
+            size="small"
+            variant="tonal"
+            color="surface"
+            class="position-absolute pa-2"
+            style="top: 8px; right: 8px; z-index: 1;"
+            @click="closeOverlay"
+          ></v-btn>
+          
+          <v-card-text class="pa-8">
+            <div class="mb-4">
+              <v-icon 
+                icon="mdi-alert-circle-outline" 
+                size="64" 
+                color="warning"
+              ></v-icon>
+            </div>
+            
+            <h2 class="text-h5 mb-4">No Gene Lists Available Yet</h2>
+            
+            <p class="text-body-1 mb-4">
+              To use the Network Medicine functionality, you first need to create gene lists from your analysis results.
+            </p>
+            
+            <p class="text-body-2 mb-6 text-medium-emphasis">
+              Browse through the traits and visit a trait-specific page to explore the gene-based test results and create gene lists for network analysis.
+            </p>
+          </v-card-text>
+        </v-card>
+      </div>
+    </v-overlay>
+
     <v-row class="text-center">
       <v-col cols="12">
         <h1 class="title mt-4">Network Medicine</h1>
@@ -51,14 +93,14 @@
                 </v-col>
               </v-row>
               <v-row>
-                <v-col sm="6" md="6" lg="2">
+                <v-col sm="6" md="6" lg="3">
                   <v-btn color="primary" block height="48px" :disabled="emptyGeneLists"
-                         prepend-icon="mdi-send-circle-outline" @click="addNodesToNetwork">
+                         prepend-icon="mdi-send-circle-outline" @click="addNodesToNetwork" style="color: #ffffff !important;">
                     Add to Drugst.One
                   </v-btn>
                 </v-col>
-                <v-col sm="6" md="6" lg="2" class="ml-auto">
-                  <v-btn color="error" block height="48px"
+                <v-col sm="6" md="6" lg="3" class="ml-auto">
+                  <v-btn color="error" block height="48px" :disabled="emptyGeneLists"
                          prepend-icon="mdi-close-circle-outline" @click="clearGeneLists">
                     Clear All Seed Gene Lists
                   </v-btn>
@@ -148,6 +190,7 @@ export default {
       networkKey: 0,  // Add this to force re-render
       networkName: '',
       showConfirmDialog: false,
+      showNoGeneListsOverlay: true,
       config: {
         identifier: GENE_ID_SPACE,
         title: 'Empty Network',
@@ -176,7 +219,6 @@ export default {
   mounted() {
     this.loadGeneLists()
     this.loadNetworkFromStorage()
-
   },
 
   computed: {
@@ -316,6 +358,10 @@ export default {
       this.networkKey++
       
       console.log("All seed gene lists cleared")
+    },
+
+    closeOverlay() {
+      this.showNoGeneListsOverlay = false
     }
   }
 }

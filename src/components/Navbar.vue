@@ -52,13 +52,13 @@
         </v-btn>
       </template>
     </v-menu>
-    <v-menu transition="slide-x-transition">
+   <v-menu transition="slide-x-transition">
       <template v-slot:activator="{ props }">
-        <v-btn to="/idea" color="darken-1" class="mx-1" v-bind="props">
+        <v-btn to="/about" color="darken-1" class="mx-1" v-bind="props">
           <template v-slot:prepend>
             <v-icon>mdi-book-open-outline</v-icon>
           </template>
-          Idea
+          About
         </v-btn>
       </template>
     </v-menu>

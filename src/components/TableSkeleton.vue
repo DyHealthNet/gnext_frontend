@@ -58,7 +58,7 @@
 
         <template v-for="col in columns" :key="col.field">
           <Column
-              v-if="col.field !== 'variant_id' && col.field !== 'trait_id' && col.field !== 'top_variant' && col.field !== 'location' && col.field !== 'distance' && col.field !== 'nearest_genes'"
+              v-if="col.field !== 'variant_id' && col.field !== 'trait_id' && col.field !== 'top_variant' && col.field !== 'location' && col.field !== 'distance' && col.field !== 'nearest_genes' && col.field !== 'gene_id' && col.field !== 'gene_symbol' "
               :field="col.field"
               :header="col.header"
               sortable
@@ -114,6 +114,22 @@
                   </span>
                 </template>
                 <span v-else>-</span>
+              </template>
+
+              <!-- Gene ID -->
+              <template v-else-if="field === 'gene_id'">
+              <a :href="`/gene/${encodeURIComponent(data.gene_id.split(' ')[0])}`"
+                  class="table-link hover:underline no-wrap">
+                {{ data.gene_id }}
+              </a>
+            </template>
+
+
+              <!-- Gene Symbol -->
+              <template v-else-if="field === 'gene_symbol'">
+                <a :href="`/gene/${encodeURIComponent(data.gene_id)}`" class="table-link hover:underline no-wrap">
+                  {{ data.gene_symbol }}
+                </a>
               </template>
 
               <!-- Default rendering -->

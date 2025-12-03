@@ -47,6 +47,15 @@
           >
             Example Variant {{VARIANT_EXAMPLE}} →
           </v-btn>
+
+          <v-btn
+              v-if="GENE_EXAMPLE !== ''"
+              class="example-btn"
+              depressed
+              @click="onGeneClick"
+          >
+            Example Gene {{GENE_EXAMPLE}} →
+          </v-btn>
         </v-row>
       </v-container>
 
@@ -59,7 +68,7 @@
 <script setup>
 import AutoComplete from "@/components/autocomplete/AutoComplete_Home.vue";
 import HomeStatsGrid from "@/components/HomeStatsGrid.vue";
-import {STUDY_NAME, VARIANT_EXAMPLE, TRAIT_EXAMPLE, API_BASE_URL} from "@/config";
+import {STUDY_NAME, VARIANT_EXAMPLE, TRAIT_EXAMPLE, API_BASE_URL, GENE_EXAMPLE} from "@/config";
 import { useRouter } from "vue-router";
 import { onMounted, computed } from "vue"
 import { useTheme } from 'vuetify'
@@ -81,6 +90,10 @@ function onTraitClick() {
 
 function onVariantClick() {
   router.push(`/variant/${encodeURIComponent(VARIANT_EXAMPLE)}`);
+}
+
+function onGeneClick() {
+  router.push(`/gene/${GENE_EXAMPLE}`);
 }
 
 function loadConfigs() {

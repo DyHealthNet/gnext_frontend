@@ -73,10 +73,6 @@
 
        <p class="text-body-1 mb-4 mt-4">
         Add {{this.tableItems.length}} genes as list to seed lists
-        <span v-if="geneCountExceedsLimit" class="text-warning ml-2">
-          <v-icon>mdi-alert</v-icon>
-          (Exceeds limit of {{geneLimit}} genes)
-        </span>
       </p>
       </v-container>
     <v-container>
@@ -112,37 +108,6 @@
     <v-snackbar v-model="showAlert" :color="alertType" timeout="2000">
       {{ alertMessage}}
     </v-snackbar>
-
-    <!-- Gene Limit Warning Dialog -->
-    <v-dialog v-model="showGeneLimitDialog" max-width="500">
-      <v-card>
-        <v-card-title class="text-h5 text-warning">
-          <v-icon class="mr-2">mdi-alert</v-icon>
-          Gene List Limit Exceeded
-        </v-card-title>
-        <v-card-text>
-          <p>You are trying to add <strong>{{ tableItems.length }}</strong> genes to the gene list, but the maximum limit is <strong>150 genes</strong>.</p>
-          <p class="text-body-2 mt-3">
-            <strong>Suggestions:</strong>
-          </p>
-          <ul class="text-body-2">
-            <li>Apply more stringent filtering to reduce the number of genes</li>
-            <li>Use a lower p-value threshold</li>
-            <li>Filter by specific chromosomes</li>
-          </ul>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="primary"
-            variant="text"
-            @click="showGeneLimitDialog = false"
-          >
-            OK
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 
@@ -172,9 +137,7 @@ export default {
       showAlert: false,
       alertMessage: "",
       alertType: "success",
-      showGeneLimitDialog: false,
-      geneLimit: 150,
-      priorityOrder: ["Gene","Symbol","Chrom", "Start", "End", "#SNPs", "Zvalue", "Pvalue"],
+      priorityOrder: ["gene_id","gene_symbol","chrom", "start", "end", "#SNPs", "zvalue", "pvalue"],
     }
   },
 
@@ -184,11 +147,7 @@ export default {
     },
 
     isValidGeneListName() {
-      return this.geneNameList.trim().length > 0 && this.tableItems.length > 0 && this.tableItems.length <= this.geneLimit;
-    },
-
-    geneCountExceedsLimit() {
-      return this.tableItems.length > this.geneLimit;
+      return this.geneNameList.trim().length > 0 & this.tableItems.length > 0;
     }
   },
 
@@ -202,7 +161,7 @@ export default {
       deep: true,
       handler(newVal) {
         // apply pval cutoff
-        this.tableItems = this.magmaResults.filter(row => row['Bonferroni Pvalue'] <= this.pvalCutoff)
+        this.tableItems = this.magmaResults.filter(row => row['bonferroni_pvalue'] <= this.pvalCutoff)
           .map((d, i) => ({...d, x: i}));
         this.downloadName = `MAGMA_Results_Trait_${this.traitId}.csv`;
       }
@@ -224,9 +183,9 @@ export default {
     async applyMAGMATableFiltering() {
       // filter by Bonferroni pvalue and chromosome
       this.tableItems = this.magmaResults.filter(row => {
-        const passPval = row['Bonferroni Pvalue'] <= this.pvalCutoff;
+        const passPval = row['bonferroni_pvalue'] <= this.pvalCutoff;
         const passChr = this.selectedChr
-            ? this.selectedChr.map(c => parseInt(c)).includes(parseInt(row['Chrom']))
+            ? this.selectedChr.map(c => parseInt(c)).includes(parseInt(row['chrom']))
             : true;
         return passPval && passChr;
       }).map((d, i) => ({...d, x: i}));
@@ -242,13 +201,6 @@ export default {
     addGeneList() {
       const name = this.geneNameList.trim()
       if (!name) return
-
-      // Check gene limit
-      if (this.tableItems.length > this.geneLimit) {
-        this.showGeneLimitDialog = true
-        return
-      }
-
       // retrieve existing gene lists from local storage
       const geneLists = JSON.parse(localStorage.getItem('geneLists') || '{}')
       console.log("Gene Lists from local storage:", geneLists.value);
@@ -261,7 +213,7 @@ export default {
       }
 
       // add list
-      geneLists[name] = {"genes": this.tableItems.map(item => item.Symbol), "trait": this.traitId}
+      geneLists[name] = this.tableItems.map(item => item.gene_symbol)
       localStorage.setItem('geneLists', JSON.stringify(geneLists))
 
       this.alertMessage = `Gene list "${name}" added successfully with ${this.tableItems.length} genes.`
@@ -273,7 +225,7 @@ export default {
     },
 
     moveToSeedsPage() {
-      this.$router.push('/networkmedicine')
+      this.$router.push('/drugstone')
     },
   }
 

@@ -2,13 +2,14 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-# Only copy .env if you NEED build-time VITE_* (optional)
-COPY .env .env
+# Copy .env to parent of WORKDIR so vite.config.js can find it at '../.env'
+# Since WORKDIR is /app, put .env at root /
+COPY .env /.env
 
-COPY dyhealthnetlight_frontend/package*.json ./
+COPY gnext_frontend/package*.json ./
 RUN npm ci
 
-COPY dyhealthnetlight_frontend/ .
+COPY gnext_frontend/ .
 RUN npm run build
 
 # Stage 2: Serve with Nginx + reverse proxy
@@ -19,7 +20,7 @@ COPY --from=build /app/dist /usr/share/nginx/html
 
 # Nginx template -> rendered at container start with envsubst
 # Make sure this file exists in your repo
-COPY dyhealthnetlight_frontend/nginx/default.conf.template /etc/nginx/templates/default.conf.template
+COPY gnext_frontend/nginx/default.conf.template /etc/nginx/templates/default.conf.template
 
 # Tell the official entrypoint to render *.template into /etc/nginx/conf.d/
 ENV NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/templates \

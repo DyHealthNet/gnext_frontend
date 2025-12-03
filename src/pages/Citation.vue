@@ -51,7 +51,7 @@
         <v-card outlined class="mb-6">
           <v-toolbar color="primary-darken-1" density="compact">
             <v-toolbar-title class="d-flex align-center">
-              Additionally, cite the DyHealthNetLight paper as follows:
+              Additionally, cite the GNExT paper as follows:
             </v-toolbar-title>
           </v-toolbar>
           <v-divider></v-divider>
@@ -95,20 +95,9 @@ export default {
       studyDoiLink: STUDY_DOI_LINK,
       studyBibtexEntry: STUDY_BIBTEX_CITATION,
       studyPlainEntry: STUDY_PLAIN_CITATION,
-      softwareDoiLink: "https://www.doi.org/10.1234/test",
-      softwareBibtexEntry: `@article{example2025,
-  title     = {An Example Study on Complex Traits},
-  author    = {Smith, John and Müller, Anna and Zhang, Wei and Rossi, Marco and Johnson, Emily and Kim, Minsoo and García, Carlos and Dubois, Claire and Ivanov, Sergey and Cohen, David and Andersson, Lisa and Nakamura, Hiroshi and Novak, Petra and Ali, Ahmed and Brown, Sarah and Chen, Li and Williams, Robert and Lopez, Maria and Singh, Rajesh},
-  journal   = {Journal of Example Research},
-  volume    = {42},
-  number    = {3},
-  pages     = {123--145},
-  year      = {2025},
-  publisher = {Example Press},
-  doi       = {10.1234/example.doi.2025}
-}`,
-      softwarePlainEntry: `Smith, John; Müller, Anna; Zhang, Wei; Rossi, Marco; Johnson, Emily; Kim, Minsoo; García, Carlos; Dubois, Claire; Ivanov, Sergey; Cohen, David; Andersson, Lisa; Nakamura, Hiroshi; Novak, Petra; Ali, Ahmed; Brown, Sarah; Chen, Li; Williams, Robert; Lopez, Maria; Singh, Rajesh.
-"An Example Study on Complex Traits." Journal of Example Research, vol. 42, no. 3, 2025, pp. 123–145. doi:10.1234/example.doi.2025`
+      softwareDoiLink: "",
+      softwareBibtexEntry: ``,
+      softwarePlainEntry: ``
     }
   },
 

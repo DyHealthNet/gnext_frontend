@@ -96,7 +96,7 @@ export default {
   methods: {
     async loadMAGMAQQPlot() {
       try {
-        const pvals = this.magmaResults.map(result => ({P : result.Pvalue}));
+        const pvals = this.magmaResults.map(result => ({P : result.pvalue}));
         create_magma_qq_plot(pvals, this.currentAxesColor);
       } catch (error) {
         console.error("Failed to load MAGMA QQ plot data:", error);
