@@ -28,7 +28,7 @@ For detailed overview of the platform, please refer to the **[GNExT platform rep
 
 ## Development Setup
 
-In development mode, ensure that the [GNExT Platform](https://github.com/DyHealthNet/gnext_platform)** repository is cloned with all submodules. After completing the .env configuration, proceed to the frontend directory to initialize and configure the development environment according to the steps outlined below. 
+In development mode, ensure that the [GNExT Platform](https://github.com/DyHealthNet/gnext_platform) repository is cloned with all submodules. After completing the .env configuration, proceed to the frontend directory to initialize and configure the development environment according to the steps outlined below. 
 
 ### Quick Start
 
@@ -63,7 +63,7 @@ The frontend will be available at `http://localhost:5173` (or the port specified
 
 ## Deployment Setup
 
-Please have a look at the [GNExT Platform](https://github.com/DyHealthNet/gnext_platform)** repository.
+Please have a look at the [GNExT Platform](https://github.com/DyHealthNet/gnext_platform) repository.
 
 
 ## Citation
