@@ -16,7 +16,24 @@
 
         <v-row class="my-4">
           <v-col cols="12">
-            <v-card outlined>
+            <v-card outlined class="position-relative">
+              <!-- Loading Overlay -->
+              <v-overlay
+                :model-value="showLoading"
+                contained
+                class="align-center justify-center"
+              >
+                <div class="text-center">
+                  <v-progress-circular
+                    color="primary"
+                    indeterminate
+                    size="64"
+                  ></v-progress-circular>
+                  
+                 
+                </div>
+              </v-overlay>
+
               <v-toolbar color="primary-darken-1" density="compact">
                 <v-toolbar-title>Top Hits</v-toolbar-title>
               </v-toolbar>

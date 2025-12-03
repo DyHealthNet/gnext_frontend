@@ -32,6 +32,7 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue'
+import { useTheme } from 'vuetify'
 import AutoCompleteDrugstone from "@/components/autocomplete/AutoComplete_Drugstone.vue";
 import phenotypeIconWhite from "@/assets/figures/node_phenotype_white.png";
 import phenotypeIconBlack from "@/assets/figures/node_phenotype_black.png";
@@ -49,9 +50,12 @@ const props = defineProps({
   }
 });
 
-// Theme-aware phenotype icon
+// Get Vuetify theme
+const theme = useTheme()
+
+// Theme-aware phenotype icon - reactively updates when theme changes
 const phenotypeIcon = computed(() => 
-  localStorage.getItem('theme') === 'dyHealthNetThemeDark' ? phenotypeIconWhite : phenotypeIconBlack
+  theme.global.name.value === 'dyHealthNetThemeDark' ? phenotypeIconWhite : phenotypeIconBlack
 );
 
 // Panel expansion state - open when trait is loaded, closed when empty

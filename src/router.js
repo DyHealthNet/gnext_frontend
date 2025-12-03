@@ -5,7 +5,7 @@ import Variant from "./pages/Variant.vue";
 import Trait from "./pages/Trait.vue";
 import TopHits from "./pages/TopHits.vue";
 import Citation from "./pages/Citation.vue";
-import Idea from "./pages/Idea.vue";
+import About from "./pages/About.vue";
 import NetworkMedicine from "@/pages/NetworkMedicine.vue";
 import {MAGMA_SHOW} from "@/config.js";
 import Gene from "./pages/Gene.vue";
@@ -21,10 +21,10 @@ const routes = [
     name: 'Documentation',
     component: Documentation
   },
-    {
-    path: '/idea',
-    name: 'Idea',
-    component: Idea
+  {
+    path: '/about',
+    name: 'About',
+    component: About
   },
   {
     path: '/tophits',
@@ -67,7 +67,15 @@ if(MAGMA_SHOW === true){
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    // If the user navigated using browser back/forward, restore saved position
+    if (savedPosition) {
+      return savedPosition
+    }
+    // Otherwise, scroll to top instantly (no smooth animation)
+    return { top: 0 }
+  }
 })
 
 export default router
