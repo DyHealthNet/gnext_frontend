@@ -61,7 +61,7 @@
       <v-col>
         <TableSkeleton :headers="magmaColumns" :rows="tableItems" :downloadName="downloadName"
                        :priorityOrder="priorityOrder"
-                       :globalFilterFields="magmaColumns"></TableSkeleton>
+                       :globalFilterFields="magmaColumns" :selectedTrait="traitId"></TableSkeleton>
       </v-col>
     </v-row>
 

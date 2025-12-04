@@ -2,7 +2,7 @@
   <v-container>
     <v-row class="align-center">
       <!-- Left column: QQ plot -->
-       <v-col xs="12" sm="12" md="12" lg="4"">
+       <v-col xs="12" sm="12" md="12" lg="4">
         <div id="qq_plot_container" style="width: 400px; height: 750px;"></div>
       </v-col>
 
@@ -78,20 +78,29 @@ export default {
         const data = await res.json();
 
         // clear old plot
-        document.getElementById("qq_plot_container").innerHTML = "";
+        const qqContainer = document.getElementById("qq_plot_container");
+        if (qqContainer) {
+          qqContainer.innerHTML = "";
+        } else {
+          console.warn('qq_plot_container not found in DOM');
+        }
 
         // Display GC lambda values
         const container = document.querySelector('.gc-control');
-        container.innerHTML = ''; // clear existing content if any
+        if (container) {
+          container.innerHTML = ''; // clear existing content if any
 
-        sortBy(toPairs(data.overall.gc_lambda), d => -d[0])
-            .forEach((d, i) => {
-              let text = `GC lambda ${d[0]}: ${d[1].toFixed(3)}`;
-              if (i === 0) {
-                text = `<b>${text}</b>`;
-              }
-              container.innerHTML += `<br>${text}`;
-            });
+          sortBy(toPairs(data.overall.gc_lambda), d => -d[0])
+              .forEach((d, i) => {
+                let text = `GC lambda ${d[0]}: ${d[1].toFixed(3)}`;
+                if (i === 0) {
+                  text = `<b>${text}</b>`;
+                }
+                container.innerHTML += `<br>${text}`;
+              });
+        } else {
+          console.warn('gc-control element not found; skipping GC lambda display');
+        }
 
         // Draw QQ plot
         if (data.by_maf) {

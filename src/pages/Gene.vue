@@ -65,6 +65,7 @@
                 </p>
 
                 <TableSkeleton
+                  ref="tableRef"
                   :headers="header"
                   :rows="rows"
                   :downloadName="downloadName"
@@ -74,7 +75,10 @@
                   @row-selected="handleRowSelected"
                 ></TableSkeleton>
 
-                <p class="text-body-1 mb-4"><b>Selected Trait:</b> {{ selectedTrait }}</p>
+
+                <p class="text-body-1 mb-4">
+                 <b>Selected Trait:</b> {{ selectedTrait }}
+                </p>
 
                 <!-- Display selected row info for debugging -->
                 <LocusZoomPlot
@@ -83,7 +87,6 @@
                     :geneEnd="end"
                     :geneStrand="strand"
                     :traitId="selectedTrait"
-                    :ldRefVariant="rows.find(row => row.trait_id === selectedTrait)?.top_variant"
                 ></LocusZoomPlot>
 
               </v-card-text>
@@ -97,10 +100,10 @@
 </template>
 
 <script>
-import {useRoute} from 'vue-router';
+import {useRoute, useRouter} from 'vue-router';
 import geneIconBlack from "@/assets/figures/node_gene_black.png"
 import geneIconWhite from "@/assets/figures/node_gene_white.png"
-import {ref, reactive, onMounted, watch, computed} from 'vue';
+import {ref, reactive, onMounted, watch, computed, nextTick} from 'vue';
 import {useTheme} from 'vuetify';
 import GeneProfile from "@/components/gene/GeneProfile.vue";
 import {API_BASE_URL} from "@/config.js";
@@ -118,6 +121,7 @@ export default {
   },
   setup() {
     const route = useRoute();
+    const router = useRouter();
     const id = ref(decodeURIComponent(route.params.id));
     const theme = useTheme();
 
@@ -129,7 +133,9 @@ export default {
 
     const rows = ref([]);
     const header = ref([]);
-    const selectedTrait = ref(null);
+    // Initialize selectedTrait with query parameter if provided
+    const selectedTrait = ref(route.query.trait || null);
+    const tableRef = ref(null);
 
     const window_up = ref(0);
     const window_down = ref(0);
@@ -138,6 +144,7 @@ export default {
       "trait_id",
       "trait_label",
       "trait_category",
+      "MAGMA P-value",
       "top_variant",
       "beta",
       "stderr_beta",
@@ -169,6 +176,28 @@ export default {
       const res = await fetch(`${API_BASE_URL}/gene_get_top_signals/?id=${query}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
+      
+      // If no trait is selected and rows exist, select the first trait
+      if (!selectedTrait.value && json.rows && json.rows.length > 0) {
+        selectedTrait.value = json.rows[0]["trait_id"];
+        console.log("Auto-selected first trait:", selectedTrait.value);
+        // Update URL to reflect auto-selected trait
+        router.replace({
+          path: route.path,
+          query: { trait: selectedTrait.value }
+        });
+      }
+      
+      // Pre-set the selected row in the table component BEFORE setting rows
+      // This prevents the TableSkeleton auto-selection from overriding our choice
+      if (tableRef.value && selectedTrait.value && json.rows && json.rows.length > 0) {
+        const matchingRow = json.rows.find(row => row.trait_id === selectedTrait.value);
+        if (matchingRow) {
+          tableRef.value.selectedRow = matchingRow;
+        }
+      }
+      
+      // Now set the rows and header (after selectedRow is already set)
       rows.value = json.rows;
       header.value = json.header;
     };
@@ -196,7 +225,29 @@ export default {
     const handleRowSelected = (rowData) => {
       selectedTrait.value = rowData["trait_id"];
       console.log("Selected trait ID:", selectedTrait.value);
+      
+      // Update the URL query parameter to reflect the selected trait
+      router.replace({
+        path: route.path,
+        query: { trait: selectedTrait.value }
+      });
     };
+
+    // Watch for route parameter changes (when navigating to a different gene)
+    watch(
+      () => route.params.id,
+      (newId) => {
+        if (newId) {
+          id.value = decodeURIComponent(newId);
+          selectedTrait.value = route.query.trait || null;
+          // Reset data and fetch new gene data
+          rows.value = [];
+          header.value = [];
+          fetchGeneData();
+          fetchGeneSignals();
+        }
+      }
+    );
 
     onMounted(() => {
       fetchGeneData();
@@ -221,7 +272,8 @@ export default {
       selectedTrait,
       handleRowSelected,
       window_up,
-      window_down
+      window_down,
+      tableRef
     };
   }
 };

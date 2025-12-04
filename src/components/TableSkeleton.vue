@@ -4,7 +4,7 @@
     <div class="table-wrapper" style="overflow-x: auto;">
       <DataTable
           class="no-wrap-headers"
-          :value="rows"
+          :value="sortedRows"
           paginator
           :rows="defaultTableRows"
           :rowsPerPageOptions="[5, 10, 20, 50, 100]"
@@ -118,18 +118,17 @@
 
               <!-- Gene ID -->
               <template v-else-if="field === 'gene_id'">
-              <a :href="`/gene/${encodeURIComponent(data.gene_id.split(' ')[0])}`"
-                  class="table-link hover:underline no-wrap">
-                {{ data.gene_id }}
-              </a>
+                <a :href="`/gene/${encodeURIComponent(data.gene_id)}?trait=${data.trait_id || selectedTrait}`" class="table-link hover:underline">
+                      {{ data.gene_id }}
+                    </a>
             </template>
 
 
               <!-- Gene Symbol -->
               <template v-else-if="field === 'gene_symbol'">
-                <a :href="`/gene/${encodeURIComponent(data.gene_id)}`" class="table-link hover:underline no-wrap">
-                  {{ data.gene_symbol }}
-                </a>
+                <a :href="`/gene/${encodeURIComponent(data.gene_id)}?trait=${data.trait_id || selectedTrait}`" class="table-link hover:underline">
+                      {{ data.gene_symbol }}
+                    </a>
               </template>
 
               <!-- Default rendering -->
@@ -214,7 +213,7 @@ export default {
   },
   data: () => ({
     menuVisible: false,
-    sortField: "Pvalue",
+    sortField: null,
     sortOrder: 1,
     filters: {
       global: {value: null, matchMode: FilterMatchMode.CONTAINS}
@@ -243,6 +242,37 @@ export default {
             col === 'neg_log_pvalue' ? '-Log10(Pvalue)' : col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
       }));
       return sorted_renamed;
+    },
+    sortedRows() {
+      if (!this.sortField) return this.rows;
+      
+      const sorted = [...this.rows].sort((a, b) => {
+        const aVal = a[this.sortField];
+        const bVal = b[this.sortField];
+        
+        // Handle null/undefined
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null) return 1;
+        if (bVal == null) return -1;
+        
+        // Try numeric comparison first
+        const aNum = Number(aVal);
+        const bNum = Number(bVal);
+        
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+          return (aNum - bNum) * this.sortOrder;
+        }
+        
+        // String comparison fallback
+        const aStr = String(aVal).toLowerCase();
+        const bStr = String(bVal).toLowerCase();
+        
+        if (aStr < bStr) return -1 * this.sortOrder;
+        if (aStr > bStr) return 1 * this.sortOrder;
+        return 0;
+      });
+      
+      return sorted;
     }
   },
   watch: {
