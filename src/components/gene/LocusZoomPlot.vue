@@ -13,14 +13,15 @@ const props = defineProps({
   geneStart: {type: Number, required: true},
   geneEnd: {type: Number, required: true},
   geneStrand: {type: String, required: true},
-  traitId: {type: String, default: null}
+  traitId: {type: String, default: null},
+  ldRefVariant: {type: String, default: null} // LD reference variant ID (rsID, chr:pos, etc.)
 });
 
 const locusZoomContainer = ref(null);
 const plot = ref(null);
 
 // window size in kb around gene
-const config = ref({window_up: 150, window_down: 150});
+const config = ref({window_up: 100, window_down: 100});
 
 /**
  * Register toolbar widget + custom association adapter
@@ -59,6 +60,7 @@ const registerLocusZoomComponents = () => {
       super(config);
       this._url = config.url;
       this._trait_id = config.trait_id;
+      this._gene_strand = config.gene_strand;
     }
 
     // Build URL for your backend
@@ -68,8 +70,9 @@ const registerLocusZoomComponents = () => {
       const params = new URLSearchParams({
         trait_id: this._trait_id,
         chr,
-        start: start,
-        end: end,
+        start,
+        end,
+        gene_strand: this._gene_strand
       });
 
       return `${this._url}?${params.toString()}`;
@@ -145,7 +148,7 @@ const registerLocusZoomComponents = () => {
 /**
  * Define data sources for association and LD
  */
-const createDataSources = (regionStart, regionEnd) => {
+const createDataSources = () => {
   const remoteBase = "https://portaldev.sph.umich.edu/api/v1/";
   
   return new LocusZoom.DataSources()
@@ -154,9 +157,7 @@ const createDataSources = (regionStart, regionEnd) => {
         {
           url: `${API_BASE_URL}/gene_get_locuszoom_data/`,
           trait_id: props.traitId,
-          gene_strand: props.geneStrand,
-          region_start: regionStart,
-          region_end: regionEnd
+          gene_strand: props.geneStrand
         }
       ])
       .add("ld", [
@@ -180,7 +181,18 @@ const createDataSources = (regionStart, regionEnd) => {
 /**
  * Layout using built-in association_pvalues (which wires ld(assoc) internally)
  */
-const createLayout = (regionStart, regionEnd) => {
+const createLayout = () => {
+  let regionStart;
+  let regionEnd;
+
+  if (props.geneStrand === "+") {
+    regionStart = Math.max(0, props.geneStart - config.value.window_up * 1e3);
+    regionEnd   = props.geneEnd + config.value.window_down * 1e3;
+  } else {
+    regionStart = Math.max(0, props.geneStart - config.value.window_down * 1e3);
+    regionEnd   = props.geneEnd + config.value.window_up * 1e3;
+  }
+
   console.log(`LocusZoom region: chr${props.geneChr}:${regionStart}-${regionEnd} (strand: ${props.geneStrand})`);
 
   const significanceLayer = LocusZoom.Layouts.get("data_layer", "significance", {
@@ -277,11 +289,6 @@ const createLayout = (regionStart, regionEnd) => {
     ]
   };
 
-  // Calculate appropriate scale limits based on the region size
-  const regionSize = regionEnd - regionStart;
-  const minScale = Math.max(10_000, Math.floor(regionSize * 0.1)); // Minimum 10kb or 10% of region
-  const maxScale = Math.max(regionSize * 2, 1_000_000); // At least 2x region size or 1Mb
-
   return {
     state: {
       chr: props.geneChr,
@@ -291,8 +298,8 @@ const createLayout = (regionStart, regionEnd) => {
     },
     width: 800,
     responsive_resize: true,
-    min_region_scale: minScale,
-    max_region_scale: maxScale,
+    min_region_scale: 20_000,
+    max_region_scale: 500_000,
     toolbar: {
       widgets: [
         { type: "move", text: "<<", title: "Shift 3/4 left", direction: -0.75, group_position: "start" },
@@ -331,6 +338,38 @@ const createLayout = (regionStart, regionEnd) => {
 };
 
 /**
+ * Convert variant ID from table format to LD server format
+ * @param {string} variantId - Variant in format like "chr_pos_ref/alt" 
+ * @returns {string} - Variant in format like "chr:pos_ref/alt"
+ */
+const convertToLDServerFormat = (variantId) => {
+  if (!variantId) return null;
+  
+  // If already in LD server format (contains colon), return as-is
+  if (variantId.includes(':')) {
+    return variantId;
+  }
+  
+  // Convert table format: chr_pos_ref/alt -> chr:pos_ref/alt
+  // Example: "1_12345678_A/T" -> "1:12345678_A/T"
+  const match = variantId.match(/^(\d+)_(\d+)_(.+)$/);
+  if (match) {
+    const [, chr, pos, alleles] = match;
+    return `${chr}:${pos}_${alleles}`;
+  }
+  
+  // Convert coordinate-only format: chr_pos -> chr:pos
+  const coordMatch = variantId.match(/^(\d+)_(\d+)$/);
+  if (coordMatch) {
+    const [, chr, pos] = coordMatch;
+    return `${chr}:${pos}`;
+  }
+  
+  // If no pattern matches, return original
+  return variantId;
+};
+
+/**
  * Create / recreate plot
  */
 const createPlot = async () => {
@@ -345,22 +384,22 @@ const createPlot = async () => {
 
   await nextTick();
 
-  // Calculate region coordinates
-  let regionStart, regionEnd;
-  if (props.geneStrand === "+") {
-    regionStart = Math.max(0, props.geneStart - config.value.window_up * 1e3);
-    regionEnd = props.geneEnd + config.value.window_down * 1e3;
-  } else {
-    regionStart = Math.max(0, props.geneStart - config.value.window_down * 1e3);
-    regionEnd = props.geneEnd + config.value.window_up * 1e3;
-  }
-
-  const dataSources = createDataSources(regionStart, regionEnd);
-  const layout = createLayout(regionStart, regionEnd);
+  const dataSources = createDataSources();
+  const layout = createLayout();
 
   try {
     plot.value = LocusZoom.populate("#lz-plot", dataSources, layout);
+    
+    // Convert variant ID to LD server format if needed
+    if (props.ldRefVariant) {
+      const ldServerVariant = convertToLDServerFormat(props.ldRefVariant);
+      plot.value.state.ldrefvar = ldServerVariant;  // LDServer reads this
+      console.log('Original variant:', props.ldRefVariant);
+      console.log('LD server format:', ldServerVariant);
+    }
+    
     plot.value.state.genome_build = GENOME_BUILD;
+    plot.value.refresh()
   } catch (error) {
     console.error("LocusZoom error", error);
   }
@@ -403,8 +442,55 @@ watch(
     }
 );
 
-// Expose plot handle if needed
-defineExpose({plot, refreshPlot: createPlot});
+/**
+ * Set LD reference variant programmatically
+ * @param {string} variantId - Variant identifier (rsID, chr:pos, or variant field value)
+ */
+const setLDReference = (variantId) => {
+  if (!plot.value) {
+    console.warn('LocusZoom plot not initialized');
+    return;
+  }
+  
+  // Convert to LD server format
+  const ldServerVariant = convertToLDServerFormat(variantId);
+  console.log('Setting LD reference - Original:', variantId, 'LD Server format:', ldServerVariant);
+  
+  // Set in plot state for LD server
+  plot.value.state.ldrefvar = ldServerVariant;
+  plot.value.refresh();
+  
+  const assocPanel = plot.value.panels.association;
+  if (!assocPanel) {
+    console.warn('Association panel not found');
+    return;
+  }
+  
+  const assocLayer = assocPanel.data_layers.association_pvalues;
+  if (!assocLayer) {
+    console.warn('Association layer not found');
+    return;
+  }
+  
+  // Find variant in the data by different possible identifiers
+  const variant = assocLayer.data.find(d => 
+    d.variant === variantId || 
+    d.id === variantId ||
+    d.rsid === variantId ||
+    `${d.chrom}:${d.position}` === variantId ||
+    `${d.chr}:${d.pos}` === variantId
+  );
+  
+  if (variant) {
+    assocLayer.makeLDReference(variant);
+    console.log('LD reference set to:', variantId);
+  } else {
+    console.warn('Variant not found in data:', variantId);
+  }
+};
+
+// Expose plot handle and methods
+defineExpose({plot, refreshPlot: createPlot, setLDReference});
 </script>
 
 <style scoped>

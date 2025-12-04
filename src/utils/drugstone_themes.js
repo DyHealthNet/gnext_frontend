@@ -13,7 +13,6 @@ const drugstone_themes = {
     "--drgstn-border": "rgba(0, 0, 0, 0.2)",
     "--drgstn-tooltip": "rgba(74,74,74,0.9)",
     "--drgstn-panel-secondary": "#FFFFFF",
-    "--drgstn-height": "800px"
   },
   "integrated-dark": {
     "--drgstn-primary": "#64b5f6",
@@ -29,7 +28,6 @@ const drugstone_themes = {
     "--drgstn-border": "rgba(255, 255, 255, 0.2)",
     "--drgstn-tooltip": "rgba(181, 181, 181, 0.9)",
     "--drgstn-panel-secondary": "#3b3b3b",
-    "--drgstn-height": "800px"
 
   },
 }

@@ -104,7 +104,7 @@
         </v-row>
 
         <v-row justify="space-around" align="stretch">
-          <v-col xs="12" md="6" lg="6">
+          <v-col xs="12" :md="magmaEnabled ? 6 : 12" :lg="magmaEnabled ? 6 : 12">
             <v-card id="gwas-qq-card" outlined class="d-flex flex-column h-100" style="min-height: 500px;">
               <v-toolbar color="primary-darken-1" density="compact">
                 <v-toolbar-title>GWAS QQ Plot</v-toolbar-title>

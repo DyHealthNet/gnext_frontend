@@ -2,12 +2,12 @@
   <v-container>
     <v-row class="align-center">
       <!-- Left column: QQ plot -->
-       <v-col xs="12" sm="12" md="12" lg="6">
+       <v-col xs="12" sm="12" md="12" lg="4"">
         <div id="qq_plot_container" style="width: 400px; height: 750px;"></div>
       </v-col>
 
       <!-- Right column: text/info -->
-       <v-col xs="12" sm="12" md="12" lg="6">
+       <v-col xs="12" sm="12" md="12" lg="8">
         <p class="gc-control"></p>
         <i>
           (Genomic Control lambda calculated based on the 50th percentile (median),
