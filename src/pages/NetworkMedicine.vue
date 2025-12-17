@@ -211,7 +211,9 @@ export default {
         showPruning: true,
         calculateProperties: true,
         showViews: true,
-        showAdvAnalysisContent: ["pathway-enrichment", "clustering", "enrichment-gprofiler", "enrichment-digest", "search-ndex"]
+        taskDrugName: "Drug ranking",
+        taskTargetName: "Module detection",
+        showAdvAnalysisContent: ["pathway-enrichment", "clustering", "enrichment-gprofiler", "enrichment-digest", "search-ndex", "drug-target-search", "drug-search"]
       },
     }
   },
