@@ -61,7 +61,7 @@
       <v-col>
         <TableSkeleton :headers="magmaColumns" :rows="tableItems" :downloadName="downloadName"
                        :priorityOrder="priorityOrder"
-                       :globalFilterFields="magmaColumns" :selectedTrait="traitId"></TableSkeleton>
+                       :globalFilterFields="magmaColumns" :selectedTrait="traitId" :defaultSortField="bonferroni_pvalue"></TableSkeleton>
       </v-col>
     </v-row>
 

@@ -1,10 +1,14 @@
 # Stage 1: Build with Vite
 FROM node:20-alpine AS build
+
+# Accept build arg for which env file to use
+ARG ENV_FILE=.env
+
 WORKDIR /app
 
-# Copy .env to parent of WORKDIR so vite.config.js can find it at '../.env'
+# Copy the specified .env file to parent of WORKDIR so vite.config.js can find it at '../.env'
 # Since WORKDIR is /app, put .env at root /
-COPY .env /.env
+COPY ${ENV_FILE} /.env
 
 COPY gnext_frontend/package*.json ./
 RUN npm ci

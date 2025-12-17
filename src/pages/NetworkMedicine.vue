@@ -197,7 +197,7 @@ export default {
         nodeShadow: true,
         edgeShadow: false,
         autofillEdges: true,
-        showEditNetwork: false,
+        showEditNetwork: true,
         showLogger: false,
         showNetworkMenuButtonUpload: false,
         interactionProteinProtein: 'NeDRex',
@@ -210,7 +210,7 @@ export default {
         showNetworkMenuButtonLabelIdspace: true,
         showPruning: true,
         calculateProperties: true,
-        showViews: false,
+        showViews: true,
         showAdvAnalysisContent: ["pathway-enrichment", "clustering", "enrichment-gprofiler", "enrichment-digest", "search-ndex"]
       },
     }

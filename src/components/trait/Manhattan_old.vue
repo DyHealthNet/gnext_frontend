@@ -1,22 +1,74 @@
 <template>
   <v-container>
-    <div id="manhattan_plot_container" style="width: 100%; height: 600px; background-color: transparent"></div>
-    <div class="d-flex justify-end mt-4">
+    <v-row>
+      <v-col cols="12">
+        <div id="manhattan_plot_container" style="width: 100%; height: 600px; background-color: transparent"></div>
+      </v-col>
+    </v-row>
+    
+    <v-row class="mt-4">
+      <v-col cols="12" class="d-flex justify-end align-center">
+        <div class="d-flex align-center mr-4" style="min-width: 250px;">
+          <v-icon class="mr-2">mdi-format-size</v-icon>
+          <v-slider
+            v-model="textSize"
+            :min="8"
+            :max="25"
+            :step="1"
+            thumb-label
+            density="compact"
+            hide-details
+            class="mr-2"
+          >
+            <template v-slot:append>
+              <span class="text-caption" style="min-width: 40px;">{{ textSize }}px</span>
+            </template>
+          </v-slider>
+        </div>
+        
+        <v-menu :close-on-content-click="false" offset-y>
+          <template #activator="{ props }">
+            <v-btn v-bind="props" icon size="small" class="mr-2">
+              <v-icon :color="chromColor1">mdi-palette</v-icon>
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-text>
+              <div class="text-caption mb-2">Chromosome Color 1</div>
+              <v-color-picker v-model="chromColor1" mode="hex" hide-inputs></v-color-picker>
+            </v-card-text>
+          </v-card>
+        </v-menu>
+        
+        <v-menu :close-on-content-click="false" offset-y>
+          <template #activator="{ props }">
+            <v-btn v-bind="props" icon size="small" class="mr-4">
+              <v-icon :color="chromColor2">mdi-palette</v-icon>
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-text>
+              <div class="text-caption mb-2">Chromosome Color 2</div>
+              <v-color-picker v-model="chromColor2" mode="hex" hide-inputs></v-color-picker>
+            </v-card-text>
+          </v-card>
+        </v-menu>
+        
+        <v-menu offset-y>
+          <template #activator="{ props }">
+            <v-btn color="primary" v-bind="props" prepend-icon="mdi-download">
+              Download
+            </v-btn>
+          </template>
 
-    <v-menu offset-y>
-  <template #activator="{ props }">
-    <v-btn color="primary" v-bind="props" prepend-icon="mdi-download">
-      Download
-    </v-btn>
-  </template>
-
-  <v-list>
-    <v-list-item @click="handleDownload('png')">PNG</v-list-item>
-    <v-list-item @click="handleDownload('svg')">SVG</v-list-item>
-    <v-list-item @click="handleDownload('jpg')">JPG</v-list-item>
-  </v-list>
-</v-menu>
-    </div>
+          <v-list>
+            <v-list-item @click="handleDownload('png')">PNG</v-list-item>
+            <v-list-item @click="handleDownload('svg')">SVG</v-list-item>
+            <v-list-item @click="handleDownload('jpg')">JPG</v-list-item>
+          </v-list>
+        </v-menu>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -35,7 +87,17 @@ export default {
     }
   },
 
+  data() {
+    return {
+      textSize: 12,
+      chromColor1: null,
+      chromColor2: null,
+    }
+  },
+
   mounted() {
+    this.chromColor1 = this.chromosomeColor1();
+    this.chromColor2 = this.chromosomeColor2();
     this.loadManhattanPlot();
   },
 
@@ -52,6 +114,15 @@ export default {
       if (newColor !== oldColor) {
         this.loadManhattanPlot()
       }
+    },
+    textSize() {
+      this.updateTextSize()
+    },
+    chromColor1() {
+      this.loadManhattanPlot()
+    },
+    chromColor2() {
+      this.loadManhattanPlot()
     }
   },
 
@@ -90,8 +161,8 @@ export default {
           tooltip_template: '<b><%- d.chrom %>_<%- d.pos %>_<%- (d.ref && d.alt) ? (d.ref + "/" + d.alt) : "" %></b><br>-log<sub>10</sub>(p): <%- d.neg_log_pvalue && (+d.neg_log_pvalue).toFixed(3) %><% var ids = Array.isArray(d.rsid) ? d.rsid : (d.rsid ? [d.rsid] : []); if (ids.length) { %>'
   + '<br>ID: <%- ids.join(", ") %>'
   + '<% } %>',
-          color1: this.chromosomeColor1(),
-          color2: this.chromosomeColor2(),
+          color1: this.chromColor1,
+          color2: this.chromColor2,
           axes_color: this.currentAxesColor,
         })
       } catch (error) {
@@ -102,6 +173,16 @@ export default {
 
     handleDownload(format){
       downloadPlot('#manhattan_plot_container', `manhattan_gwas_${this.traitId}`, format);
+    },
+
+    updateTextSize() {
+      const container = document.getElementById('manhattan_plot_container')
+      if (!container) return
+
+      // Update all text elements in the plot
+      container.querySelectorAll('text').forEach(text => {
+        text.style.fontSize = `${this.textSize}px`
+      })
     }
   }
 }
