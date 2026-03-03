@@ -95,9 +95,21 @@ export default {
       studyDoiLink: STUDY_DOI_LINK,
       studyBibtexEntry: STUDY_BIBTEX_CITATION,
       studyPlainEntry: STUDY_PLAIN_CITATION,
-      softwareDoiLink: "",
-      softwareBibtexEntry: ``,
-      softwarePlainEntry: ``
+      softwareDoiLink: "https://doi.org/10.64898/2026.01.30.702559",
+      softwareBibtexEntry: `@article {Arend2026.01.30.702559,
+	author = {Arend, Lis and Woller, Fabian and Rehor, Bastienne and Emmert, David and Frasnelli, Johannes and Fuchsberger, Christian and Blumenthal, David B. and List, Markus},
+	title = {Bridging the gap between genome-wide association studies and network medicine with GNExT},
+	elocation-id = {2026.01.30.702559},
+	year = {2026},
+	doi = {10.64898/2026.01.30.702559},
+	URL = {https://www.biorxiv.org/content/early/2026/02/02/2026.01.30.702559},
+	eprint = {https://www.biorxiv.org/content/early/2026/02/02/2026.01.30.702559.full.pdf},
+	journal = {bioRxiv}
+}
+`,
+      softwarePlainEntry: `Bridging the gap between genome-wide association studies and network medicine with GNExT
+Lis Arend, Fabian Woller, Bastienne Rehor, David Emmert, Johannes Frasnelli, Christian Fuchsberger, David B. Blumenthal, Markus List
+bioRxiv 2026.01.30.702559; doi: https://doi.org/10.64898/2026.01.30.702559`
     }
   },
 

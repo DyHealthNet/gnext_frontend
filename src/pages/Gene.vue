@@ -1,6 +1,24 @@
 <template>
   <v-app>
     <v-main>
+       <!-- Full-page loading overlay -->
+      <v-overlay
+        :model-value="pageLoading"
+        persistent
+        class="align-center justify-center"
+        contained="false"
+        :z-index="2000"
+      >
+       <div style="margin-top: 200px;" class="d-flex flex-column align-center">
+    <v-progress-circular
+      indeterminate
+      size="64"
+      width="6"
+      style="color: rgb(var(--v-theme-primary-darken));"
+    ></v-progress-circular>
+    <div class="mt-4 text-subtitle-1">Loading gene...</div>
+  </div>
+      </v-overlay>
       <v-container class="justify-center mt-4">
         <v-row class="text-center">
           <v-col cols="12">
@@ -72,6 +90,8 @@
                   :priorityOrder="priorityOrder"
                   :globalFilterFields="header"
                   :selection="true"
+                  :defaultSortField="'neg_log_pvalue'"
+                  :defaultSortOrder="-1"
                   @row-selected="handleRowSelected"
                 ></TableSkeleton>
 
@@ -79,6 +99,11 @@
                 <p class="text-body-1 mb-4">
                  <b>Selected Trait:</b> {{ selectedTrait }}
                 </p>
+
+                <p class="text-body-1 mb-4">
+                  For variants with -log10(p-value) "Infinity" in the original data, we have included the variant with a -log10(p-value) equal to -log10(5e-08) for visualization purposes.
+                </p>
+                  
 
                 <!-- Display selected row info for debugging -->
                 <LocusZoomPlot
@@ -124,6 +149,8 @@ export default {
     const router = useRouter();
     const id = ref(decodeURIComponent(route.params.id));
     const theme = useTheme();
+
+    const pageLoading = ref(true); // overlay controller
 
     const chromosome = ref('');
     const symbol = ref('');
@@ -236,27 +263,46 @@ export default {
     // Watch for route parameter changes (when navigating to a different gene)
     watch(
       () => route.params.id,
-      (newId) => {
+      async (newId) => {
         if (newId) {
+          pageLoading.value = true;
           id.value = decodeURIComponent(newId);
           selectedTrait.value = route.query.trait || null;
           // Reset data and fetch new gene data
           rows.value = [];
           header.value = [];
-          fetchGeneData();
-          fetchGeneSignals();
+          try {
+            await Promise.all([
+              fetchGeneData(),
+              fetchGeneSignals()
+            ]);
+          } catch (error) {
+            console.error('Error loading gene data:', error);
+          } finally {
+            pageLoading.value = false;
+          }
         }
       }
     );
 
-    onMounted(() => {
-      fetchGeneData();
-      fetchGeneSignals();
-      fetchConfig();
+    onMounted(async () => {
+      pageLoading.value = true;
+      try {
+        await Promise.all([
+          fetchGeneData(),
+          fetchGeneSignals(),
+          fetchConfig()
+        ]);
+      } catch (error) {
+        console.error('Error loading gene data:', error);
+      } finally {
+        pageLoading.value = false;
+      }
     });
 
     return {
       id,
+      pageLoading,
       theme,
       geneIconBlack,
       geneIconWhite,

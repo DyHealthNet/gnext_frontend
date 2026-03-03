@@ -209,18 +209,29 @@ export default {
       type: String,
       required: false,
       default: null,
+    },
+    defaultSortField: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    defaultSortOrder: {
+      type: Number,
+      required: false,
+      default: 1, // 1 = ascending, -1 = descending
     }
   },
-  data: () => ({
-    menuVisible: false,
-    sortField: null,
-    sortOrder: 1,
-    filters: {
-      global: {value: null, matchMode: FilterMatchMode.CONTAINS}
-    },
-    selectedRow: null,
-    
-  }),
+  data() {
+    return {
+      menuVisible: false,
+      sortField: this.defaultSortField,
+      sortOrder: this.defaultSortOrder,
+      filters: {
+        global: {value: null, matchMode: FilterMatchMode.CONTAINS}
+      },
+      selectedRow: null,
+    }
+  },
   computed: {
 
     downloadItems() {
@@ -375,6 +386,14 @@ export default {
 
 .table-link:hover {
   background-color: rgb(var(--v-theme-primary))
+}
+
+.p-datatable-header-cell {
+  border-color: rgb(var(--v-theme-data-table-line)) !important;
+}
+
+.p-datatable-tbody > tr > td {
+  border-color: rgb(var(--v-theme-data-table-line)) !important;
 }
 
 </style>

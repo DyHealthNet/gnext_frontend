@@ -1,213 +1,185 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col xs="12" md="6" lg="6">
-        <div id="qq_plot_container" style="width: 100%; height: 700px;"></div>
+    <v-row class="align-center">
+      <!-- Left column: QQ plot -->
+       <v-col xs="12" sm="12" md="12" lg="4">
+        <div id="qq_plot_container" style="width: 400px; height: 750px;"></div>
       </v-col>
-      <v-col xs="12" md="6" lg="6">
+
+      <!-- Right column: text/info -->
+       <v-col xs="12" sm="12" md="12" lg="8">
         <p class="gc-control"></p>
-        <i>(Genomic Control lambda calculated based on the 50th percentile (median), 10th percentile, 1st percentile,
-          and 1/10th of a percentile)</i>
+        <i>
+          (Genomic Control lambda calculated based on the 50th percentile (median),
+          10th percentile, 1st percentile, and 1/10th of a percentile)
+        </i>
+      </v-col>
+    </v-row>
+
+    <v-row class="mt-4">
+      <v-col cols="12" class="d-flex justify-end align-center">
+        <div class="d-flex align-center mr-4" style="min-width: 250px;">
+          <v-icon class="mr-2">mdi-format-size</v-icon>
+          <v-slider
+            v-model="textSize"
+            :min="8"
+            :max="25"
+            :step="1"
+            thumb-label
+            density="compact"
+            hide-details
+            class="mr-2"
+          >
+            <template v-slot:append>
+              <span class="text-caption" style="min-width: 40px;">{{ textSize }}px</span>
+            </template>
+          </v-slider>
+        </div>
+        
+        <v-menu offset-y>
+          <template #activator="{ props }">
+            <v-btn color="primary" v-bind="props" prepend-icon="mdi-download">
+              Download
+            </v-btn>
+          </template>
+
+          <v-list>
+            <v-list-item @click="handleDownload('png')">PNG</v-list-item>
+            <v-list-item @click="handleDownload('svg')">SVG</v-list-item>
+            <v-list-item @click="handleDownload('jpg')">JPG</v-list-item>
+          </v-list>
+        </v-menu>
       </v-col>
     </v-row>
   </v-container>
-
-
 </template>
 
+
 <script>
-import Plotly from 'plotly.js-dist-min'
-import {API_BASE_URL} from '@/config.js'
-import {sortBy, toPairs} from 'lodash'
-import {create_qq_plot} from "@/utils/pheweb_plots.js";
+import {create_qq_plot} from '../../utils/pheweb_plots.js';
+import {API_BASE_URL} from "@/config.js";
+import { sortBy, toPairs} from "lodash"
+import {downloadPlot} from "@/utils/utils.js";
 
 export default {
-  name: 'QQPlot',
+  name: "QQPlot",
   props: {
-    traitId: {type: String, required: true}
+    traitId: {
+      type: String,
+      required: true,
+    }
   },
+
+  data() {
+    return {
+      textSize: 12,
+    }
+  },
+
+  computed: {
+    currentAxesColor() {
+      return this.$vuetify.theme.global.name === 'dyHealthNetTheme'
+        ? this.$vuetify.theme.themes.dyHealthNetTheme.colors["darken-1"]
+        : this.$vuetify.theme.themes.dyHealthNetThemeDark.colors["darken-1"]
+    }
+  },
+
+  watch: {
+    currentAxesColor(newColor, oldColor) {
+      if (newColor !== oldColor) {
+        this.loadQQPlot()
+      }
+    },
+    textSize() {
+      this.updateTextSize()
+    }
+  },
+
   mounted() {
-    this.loadQQPlot()
+    this.loadQQPlot();
   },
+
   methods: {
+    async loadQQPlot() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/trait_get_qq/?id=${this.traitId}`);
+        const data = await res.json();
 
-    labelColor(grid = false) {
-      // chartjs does not support theme colors so we just directly call the theme color
-      let colorName = grid ? "chart-grid" : "chart";
-      if (this.$vuetify.theme.global.name === 'dyHealthNetTheme') {
-        return this.$vuetify.theme.themes.dyHealthNetTheme.colors[colorName];
-      } else {
-        return this.$vuetify.theme.themes.dyHealthNetThemeDark.colors[colorName];
-      }
-    },
-
-    attemptTwoDecimals(x) {
-      if (x === 0) return '0'
-      if (x >= 0.01) return x.toFixed(2)
-      if (x >= 0.001) return x.toFixed(3)
-      return Number(x).toExponential(0)
-    },
-
-    buildTrumpetTraces(qqCi) {
-      const x = qqCi.map(d => d.x)
-      const yLower = qqCi.map(d => Math.max(0, d.y_min - 0.05))
-      const yUpper = qqCi.map(d => d.y_max + 0.05)
-
-      const lower = {
-        type: 'scatter',
-        mode: 'lines',
-        name: 'Confidence band',
-        x,
-        y: yLower,
-        line: {width: 0},
-        hoverinfo: 'skip',
-        showlegend: false
-      }
-      const upper = {
-        type: 'scatter',
-        mode: 'lines',
-        x,
-        y: yUpper,
-        fill: 'tonexty',
-        fillcolor: 'lightgray',
-        line: {width: 0},
-        hoverinfo: 'skip',
-        showlegend: false
-      }
-      return [lower, upper]
-    },
-
-    buildMafTraces(mafRanges) {
-      const palette = ['#e66101', '#fdb863', '#b2abd2', '#5e3c99']
-      return mafRanges.map((m, i) => {
-        const bins = m.qq?.bins ?? []
-        const x = bins.map(b => b[0])
-        const y = bins.map(b => b[1])
-        const min = this.attemptTwoDecimals(m.maf_range?.[0] ?? 0)
-        const max = this.attemptTwoDecimals(m.maf_range?.[1] ?? 0.5)
-        const label = `${min} ≤ MAF < ${max} (${m.count})`
-        return {
-          type: 'scattergl',
-          mode: 'markers',
-          name: label,
-          x,
-          y,
-          marker: {size: 3, color: palette[i % palette.length]},
-          hovertemplate: 'exp: %{x}<br>obs: %{y}<extra></extra>'
+        // clear old plot
+        const qqContainer = document.getElementById("qq_plot_container");
+        if (qqContainer) {
+          qqContainer.innerHTML = "";
+        } else {
+          console.warn('qq_plot_container not found in DOM');
         }
-      })
+
+        // Display GC lambda values
+        const container = document.querySelector('.gc-control');
+        if (container) {
+          container.innerHTML = ''; // clear existing content if any
+
+          sortBy(toPairs(data.overall.gc_lambda), d => -d[0])
+              .forEach((d, i) => {
+                let text = `GC lambda ${d[0]}: ${d[1].toFixed(3)}`;
+                if (i === 0) {
+                  text = `<b>${text}</b>`;
+                }
+                container.innerHTML += `<br>${text}`;
+              });
+        } else {
+          console.warn('gc-control element not found; skipping GC lambda display');
+        }
+
+        // Draw QQ plot
+        if (data.by_maf) {
+          create_qq_plot(data.by_maf, data.ci, this.currentAxesColor);
+        } else {
+          create_qq_plot(
+              [{maf_range: [0, 0.5], qq: data.overall.qq, count: data.overall.count}],
+              data.ci,
+              this.currentAxesColor
+          );
+        }
+      } catch (error) {
+        console.error("Failed to load QQ plot data:", error);
+        document.getElementById('qq_plot_container').textContent = 'Could not fetch QQ plot data.';
+      }
     },
 
-    async drawQQPlot(mafRanges, qqCi) {
+    handleDownload(format){
+      downloadPlot('#qq_plot_container', `qq_gwas_${this.traitId}`, format);
+    },
+
+    updateTextSize() {
       const container = document.getElementById('qq_plot_container')
       if (!container) return
 
-      // Escape hatch like original code
-      const hasBins = mafRanges?.[0]?.qq?.bins?.length
-      if (!hasBins) {
-        container.textContent =
-            'No QQ Plot could be generated. It is possible that your data contains only very extreme p-values.'
-        return
-      }
-
-      const expMax = Math.max(...mafRanges.map(m => m.qq?.max_exp_qval ?? 0), 0)
-      let maxObs = 0
-      for (const m of mafRanges) {
-        for (const b of m.qq?.bins ?? []) {
-          if (b[1] > maxObs) maxObs = b[1]
-        }
-      }
-
-      const traces = [
-        ...this.buildTrumpetTraces(qqCi),
-        ...this.buildMafTraces(mafRanges)
-      ]
-
-      const layout = {
-        margin: {l: 30, r: 20, t: 35, b: 20},
-        xaxis: {
-          title: 'expected -log\u2081\u2080(p)',
-          range: [0, Math.ceil(expMax) + 1],
-          dtick: 1,
-          ticks: 'outside',
-          showgrid: true,
-          zeroline: false,
-          tickfont: {
-            color: this.labelColor()
-          },
-          gridcolor: this.labelColor(true),
-        },
-        yaxis: {
-          title: 'observed -log\u2081\u2080(p)',
-          range: [0, maxObs],
-          dtick: 1,
-          ticks: 'outside',
-          showgrid: true,
-          zeroline: false,
-          scaleanchor: 'x',
-          tickfont: {
-            color: this.labelColor()
-          },
-          gridcolor: this.labelColor(true),
-        },
-        paper_bgcolor: 'rgba(0,0,0,0)',  // outer background transparent
-        plot_bgcolor: 'rgba(0,0,0,0)',   // plot area background transparent
-        legend: {
-          orientation: 'v',
-          x: 0,
-          xanchor: "left",
-          yanchor: 'top',
-          y: -0.2
-        }
-      }
-      const config = {
-        displayModeBar: true,
-        responsive: true,
-        scrollZoom: false
-      }
-
-      await Plotly.react(container, traces, layout, config)
-    },
-
-    async loadQQPlot() {
-      try {
-        const res = await fetch(`${API_BASE_URL}/trait_get_qq/?id=${this.traitId}`)
-        const data = await res.json()
-
-        // GC lambda lines
-        const container = document.querySelector('.gc-control')
-        container.innerHTML = ''
-        sortBy(toPairs(data.overall.gc_lambda), d => -d[0]).forEach((d, i) => {
-          let text = `GC lambda ${d[0]}: ${Number(d[1]).toFixed(3)}`
-          if (i === 0) text = `<b>${text}</b>`
-          container.innerHTML += `<br>${text}`
-        })
-
-        // Draw Plotly QQ
-        if (data.by_maf) {
-          await this.drawQQPlot(data.by_maf, data.ci)
-        } else {
-          await this.drawQQPlot(
-              [{maf_range: [0, 0.5], qq: data.overall.qq, count: data.overall.count}],
-              data.ci
-          )
-        }
-      } catch (e) {
-        console.error('Failed to load QQ plot data:', e)
-        document.getElementById('qq_plot_container').textContent =
-            'Could not fetch QQ plot data.'
-      }
+      // Update all text elements in the plot
+      container.querySelectorAll('text').forEach(text => {
+        text.style.fontSize = `${this.textSize}px`
+      })
     }
   }
+
+
 }
 </script>
 
 <style>
-/* Optional: axis text styling similar to your D3 styles */
-#qq_plot_container .xtick text,
-#qq_plot_container .ytick text {
-  font-size: 12px;
-  font-family: sans-serif;
-  fill: black;
+
+#qq_plot_container .axis g.tick line {
+  stroke: #666;
+  opacity: 0.3;
+  fill: none;
 }
+
+#qq_plot_container {
+  background-color: transparent !important;
+}
+
+.x.axis {
+      font-size: 12px;
+      font-family: sans-serif;
+      color: black;
+    }
 </style>

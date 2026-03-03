@@ -1,43 +1,145 @@
 <template>
-  <div id="manhattan_plot_container" style="width: 100%; height: 650px"></div>
+  <v-container>
+    <v-row>
+      <v-col cols="12">
+        <div id="manhattan_plot_container" style="width: 100%; height: 600px; background-color: transparent"></div>
+      </v-col>
+    </v-row>
+    
+    <v-row class="mt-4">
+      <v-col cols="12" class="d-flex justify-end align-center">
+        <div class="d-flex align-center mr-4" style="min-width: 250px;">
+          <v-icon class="mr-2">mdi-format-size</v-icon>
+          <v-slider
+            v-model="textSize"
+            :min="8"
+            :max="25"
+            :step="1"
+            thumb-label
+            density="compact"
+            hide-details
+            class="mr-2"
+          >
+            <template v-slot:append>
+              <span class="text-caption" style="min-width: 40px;">{{ textSize }}px</span>
+            </template>
+          </v-slider>
+        </div>
+        
+        <v-menu :close-on-content-click="false" offset-y>
+          <template #activator="{ props }">
+            <v-btn v-bind="props" icon size="small" class="mr-2">
+              <v-icon :color="chromColor1">mdi-palette</v-icon>
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-text>
+              <div class="text-caption mb-2">Chromosome Color 1</div>
+              <v-color-picker v-model="chromColor1" mode="hex" hide-inputs></v-color-picker>
+            </v-card-text>
+          </v-card>
+        </v-menu>
+        
+        <v-menu :close-on-content-click="false" offset-y>
+          <template #activator="{ props }">
+            <v-btn v-bind="props" icon size="small" class="mr-4">
+              <v-icon :color="chromColor2">mdi-palette</v-icon>
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-text>
+              <div class="text-caption mb-2">Chromosome Color 2</div>
+              <v-color-picker v-model="chromColor2" mode="hex" hide-inputs></v-color-picker>
+            </v-card-text>
+          </v-card>
+        </v-menu>
+        
+        <v-menu offset-y>
+          <template #activator="{ props }">
+            <v-btn color="primary" v-bind="props" prepend-icon="mdi-download">
+              Download
+            </v-btn>
+          </template>
+
+          <v-list>
+            <v-list-item @click="handleDownload('png')">PNG</v-list-item>
+            <v-list-item @click="handleDownload('svg')">SVG</v-list-item>
+            <v-list-item @click="handleDownload('jpg')">JPG</v-list-item>
+          </v-list>
+        </v-menu>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
-<script>
-import Plotly from 'plotly.js-dist-min'
-import {API_BASE_URL} from '@/config.js'
 
+<script>
+import {create_gwas_plot} from '../../utils/pheweb_plots.js';
+import {API_BASE_URL} from "@/config.js";
+import {downloadPlot} from "@/utils/utils.js";
 
 export default {
-  name: 'ManhattanPlot',
+  name: "ManhattanPlot",
   props: {
-    traitId: {type: String, required: true}
-  },
-  data() {
-    return {
-      plotDivId: 'manhattan_plot_container',
-      plotHeight: 650,
-      cached: null
+    traitId: {
+      type: String,
+      required: true,
     }
   },
+
+  data() {
+    return {
+      textSize: 12,
+      chromColor1: null,
+      chromColor2: null,
+      isLoadingPlot: false,
+      plotLoadTimeout: null,
+    }
+  },
+
   mounted() {
-    this.loadAndDraw()
+    this.chromColor1 = this.chromosomeColor1();
+    this.chromColor2 = this.chromosomeColor2();
+    this.loadManhattanPlot();
+  },
+
+  computed: {
+    currentAxesColor() {
+      return this.$vuetify.theme.global.name === 'dyHealthNetTheme'
+        ? this.$vuetify.theme.themes.dyHealthNetTheme.colors["darken-1"]
+        : this.$vuetify.theme.themes.dyHealthNetThemeDark.colors["darken-1"]
+    }
   },
 
   watch: {
-    traitId() {
-      this.loadAndDraw()
+    currentAxesColor(newColor, oldColor) {
+      if (newColor !== oldColor) {
+        this.debouncedLoadPlot()
+      }
+    },
+    textSize() {
+      this.updateTextSize()
+    },
+    chromColor1() {
+      this.debouncedLoadPlot()
+    },
+    chromColor2() {
+      this.debouncedLoadPlot()
     }
   },
+
+
   methods: {
 
-    labelColor(grid = false) {
-      // chartjs does not support theme colors so we just directly call the theme color
-      let colorName = grid ? "chart-grid" : "chart";
-      if (this.$vuetify.theme.global.name === 'dyHealthNetTheme') {
-        return this.$vuetify.theme.themes.dyHealthNetTheme.colors[colorName];
-      } else {
-        return this.$vuetify.theme.themes.dyHealthNetThemeDark.colors[colorName];
+    debouncedLoadPlot() {
+      // Clear any pending plot load
+      if (this.plotLoadTimeout) {
+        clearTimeout(this.plotLoadTimeout)
       }
+      // Debounce to avoid multiple simultaneous calls
+      this.plotLoadTimeout = setTimeout(() => {
+        this.loadManhattanPlot()
+      }, 150)
     },
 
     chromosomeColor1() {
@@ -60,268 +162,106 @@ export default {
       return color
     },
 
-    async loadAndDraw() {
+    async loadManhattanPlot() {
+      // Prevent multiple simultaneous loads
+      if (this.isLoadingPlot) return
+      
+      this.isLoadingPlot = true
       try {
-        // Use exactly the same endpoint/data as the SVG version
         const res = await fetch(`${API_BASE_URL}/trait_get_manhattan/?id=${this.traitId}`)
-        const json = await res.json()
-        await this.draw(json)
-      } catch (error) {
-        console.error('Failed to load GWAS plot data:', error)
-        const el = document.getElementById(this.plotDivId)
-        if (el) el.textContent = 'Could not fetch GWAS plot data.'
-      }
-    },
-
-    // ---------------- SVG-equivalent helpers ----------------
-    computeChromLayout(variantBins, variants) {
-      // Same chrom offset math as the SVG code
-      const chromPadding = 2e7
-      const ext = {}
-      const upd = v => {
-            if (!v || v.pos == null || v.chrom == null) return
-            const c = String(v.chrom)
-            if (!ext[c]) ext[c] = [v.pos, v.pos]
-            else {
-              if (v.pos < ext[c][0]) ext[c][0] = v.pos
-              if (v.pos > ext[c][1]) ext[c][1] = v.pos
-            }
-          }
-      ;(variantBins || []).forEach(upd)
-      ;(variants || []).forEach(upd)
-
-      const chroms = Object.keys(ext).sort((a, b) => {
-        const ai = parseInt(a);
-        const bi = parseInt(b)
-        if (!Number.isNaN(ai) && !Number.isNaN(bi)) return ai - bi
-        if (!Number.isNaN(ai)) return -1
-        if (!Number.isNaN(bi)) return 1
-        return String(a).localeCompare(String(b))
-      })
-      if (!chroms.length) return {offsets: {}, midpoints: [], chroms: []}
-
-      const start = {}
-      start[chroms[0]] = 0
-      for (let i = 1; i < chroms.length; i++) {
-        const prev = chroms[i - 1]
-        start[chroms[i]] = start[prev] + (ext[prev][1] - ext[prev][0]) + chromPadding
-      }
-
-      const offsets = {}
-      chroms.forEach(c => {
-        offsets[c] = start[c] - ext[c][0]
-      })
-
-      const midpoints = chroms.map(c => ({
-        chrom: c,
-        midpoint: start[c] + (ext[c][1] - ext[c][0]) / 2
-      }))
-
-      return {offsets, midpoints, chroms}
-    },
-
-    tooltipHTML(d) {
-      const ids = Array.isArray(d.rsid) ? d.rsid : (d.rsid ? [d.rsid] : [])
-      const idline = ids.length ? `<br>ID: ${ids.join(', ')}` : ''
-      const geneList = Array.isArray(d.nearest_genes) ? d.nearest_genes.map(g => g.symbol).join(', ') : ''
-      const genes = geneList ? `<br>${geneList}` : ''
-      const q = (d.neg_log_pvalue == null) ? '' : (+d.neg_log_pvalue).toFixed(3)
-      return `<b>${d.chrom}_${d.pos}_${(d.ref && d.alt) ? (d.ref + '/' + d.alt) : ''}</b><br>-log<sub>10</sub>(p): ${q}${idline}${genes}`
-    },
-
-    // ---------------- Exact pp3 translation in Plotly ----------------
-    async draw(json) {
-      const el = document.getElementById(this.plotDivId)
-      if (!el) return
-
-      const variantBins = json.variant_bins || []
-      // z-order identical: sort unbinned weak->strong so strong draw last
-      const variants = (json.unbinned_variants || []).slice()
-          .sort((a, b) => a.neg_log_pvalue - b.neg_log_pvalue)
-
-      // Chrom layout like SVG
-      const {offsets, midpoints, chroms} = this.computeChromLayout(variantBins, variants)
-      const xCoord = d => (offsets[String(d.chrom)] || 0) + d.pos
-
-      // Colors alternate by chromosome like SVG
-      const chromToColor = {}
-      chroms.forEach((c, i) => {
-        chromToColor[c] = i % 2 === 0 ? this.chromosomeColor1() : this.chromosomeColor2()
-      })
-
-      // Robust parsers so we don't drop values that the SVG drew
-      const parseQvals = (raw) => {
-        if (raw == null) return []
-        if (typeof raw === 'string') raw = raw.split(/[,;\s]+/)
-        const arr = Array.isArray(raw) ? raw.flat(Infinity) : [raw]
-        return arr.map(v => parseFloat(v)).filter(v => !Number.isNaN(v) && Number.isFinite(v))
-      }
-
-      const parseExtents = (raw) => {
-        const pairs = []
-        for (const item of raw) {
-          const a = Number(item[0]), b = Number(item[1])
-          if (Number.isFinite(a) && Number.isFinite(b)) {
-            pairs.push([a, b]);
-          }
+        const json = await res.json();
+        
+        // clear old plot
+        const container = document.getElementById("manhattan_plot_container")
+        if (container) {
+          container.innerHTML = ""
         }
-        return pairs
-      }
 
-      // --------- BIN DOTS: exactly like SVG pp3 (one dot per qval at bin x) ---------
-      const bx = [], by = [], bc = []
-      for (const b of variantBins
-          ) {
-        const X = xCoord(b)
-        const color = chromToColor[String(b.chrom)] || this.chromosomeColor1()
-        const list = parseQvals(b.qvals)
-        for (const q of list) {
-          bx.push(X);
-          by.push(q);
-          bc.push(color)
-        }
-      }
-      const binPointTraces = []
-      const CHUNK = 50000 // keep WebGL smooth if many points
-      for (let i = 0; i < bx.length; i += CHUNK) {
-        binPointTraces.push({
-          type: 'scattergl',
-          mode: 'markers',
-          x: bx.slice(i, i + CHUNK),
-          y: by.slice(i, i + CHUNK),
-          // D3 used r=2.3 -> Plotly marker size ~ diameter = 4.6
-          marker: {size: 4.6, opacity: 1, color: bc.slice(i, i + CHUNK)},
-          hoverinfo: 'skip',
-          showlegend: false,
-          name: 'Binned points'
+        create_gwas_plot(json.variant_bins, json.unbinned_variants, {
+          url_prefix: `${API_BASE_URL}/region_view`,
+          tooltip_template: '<b><%- d.chrom %>_<%- d.pos %>_<%- (d.ref && d.alt) ? (d.ref + "/" + d.alt) : "" %></b><br>-log<sub>10</sub>(p): <%- d.neg_log_pvalue && (+d.neg_log_pvalue).toFixed(3) %><% var ids = Array.isArray(d.rsid) ? d.rsid : (d.rsid ? [d.rsid] : []); if (ids.length) { %>'
+  + '<br>ID: <%- ids.join(", ") %>'
+  + '<% } %>',
+          color1: this.chromColor1,
+          color2: this.chromColor2,
+          axes_color: this.currentAxesColor,
         })
-      }
-
-      const lineEven = {x: [], y: []}   // gray
-      const lineOdd = {x: [], y: []}   // blue
-      const capEven = {x: [], y: []}
-      const capOdd = {x: [], y: []}
-      const LINE_PX = 4.6
-      const CAP_SIZE = LINE_PX
-
-      for (const b of variantBins) {
-        const X = xCoord(b)
-        const pairs = parseExtents(b.qval_extents ?? b.qvals_extent)
-        if (!pairs.length) continue
-
-        const even = (chroms.indexOf(String(b.chrom)) % 2 === 0)
-        const line = even ? lineEven : lineOdd
-        const caps = even ? capEven : capOdd
-
-        for (const [y1, y2] of pairs) {
-          if (!Number.isFinite(y1) || !Number.isFinite(y2)) continue
-          line.x.push(X, X, null)
-          line.y.push(y1, y2, null)
-          // emulate SVG round linecaps
-          caps.x.push(X, X)
-          caps.y.push(y1, y2)
+      } catch (error) {
+        console.error("Failed to load GWAS plot data:", error);
+        const container = document.getElementById('manhattan_plot_container')
+        if (container) {
+          container.textContent = 'Could not fetch GWAS plot data.'
         }
+      } finally {
+        this.isLoadingPlot = false
       }
+    },
 
-      const binLinesEven = {
-        type: 'scattergl', mode: 'lines',
-        x: lineEven.x, y: lineEven.y,
-        line: {width: LINE_PX, color: this.chromosomeColor1()},
-        hoverinfo: 'skip', showlegend: false
-      }
-      const binLinesOdd = {
-        type: 'scattergl', mode: 'lines',
-        x: lineOdd.x, y: lineOdd.y,
-        line: {width: LINE_PX, color: this.chromosomeColor2()},
-        hoverinfo: 'skip', showlegend: false
-      }
-      const binCapsEven = {
-        type: 'scattergl', mode: 'markers',
-        x: capEven.x, y: capEven.y,
-        marker: {size: CAP_SIZE, color: this.chromosomeColor1()},
-        hoverinfo: 'skip', showlegend: false
-      }
-      const binCapsOdd = {
-        type: 'scattergl', mode: 'markers',
-        x: capOdd.x, y: capOdd.y,
-        marker: {size: CAP_SIZE, color: this.chromosomeColor2()},
-        hoverinfo: 'skip', showlegend: false
-      }
+    handleDownload(format){
+      downloadPlot('#manhattan_plot_container', `manhattan_gwas_${this.traitId}`, format);
+    },
 
-// --------- UNBINNED POINTS: same visual as SVG (r=2.3 -> size=4.6), on top ---------
-      const unbinnedTrace = {
-        type: 'scattergl',
-        mode: 'markers',
-        x: variants.map(v => xCoord(v)),
-        y: variants.map(v => (v.neg_log_pvalue === Infinity ? 400 : v.neg_log_pvalue)),
-        text: variants.map(v => this.tooltipHTML(v)),
-        hoverinfo: 'text',
-        marker: {size: 4.6, opacity: 1, color: variants.map(v => chromToColor[String(v.chrom)] || '#AFAFAF')},
-        name: 'Variants'
-      }
+    updateTextSize() {
+      const container = document.getElementById('manhattan_plot_container')
+      if (!container) return
 
-// --------- Significance line (5e-8), dashed & thick like SVG ---------
-      const signif = 7.30
-      const xsAll = [...variantBins.map(xCoord), ...variants.map(xCoord)]
-      const xMin = xsAll.length ? Math.min(...xsAll) : 0
-      const xMax = xsAll.length ? Math.max(...xsAll) : 1
-      const signifLine = {
-        type: 'scatter',
-        mode: 'lines',
-        x: [xMin, xMax],
-        y: [signif, signif],
-        line: {dash: 'dash', width: 2, color: 'lightgray'},
-        hoverinfo: 'skip',
-        name: 'Significance'
-      }
-
-      // --------- Axes/layout: match SVG (chrom tick labels, y=0..10 default) ---------
-      const layout = {
-        height: this.plotHeight,
-        xaxis: {
-          tickvals: midpoints.map(m => m.midpoint),
-          ticktext: midpoints.map(m => m.chrom),
-          showgrid: false,
-          zeroline: false,
-          tickfont: {
-            color: this.labelColor()
-          }
-        },
-        yaxis: {
-          title: '-log\u2081\u2080(p-value)',
-          tickfont: {
-            color: this.labelColor()
-          },
-          gridcolor: this.labelColor(true),
-        },
-        hovermode: 'closest',
-        uirevision: 'manhattan',
-        responsive: true,
-        autosize: true,
-        automargin: true,
-        showlegend: false,
-        paper_bgcolor: 'rgba(0,0,0,0)',  // outer background transparent
-        plot_bgcolor: 'rgba(0,0,0,0)',   // plot area background transparent
-      }
-
-      // Render order: bin lines, bin dots, unbinned, significance (same z-order feel as SVG)
-      const data = [
-        ...binPointTraces,        // per-qval bin dots
-        binLinesEven, binLinesOdd,
-        binCapsEven, binCapsOdd,  // emulate round linecaps
-        unbinnedTrace,
-        signifLine
-      ]
-      await Plotly.newPlot(el, data, layout, {
-        responsive: true,
-        displayModeBar: true})
+      // Update all text elements in the plot
+      container.querySelectorAll('text').forEach(text => {
+        text.style.fontSize = `${this.textSize}px`
+      })
     }
   }
 }
 </script>
 
 <style>
-#manhattan_plot_container_new {
-  min-width: 700px;
-}
+/* Creates a small triangle extender for the tooltip */
+    .d3-tip {
+      line-height: 1.4;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
+    /* Creates a small triangle extender for the tooltip */
+    .d3-tip:after {
+      display: inline;
+      font-size: 10px;
+      width: 100%;
+      line-height: 1;
+      color: rgba(0, 0, 0, 0.8);
+      position: absolute;
+      pointer-events: none;
+    }
+
+    /* Northward tooltips */
+    .d3-tip.n:after {
+      content: "\25BC";
+      margin: -3px 0 0 0;
+      top: 100%;
+      left: 0;
+      text-align: center;
+    }
+
+    .y.axis {
+      font-size: 12px;
+      font-family: sans-serif;
+      color: black;
+    }
+
+    #manhattan_plot_container {
+      min-width: 700px;
+    }
+
+    #manhattan_plot_container .axis > path.domain {
+      stroke-width: 2px;
+      stroke: #666;
+      fill: none;
+    }
+
+    #manhattan_plot_container .axis g.tick line {
+      stroke: #666;
+    }
 </style>

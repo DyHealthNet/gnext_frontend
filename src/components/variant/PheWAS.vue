@@ -298,6 +298,22 @@ export default {
           neglog10_significance_threshold
       );
 
+      LocusZoom.Layouts.mutate_attrs(
+        layout,
+        '$..data_layers[?(@.tag === "phewas")].label.style',
+        { "font-size": "14px", "fill": "rgb(var(--v-theme-darken-1))", "stroke": "rgb(var(--v-theme-darken-1))", "stroke-width": "1px" }
+      );
+
+      LocusZoom.Layouts.mutate_attrs(
+        layout,
+        '$..data_layers[?(@.tag === "phewas")].label.lines.style',
+        { 
+          "stroke": "rgb(var(--v-theme-darken-1))",
+          "stroke-width": "2px",
+          "stroke-dasharray": "2px, 2px"
+        }
+      );
+
       // Modify the tooltips for PheWAS result data layer points to contain more data. The fields in this sample
       //   tooltip are specific to the LZ-Portal API, and are not guaranteed to be in other PheWAS datasources.
       LocusZoom.Layouts.mutate_attrs(layout, '$..data_layers[?(@.tag === "phewas")].tooltip.html', [
@@ -432,6 +448,11 @@ export default {
 .table-link:hover {
   background-color: rgb(var(--v-theme-primary))
 }
+
+::v-deep(.lz-data_layer-tooltip) {
+  background-color: rgb(var(--v-theme-surface-variant)) !important;
+}
+
 </style>
 
 

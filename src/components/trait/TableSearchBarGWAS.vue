@@ -3,8 +3,8 @@
     <!-- Tabs for selecting search mode -->
     <v-row class="mb-2 align-center">
       <v-col cols="12" class="d-flex align-center">
-        <v-tabs v-model="searchMode" align-tabs="center">
-          <v-tab value="loci">All Top Loci</v-tab>
+        <v-tabs v-model="searchMode" align-tabs="center" class="search-tabs" slider-color="primary">
+          <v-tab value="loci" color="rgb(var(--v-theme-primary))">All Top Loci</v-tab>
           <v-tab value="pval">By P-Value</v-tab>
           <v-tab value="rsid">By SNP ID</v-tab>
           <v-tab value="chromosome">By Chromosome Range</v-tab>
@@ -309,3 +309,16 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+/* color ALL tab labels */
+.search-tabs :deep(.v-tab) {
+  color: rgb(var(--v-theme-primary-darken-1)) !important;
+}
+
+/* highlight the selected tab */
+.search-tabs :deep(.v-tab--selected) {
+  background: rgba(var(--v-theme-primary-darken-1), 0.12);
+  border-radius: 10px;
+}
+</style>

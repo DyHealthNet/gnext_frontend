@@ -35,6 +35,7 @@ const dyHealthNetTheme = {
         "on-surface-variant": "#4D4D4D",
         "darken-1": "#333333",
         "white-surface": "#FAFAFA",
+        "data-table-line": "#E2E8F0",
 
         "primary": COLOR_PRIMARY,
         "primary-darken-1": COLOR_PRIMARY_DARK,
@@ -67,6 +68,7 @@ const dyHealthNetThemeDark = {
         "on-surface-variant": "#D1D1D1",
         "darken-1": "#FFFFFF",
         "white-surface": "#FAFAFA",
+        "data-table-line": "#52525b",
 
         "primary": COLOR_PRIMARY_DARK,
         "primary-darken-1": COLOR_PRIMARY,
@@ -181,6 +183,14 @@ const MyPreset = definePreset(Aura, {
     }
 })
 
+
+// Initialize dark mode class before app mounts
+const getSystemMode = () => window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+const savedTheme = localStorage.getItem('theme')
+const isDarkMode = savedTheme ? savedTheme === 'dyHealthNetThemeDark' : getSystemMode() === "dark"
+if (isDarkMode) {
+    document.documentElement.classList.add('my-app-dark')
+}
 
 const app = createApp(App)
 

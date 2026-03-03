@@ -47,7 +47,9 @@
                   </p>
                 <p class="text-body-1 mb-4">
                   Entries with a reported p-value of 0 but a valid −log₁₀(p-value) correspond to values smaller than approximately 5×10⁻³²⁴, which are below the representable range of double-precision floating-point numbers and therefore underflow to zero.
-                </p>
+
+                  Furthermore, if input data contains −log₁₀(p-value) values of "Infinity", these are represented in the table as "Infinity" as well.
+                </p>  
 
                 <TableSkeleton
                   :headers="tableHeaders"

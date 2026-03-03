@@ -38,13 +38,13 @@
               multiple
           />
         </v-col>
-        <v-col cols="12" sm="5" md="3" lg="2">
+        <v-col cols="12" sm="5" md="3" lg="3">
           <v-btn color="primary" @click="applyMAGMATableFiltering" :disabled="!isValidPValue" block height="48px"
                  prepend-icon="mdi-send-circle-outline">
             Apply Filtering
           </v-btn>
         </v-col>
-        <v-col cols="12" sm="5" md="3" lg="2">
+        <v-col cols="12" sm="5" md="3" lg="3">
           <v-btn color="primary" @click="resetMAGMATableFiltering" block height="48px" prepend-icon="mdi-undo">
             Reset
           </v-btn>
@@ -89,16 +89,16 @@
           />
         </v-col>
 
-        <v-col cols="12" sm="5" md="3" lg="2">
+        <v-col cols="12" sm="5" md="3" lg="3">
           <v-btn color="primary" @click="addGeneList" :disabled="!isValidGeneListName" block height="48px"
                  prepend-icon="mdi-plus">
             Seed Lists
           </v-btn>
         </v-col>
 
-        <v-col cols="12" sm="5" md="3" lg="2">
+        <v-col cols="12" sm="6" md="5" lg="3">
                <v-btn color="primary" @click="moveToSeedsPage" block height="48px"
-             prepend-icon="mdi-open-in-new">
+             prepend-icon="mdi-open-in-new" style="white-space: normal">
         Network Medicine
       </v-btn>
         </v-col>

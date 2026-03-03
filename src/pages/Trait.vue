@@ -128,8 +128,8 @@
 
 <script>
 import {useRoute} from 'vue-router';
-import ManhattanPlot from "@/components/trait/Manhattan_old.vue";
-import QQPlot from "@/components/trait/QQ_old.vue";
+import ManhattanPlot from "@/components/trait/Manhattan.vue";
+import QQPlot from "@/components/trait/QQ.vue";
 import MAGMAQQPlot from "@/components/trait/MAGMAQQ.vue";
 import PhenotypeSNPTable from "@/components/trait/PhenotypeSNPTable.vue";
 import {onMounted, ref, watch, computed} from 'vue';
