@@ -507,4 +507,13 @@ defineExpose({plot, refreshPlot: createPlot, setLDReference});
 ::v-deep(svg.lz-locuszoom) {
   background-color: transparent !important;
 }
+
+::v-deep(svg.lz-locuszoom text.lz-data_layer-genes.lz-label) {
+  fill: rgb(var(--v-theme-darken-1)) !important; /* SVG text uses 'fill' not 'color' */
+}
+
+::v-deep(.lz-data_layer-tooltip) {
+  background-color: rgb(var(--v-theme-surface-variant)) !important;
+}
+
 </style>
