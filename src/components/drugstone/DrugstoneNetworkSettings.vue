@@ -149,6 +149,14 @@
 </template>
 
 <script>
+/**
+ * Drugst.One network settings panel on the Network Medicine page.
+ *
+ * An expansion panel of switches and selectors (interaction datasets, licensed
+ * datasets, reviewed-proteins/approved-drugs toggles) that edit a local copy of
+ * the Drugst.One `config` prop and emit `update:config` upward whenever the
+ * settings change (v-model style).
+ */
 export default {
   name: "DrugstoneNetworkSettings",
   props: {
@@ -169,6 +177,7 @@ export default {
   },
 
   watch: {
+    // Propagate any local settings edit upward to the parent via update:config.
     localConfig: {
       deep: true,
       handler(newVal) {

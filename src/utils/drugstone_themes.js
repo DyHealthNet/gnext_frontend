@@ -1,3 +1,8 @@
+/**
+ * CSS custom-property palettes for the embedded Drugstone network widget,
+ * keyed by theme name (`integrated-light` / `integrated-dark`). Passed to the
+ * Drugstone component so its colors match GNExT's light/dark themes.
+ */
 const drugstone_themes = {
   "integrated-light": {
     "--drgstn-primary": "#347eee",

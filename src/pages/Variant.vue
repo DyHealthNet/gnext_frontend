@@ -165,6 +165,15 @@
 </template>
 
 <script>
+/**
+ * Variant detail page, routed at `/variant/:id`.
+ *
+ * Assembles the variant-centric view: profile, population allele frequencies,
+ * closest genes, VEP transcript/regulatory/motif consequences, and the PheWAS
+ * plot. Fetches variant annotation and metrics from the backend (re-fetching on
+ * route `:id` change) and builds the side navigation, enabling only the cards
+ * that actually have data.
+ */
 import { useRoute } from 'vue-router';
 import PheWas from '@/components/variant/PheWAS.vue';
 import VariantProfile from "@/components/variant/VariantProfile.vue";
@@ -209,6 +218,7 @@ export default {
     const maxAF = ref(null);
     const traitMetrics = reactive({});
 
+    /** Fetches the variant's per-trait association metrics and min/max allele frequencies. */
     const fetchMetricsData = async () => {
       const query = encodeURIComponent(id.value);
       const res = await fetch(`${API_BASE_URL}/variant_get_metrics/?id=${query}`);
@@ -222,7 +232,13 @@ export default {
       Object.assign(traitMetrics, json.metrics || {});
     };
 
+    /**
+     * Fetches the variant's VEP annotation (external IDs, alleles, consequences,
+     * closest gene, allele frequencies) and rebuilds the list of available
+     * navigation cards, enabling each only when its data is present.
+     */
     const fetchAnnotationData = async () => {
+      // Applies a fetched annotation payload to the local reactive state.
       const apply = (data) => {
         externalIds.value = (data.external_ids || []).filter(Boolean).join(", ");
         location.value = data.location || "";
@@ -266,6 +282,7 @@ export default {
       apply(data);
     };
 
+    /** Loads all variant data (annotation + metrics) in parallel, managing the loading overlay. */
     const loadVariantData = async () => {
       pageLoading.value = true;
 
@@ -281,6 +298,7 @@ export default {
       }
     };
 
+    /** Smoothly scrolls to a card by element id, offset for the fixed navbar. @param {string} id - Target element id. */
     const scrollTo = (id) => {
       const element = document.getElementById(id);
       if (element) {
@@ -290,6 +308,7 @@ export default {
       }
     };
 
+    /** @param {string} id - Card id. @returns {boolean} Whether that card is enabled (has data). */
     const isCardEnabled = (id) => {
       const card = availableCards.value.find(card => card.id === id);
       return card ? card.enabled : true;

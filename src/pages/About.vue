@@ -298,6 +298,14 @@
 </template>
 
 <script>
+/**
+ * About page.
+ *
+ * Static, mostly informational page describing the platform, with three
+ * collapsible sections (deploy-your-own-instance, GitHub repositories, and the
+ * impressum/responsible-research-group contacts). The only dynamic behavior is
+ * the expand/collapse state and the theme-aware logo.
+ */
 import logoWhite from "@/assets/figures/GNExT_Logo_White.png"
 import logoBlack from "@/assets/figures/GNExT_Logo_Black.png"
 
@@ -312,6 +320,7 @@ export default {
   },
 
   computed: {
+    /** @returns {string} The logo image source matching the current theme. */
     logo() {
       // Dynamically choose logo based on theme (Vuetify 3 API)
       return this.$vuetify.theme.global.current.dark ? logoWhite : logoBlack;

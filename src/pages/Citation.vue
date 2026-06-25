@@ -84,6 +84,13 @@
 </template>
 
 <script>
+/**
+ * Citation page.
+ *
+ * Displays how to cite both the study dataset (plain + BibTeX + DOI, sourced
+ * from config) and the GNExT software paper (hard-coded reference), each with a
+ * copy-to-clipboard button.
+ */
 import {STUDY_BIBTEX_CITATION, STUDY_NAME, STUDY_PLAIN_CITATION, STUDY_DOI_LINK} from "@/config.js";
 
 
@@ -114,15 +121,19 @@ bioRxiv 2026.01.30.702559; doi: https://doi.org/10.64898/2026.01.30.702559`
   },
 
   methods: {
+    /** Copies the plain-text GNExT software citation to the clipboard. */
     copySoftwarePlainToClipboard() {
       navigator.clipboard.writeText(this.softwarePlainEntry)
     },
+    /** Copies the BibTeX GNExT software citation to the clipboard. */
     copySoftwareBibtexToClipboard() {
       navigator.clipboard.writeText(this.softwareBibtexEntry)
     },
+    /** Copies the plain-text study citation to the clipboard. */
     copyStudyPlainToClipboard() {
       navigator.clipboard.writeText(this.studyPlainEntry)
     },
+    /** Copies the BibTeX study citation to the clipboard. */
     copyStudyBibtexToClipboard() {
       navigator.clipboard.writeText(this.softwareBibtexEntry)
     },

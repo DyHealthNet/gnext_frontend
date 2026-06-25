@@ -170,6 +170,15 @@
 </template>
 
 <script>
+/**
+ * Network Medicine page (only routed when MAGMA is enabled).
+ *
+ * Lets the user pick one of the gene lists collected from trait/gene pages
+ * (persisted in localStorage) and load it into an embedded Drugst.One network
+ * widget for module detection / drug-repurposing analysis. Manages the gene
+ * lists, the current network and its analysis task IDs in localStorage, applies
+ * a theme-matched Drugst.One style, and supports clearing all stored lists.
+ */
 
 import DrugstoneNetworkSettings from "@/components/drugstone/DrugstoneNetworkSettings.vue";
 import DrugstoneGeneForwarding from "@/components/drugstone/DrugstoneGeneForwarding.vue";
@@ -218,16 +227,19 @@ export default {
     }
   },
 
+  /** Loads stored gene lists and any previously-saved network on mount. */
   mounted() {
     this.loadGeneLists()
     this.loadNetworkFromStorage()
   },
 
   computed: {
+    /** @returns {boolean} True when no gene lists are stored. */
     emptyGeneLists() {
       return this.listNames.length === 0
     },
 
+    /** @returns {object} The Drugst.One CSS-variable style matching the active theme. */
     drugstoneStyle() {
       const isLight = this.$vuetify.theme.global.name === 'dyHealthNetTheme';
       // load utils/drugstone_themes.js and select based on isLight
@@ -240,6 +252,7 @@ export default {
   },
 
   methods: {
+    /** Loads the available gene-list names from localStorage and selects the first one. */
     loadGeneLists() {
       try {
         const geneLists = JSON.parse(localStorage.getItem("geneLists") || "{}")
@@ -254,6 +267,7 @@ export default {
         this.listNames = []
       }
     },
+    /** Populates `selectedGenes` from the named stored gene list. @param {string} listName - Gene list name. */
     loadGenes(listName) {
       const geneLists = JSON.parse(localStorage.getItem("geneLists") || "{}")
       const genes = geneLists[listName]["genes"] || []
@@ -261,6 +275,7 @@ export default {
       this.selectedGenes = genes.join(", ")
     },
 
+    /** Restores the previously-loaded Drugst.One network and its name/trait from localStorage. */
     loadNetworkFromStorage() {
       const storedNetwork = localStorage.getItem('drugstoneNetwork')
       if (storedNetwork) {
@@ -281,6 +296,11 @@ export default {
       }
     },
 
+    /**
+     * Builds a fresh network from the selected gene list's genes, persists it
+     * (and the prior network's task IDs) to localStorage, and forces the
+     * Drugst.One widget to re-render.
+     */
     addNodesToNetwork() {
       const geneLists = JSON.parse(localStorage.getItem("geneLists") || "{}")
       const genes = geneLists[this.selectedList]["genes"] || []
@@ -318,6 +338,7 @@ export default {
       this.networkKey++
     },
 
+    /** Persists a new Drugst.One analysis task ID against the current gene list. @param {CustomEvent} event - Drugst.One task event. */
     saveTaskId: function (event) {
       console.log("Event received from Drugst.One:", event.detail)
       const geneTasks = JSON.parse(localStorage.getItem("geneTasks") || "{}")
@@ -331,11 +352,13 @@ export default {
       localStorage.setItem("geneTasks", JSON.stringify(geneTasks))
     },
 
+    /** Opens the confirmation dialog for clearing all stored gene lists. */
     clearGeneLists(){
       // Show confirmation dialog
       this.showConfirmDialog = true
     },
 
+    /** Removes all gene lists/networks/tasks from localStorage and resets component state. */
     confirmClearGeneLists(){
       // Clear all gene lists from localStorage
       localStorage.removeItem("geneLists")
@@ -362,6 +385,7 @@ export default {
       console.log("All seed gene lists cleared")
     },
 
+    /** Dismisses the "no gene lists" introductory overlay. */
     closeOverlay() {
       this.showNoGeneListsOverlay = false
     }

@@ -69,6 +69,13 @@
 </template>
 
 <script setup>
+/**
+ * Gene-only search autocomplete (Typesense + Algolia InstantSearch).
+ *
+ * A gene search box (results filtered to `type:=gene`) used in the Drugstone /
+ * Network Medicine context. On selection it navigates to the gene page,
+ * forwarding the optional `trait` prop as a query parameter.
+ */
 import TypesenseInstantSearchAdapter from "typesense-instantsearch-adapter";
 import {ref, computed} from "vue";
 
@@ -126,6 +133,7 @@ const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
 
 const searchClient = typesenseInstantsearchAdapter.searchClient;
 
+/** Navigates to the selected gene's page (forwarding the trait query param if set). @param {object} hit - Selected gene hit. */
 function goToHit(hit) {
     // If trait is provided, pass it as a query parameter
     if (props.trait) {

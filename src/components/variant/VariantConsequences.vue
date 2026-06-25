@@ -96,6 +96,14 @@
 </template>
 
 <script>
+/**
+ * VEP consequences table on the Variant page (transcript / regulatory / motif,
+ * selected via the `type` prop).
+ *
+ * Renders the provided `headers`/`rows` in a PrimeVue DataTable with global
+ * filtering, impact-aware sorting (HIGH > MODERATE > LOW > MODIFIER via the
+ * IMPACT column), impact badges, and CSV/JSON/TXT export of the rows.
+ */
 import VariantImpactTag from "@/components/variant/VariantImpactTag.vue";
 import {InputIcon, IconField, InputText, Column, DataTable, MultiSelect, Menu, Button} from "primevue";
 import 'primeicons/primeicons.css'
@@ -173,6 +181,7 @@ export default {
   },
 
   methods: {
+    /** Updates sort state; sorts by impact rank when the IMPACT column is chosen. @param {object} event - PrimeVue sort event. */
     onSort(event) {
       this.sortField = event.sortField;
       this.sortOrder = event.sortOrder;
@@ -186,11 +195,13 @@ export default {
       }
     },
 
+    /** Toggles the download options popup menu. @param {Event} event - Click event. */
     onMenuClick(event) {
       this.$refs.menuRef.toggle(event);
 
     },
 
+    /** Serializes the rows and triggers a client-side file download. @param {'csv'|'json'|'txt'} format - Export format. */
     download(format) {
       const rows = this.rows;
       const variantId = this.variantId;
@@ -230,6 +241,7 @@ export default {
   },
 
   watch: {
+    // Rebuild the column descriptors (with humanized headers) when headers change.
     headers: {
       handler(newVal) {
         this.columns = newVal.map(col => ({

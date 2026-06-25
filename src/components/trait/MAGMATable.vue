@@ -112,6 +112,14 @@
 </template>
 
 <script>
+/**
+ * MAGMA gene-level results table for a trait.
+ *
+ * Displays the per-gene MAGMA results (filterable by Bonferroni p-value and
+ * chromosome) in a TableSkeleton, and lets the user save the resulting gene set
+ * as a named "seed list" in localStorage for downstream Network Medicine
+ * analysis (with a shortcut to navigate there).
+ */
 import {API_BASE_URL} from '@/config.js'
 import TableSkeleton from "@/components/TableSkeleton.vue";
 import {ref} from "vue";
@@ -142,20 +150,24 @@ export default {
   },
 
   computed: {
+    /** @returns {boolean} Whether the p-value cutoff is within [0, 1]. */
     isValidPValue() {
       return this.pvalCutoff >= 0 && this.pvalCutoff <= 1;
     },
 
+    /** @returns {boolean} Whether a non-empty gene-list name and at least one gene exist. */
     isValidGeneListName() {
       return this.geneNameList.trim().length > 0 & this.tableItems.length > 0;
     }
   },
 
+  /** Loads the trait's available chromosomes (for the filter) on mount. */
   async mounted() {
     await this.loadAvailableChromosomes()
   },
 
   watch: {
+    // Re-filter the table rows by the current p-value cutoff whenever results change.
     magmaResults: {
       immediate: true,
       deep: true,
@@ -169,6 +181,7 @@ export default {
   },
 
   methods: {
+    /** Fetches the trait's chromosome bounds to populate the chromosome filter. */
     async loadAvailableChromosomes() {
       try {
         const url = `${API_BASE_URL}/trait_get_chromosomeBounds/?id=${encodeURIComponent(this.traitId)}`
@@ -180,6 +193,7 @@ export default {
       }
     },
 
+    /** Filters the table rows by the current Bonferroni p-value cutoff and selected chromosome(s). */
     async applyMAGMATableFiltering() {
       // filter by Bonferroni pvalue and chromosome
       this.tableItems = this.magmaResults.filter(row => {
@@ -191,6 +205,7 @@ export default {
       }).map((d, i) => ({...d, x: i}));
     },
 
+    /** Clears the chromosome/p-value filters and restores all rows. */
     resetMAGMATableFiltering() {
       this.selectedChr = null;
       this.pvalCutoff = 1;
@@ -198,6 +213,7 @@ export default {
       this.tableItems = this.magmaResults.map((d, i) => ({...d, x: i}));
     },
 
+    /** Saves the current table's genes as a named seed list in localStorage (rejecting duplicate names). */
     addGeneList() {
       const name = this.geneNameList.trim()
       if (!name) return
@@ -224,6 +240,7 @@ export default {
       this.geneNameList = ""
     },
 
+    /** Navigates to the Network Medicine page. */
     moveToSeedsPage() {
       this.$router.push('/networkmedicine')
     },

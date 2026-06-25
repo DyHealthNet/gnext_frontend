@@ -1,3 +1,16 @@
+/**
+ * Application entry point.
+ *
+ * Creates the root Vue app and wires up the global plugins used across GNExT:
+ *  - Vue Router for client-side navigation.
+ *  - Vuetify, configured with the custom light/dark "dyHealthNet" themes.
+ *  - PrimeVue, configured with an Aura-based preset that makes input/table
+ *    surfaces transparent so they blend with the Vuetify theme.
+ *  - vue-instantsearch for the Algolia-backed search/autocomplete widgets.
+ *
+ * Dark mode is resolved before mount (from localStorage, falling back to the
+ * OS preference) so the correct theme class is present on first paint.
+ */
 import {createApp} from 'vue'
 import router from './router'
 
@@ -24,6 +37,7 @@ import InstantSearch from 'vue-instantsearch/vue3/es'
 import {COLOR_PRIMARY, COLOR_PRIMARY_DARK} from "@/config.js"; // ← this is critical for Vue 3
 
 
+/** Vuetify color palette for the default (light) GNExT theme. */
 const dyHealthNetTheme = {
     dark: false,
     colors: {
@@ -57,6 +71,7 @@ const dyHealthNetTheme = {
     },
 }
 
+/** Vuetify color palette for the dark GNExT theme. */
 const dyHealthNetThemeDark = {
     dark: true,
     colors: {
@@ -85,6 +100,7 @@ const dyHealthNetThemeDark = {
     },
 }
 
+/** Vuetify instance registering both themes plus all components/directives. */
 const vuetify = createVuetify({
     theme: {
         defaultTheme: 'dyHealthNetTheme',
@@ -100,6 +116,11 @@ const vuetify = createVuetify({
     directives,
 })
 
+/**
+ * PrimeVue theme preset based on Aura. Overrides input, select, paginator and
+ * datatable surfaces to be transparent so PrimeVue widgets inherit the
+ * surrounding Vuetify background instead of painting their own.
+ */
 const MyPreset = definePreset(Aura, {
     components: {
         inputtext: {
@@ -185,6 +206,7 @@ const MyPreset = definePreset(Aura, {
 
 
 // Initialize dark mode class before app mounts
+/** @returns {"dark"|"light"} The OS-level color scheme preference. */
 const getSystemMode = () => window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
 const savedTheme = localStorage.getItem('theme')
 const isDarkMode = savedTheme ? savedTheme === 'dyHealthNetThemeDark' : getSystemMode() === "dark"

@@ -1,3 +1,13 @@
+/**
+ * Central runtime configuration.
+ *
+ * Most values are sourced from Vite environment variables (`VITE_*`, injected
+ * at build time) with sensible fallbacks, so a single image can be re-themed
+ * and re-pointed per deployment/study without code changes. Covers: the API
+ * base path, genome build labels, example entity IDs shown in the UI, citation
+ * text, the Typesense search key, theme colors, and feature flags
+ * (`MAGMA_SHOW`, `GENE_ID_SPACE`).
+ */
 // config.js
 export const API_BASE_URL = "/backend";     // NOT /backend/backend
 export const GENOME_BUILD = import.meta.env.VITE_GENOME_BUILD ?? "GRCh38";

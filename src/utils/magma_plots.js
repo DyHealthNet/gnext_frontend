@@ -10,12 +10,33 @@ import d3Tip from 'd3-tip';
 import {memoize, property, range, some, sortBy, template} from 'lodash';
 import $ from 'jquery';
 
+/**
+ * Minimal positional string formatter: replaces `{0}`, `{1}`, ... placeholders
+ * with the corresponding argument.
+ * @param {string} format - Template string containing `{n}` placeholders.
+ * @param {...*} args - Values substituted by index.
+ * @returns {string} The interpolated string.
+ */
 function fmt(format, ...args) {
     return format.replace(/{(\d+)}/g, (match, number) =>
         typeof args[number] != 'undefined' ? args[number] : match
     );
 }
 
+/**
+ * Renders a gene-level MAGMA Manhattan plot into `#manhattan_magma_plot_container`
+ * using D3. Lays variants out along a concatenated genomic axis (per-chromosome
+ * offsets), draws a dashed genome-wide significance line, and attaches hover
+ * tooltips.
+ * @param {Array<object>} unbinned_variants - Variant records with `chrom`, `pos`,
+ *   `pvalue`, and `neg_log_pvalue`.
+ * @param {object} [options] - Visual configuration.
+ * @param {string} [options.tooltip_template] - Lodash template for point tooltips.
+ * @param {string} [options.color1] - First alternating chromosome color.
+ * @param {string} [options.color2] - Second alternating chromosome color.
+ * @param {string} [options.axes_color] - Axis/line color.
+ * @param {number} [options.significance_threshold] - P-value significance cutoff.
+ */
 function create_manhattan_magma_plot(unbinned_variants, {
     tooltip_template = '<b>{d.chrom}:{d.start}:{d.end}</b><br>P = {d.pvalue}',
     color1 = '#e41a1c',
@@ -27,6 +48,8 @@ function create_manhattan_magma_plot(unbinned_variants, {
     // Sort from weakest to strongest (so strongest drawn last = on top)
     unbinned_variants = sortBy(unbinned_variants, d => d.neg_log_pvalue);
 
+    // Memoized: computes the cumulative genomic start position and drawing
+    // offset for each chromosome so they tile end-to-end along the x-axis.
     const get_chrom_offsets = memoize(() => {
         const chrom_padding = 2e7;
         const chrom_extents = {};
@@ -61,8 +84,11 @@ function create_manhattan_magma_plot(unbinned_variants, {
         return {chroms, chrom_extents, chrom_genomic_start_positions, chrom_offsets};
     });
 
+    // Maps a variant to its absolute x position on the concatenated genome axis.
     const get_genomic_position = v => get_chrom_offsets().chrom_offsets[v.chrom] + v.pos;
 
+    // Builds the y-axis scale and tick set, choosing tick spacing by magnitude
+    // and adding a broken-axis segment above 20 for very significant values.
     const get_y_axis_config = (max_qval, plot_height, includes_pval0) => {
         let ticks = [];
         if (max_qval <= 14) ticks = range(0, 15, 2);
@@ -206,6 +232,13 @@ function create_manhattan_magma_plot(unbinned_variants, {
     });
 }
 
+/**
+ * Renders a MAGMA QQ plot (observed vs. expected -log10 p-values) into
+ * `#qq_magma_plot_container` using D3, including gridlines and a diagonal
+ * reference line. Shows a message instead if no data is available.
+ * @param {Array<{P:number}>} data - Records with a raw p-value field `P`.
+ * @param {string} [axes_color="#444"] - Axis text/line color.
+ */
 function create_magma_qq_plot(data, axes_color = "#444") {
   if (!data || data.length === 0) {
     $('#qq_plot_container').text(

@@ -135,6 +135,15 @@
 </template>
 
 <script>
+/**
+ * Search/filter bar for the trait GWAS results table.
+ *
+ * Offers four query modes — top loci, p-value cutoff, variant neighborhood
+ * (rsID), and chromosome range — each with its own validated inputs. Loads the
+ * trait's chromosome bounds and the top-loci config for validation/defaults,
+ * and emits an `apply-filters` event with the assembled filter state for the
+ * parent PhenotypeSNPTable to act on.
+ */
 import {API_BASE_URL, GENOME_BUILD} from "@/config.js";
 import AutocompleteVariant from "@/components/trait/AutocompleteVariant.vue";
 import {setIsLoading} from "@/components/constants.js";
@@ -163,6 +172,7 @@ export default {
       manhattan_peak_pval_threshold: 0,
     };
   },
+  /** Loads bounds/config and runs an initial query when the bar mounts. */
   mounted() {
     this.getChromosomeBounds();
     this.getTopLociConfigs();
@@ -173,9 +183,11 @@ export default {
     }
   },
   watch: {
+    // Re-run the query when the trait changes.
     pheno() {
       this.applyFilters();
     },
+    // Clamp the p-value cutoff to the valid range for the newly selected mode.
     searchMode() {
       const max = this.maxPvalForMode;
       if (this.pvalCutoff > max) {
@@ -187,6 +199,7 @@ export default {
     },
   },
   methods: {
+    /** Loads the top-loci peak settings (count, sprawl, threshold) from cached config or the backend. */
      getTopLociConfigs(){
       const cached = localStorage.getItem('configs')
       if (cached) {
@@ -208,12 +221,14 @@ export default {
       }
     },
 
+    /** @returns {Array<Function>} Vuetify validation rules for the p-value field. */
     pvalRules() {
       return [
           v => !!v || 'Required',
         v => (Number(v) >= 0 && Number(v) <= 1) ? true : 'Must be between 0 and 1'
       ];
     },
+    /** @returns {Array<Function>} Validation rules for the neighbor-range field. */
     rangeRules() {
       return [
         v => !!v || 'Required',
@@ -221,6 +236,7 @@ export default {
         v => Number(v) <= 100000000 || 'Must be smaller than 100,000,000',
       ];
     },
+    /** @returns {Array<Function>} Validation rules for the chromosome field (must be a known chromosome). */
     chrRules() {
       const validChroms = Object.keys(this.chromosomeBounds);
       const display = compressChromosomes(validChroms);
@@ -229,6 +245,7 @@ export default {
          v => validChroms.includes(v) ? true : `Must be one of: ${display}`,
       ];
     },
+    /** @returns {Array<Function>} Validation rules for the start position (relative to end and chromosome bounds). */
     startRules() {
       return [
         v => !!v || 'Required',
@@ -238,6 +255,7 @@ export default {
         v => (Number(v) <= this.currentBounds.max) ? true : `Max possible value is ${this.currentBounds.max}`,
       ];
     },
+    /** @returns {Array<Function>} Validation rules for the end position (relative to start and chromosome bounds). */
     endRules() {
       return [
         v => !!v || 'Required',
@@ -246,6 +264,7 @@ export default {
         v => (Number(v) <= this.currentBounds.max) ? true : `Max possible value is ${this.currentBounds.max}`,
       ];
     },
+    /** Validates the active mode's inputs and, if valid, emits `apply-filters` with the current filter state. */
     async applyFilters() {
       // Map each mode to the refs/validation fields it cares about
       const modeValidations = {
@@ -287,6 +306,7 @@ export default {
         pvalCutoff: this.pvalCutoff,
       });
     },
+    /** Fetches the trait's per-chromosome min/max positions used for range validation. */
     async getChromosomeBounds() {
       try {
         let url = `${API_BASE_URL}/trait_get_chromosomeBounds/?id=${encodeURIComponent(this.pheno)}`;
@@ -300,9 +320,11 @@ export default {
     }
   },
   computed: {
+    /** @returns {{min:number, max:number}} The min/max bounds for the selected chromosome. */
     currentBounds() {
       return this.chromosomeBounds[this.chr] || { min: 0, max: 0 };
     },
+    /** @returns {number} The maximum allowed p-value cutoff for the active mode. */
     maxPvalForMode() {
       return this.searchMode === "pval" ? 5e-8 : 1;
     },

@@ -588,6 +588,15 @@
 </template>
 
 <script>
+/**
+ * Documentation page.
+ *
+ * Long-form, mostly static help content with collapsible sections covering each
+ * page of the platform (home, top hits, trait, variant, gene, network medicine)
+ * and the preprocessing pipeline, illustrated with tutorial screenshots. The
+ * only dynamic data is the top-hits threshold config interpolated into the text
+ * and the theme-aware logo.
+ */
 import homepageimg from "@/assets/figures/Home_Page_Tutorial.png"
 import variantpageimg1 from "@/assets/figures/Variant_Page_Tutorial_1.png"
 import variantpageimg2 from "@/assets/figures/Variant_Page_Tutorial_2.png"
@@ -623,12 +632,14 @@ export default {
   },
 
   computed: {
+    /** @returns {string} The logo image source matching the current theme. */
     logo() {
       return this.$vuetify.theme.global.current.dark ? logoWhite : logoBlack;
     }
   },
 
   methods: {
+    /** Loads the top-hits threshold settings (shown in the docs text) from cached config or the backend. */
     async get_top_hits_configs(){
       const cached = localStorage.getItem('configs')
       if (cached) {
@@ -653,6 +664,7 @@ export default {
     }
   },
 
+  /** Loads the threshold config used in the documentation text on mount. */
   mounted() {
     this.get_top_hits_configs();
   }

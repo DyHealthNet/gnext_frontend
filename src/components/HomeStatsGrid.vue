@@ -26,6 +26,11 @@
 </template>
 
 <script setup>
+/**
+ * Home-page summary grid showing the total number of traits, variants and genes
+ * in the study. Counts are fetched once from the backend overview endpoint and
+ * cached in localStorage; theme-aware node icons accompany each count.
+ */
 import {useTheme} from 'vuetify'
 import {onMounted, reactive} from "vue";
 import traitHomeDarkIcon from "@/assets/figures/node_phenotype_black.png";
@@ -65,6 +70,8 @@ const statCounts = reactive({
   gene: 0,
 })
 
+// On mount, populate the trait/variant/gene counts from the localStorage cache
+// if present, otherwise fetch them from the backend and cache the result.
 onMounted(async () => {
   const cached = localStorage.getItem("overview_stats")
   if(cached){

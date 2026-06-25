@@ -1,3 +1,15 @@
+/**
+ * Generic frontend helpers shared across pages and components:
+ * compact chromosome-range formatting and client-side plot export.
+ */
+
+/**
+ * Collapses a list of chromosome identifiers into a compact, human-readable
+ * string. Consecutive numeric chromosomes are merged into ranges (e.g.
+ * `1-5`), and non-numeric chromosomes (e.g. `X`, `Y`) are appended afterwards.
+ * @param {string[]} chroms - Chromosome identifiers (numeric and/or letters).
+ * @returns {string} Comma-separated ranges/values, e.g. `"1-5, 8, X, Y"`.
+ */
 export function compressChromosomes(chroms) {
   const nums = chroms.filter(c => /^\d+$/.test(c)).map(Number).sort((a,b) => a-b);
   const letters = chroms.filter(c => /\D/.test(c));
@@ -23,6 +35,16 @@ export function compressChromosomes(chroms) {
 
 
 
+/**
+ * Exports the first `<svg>` found inside a container as a downloadable file.
+ * For `svg` format the vector markup is downloaded as-is; for `png`/`jpg` the
+ * SVG is rasterized onto a white-backed canvas at the given scale.
+ * @param {string} containerSelector - CSS selector for the element holding the SVG.
+ * @param {string} [fileBase='plot'] - Base filename (without extension).
+ * @param {'png'|'jpg'|'svg'} [format='png'] - Output format.
+ * @param {number} [scale=3] - Pixel-density multiplier for raster exports.
+ * @returns {Promise<void>}
+ */
 export async function downloadPlot(containerSelector, fileBase = 'plot', format = 'png', scale = 3) {
   const container = document.querySelector(containerSelector);
   if (!container) {

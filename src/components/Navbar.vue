@@ -87,6 +87,14 @@
 </template>
 
 <script>
+/**
+ * Global top navigation bar.
+ *
+ * Renders the study logo, the primary nav links (Home, Top Hits, optional
+ * Network Medicine, Documentation, About, Cite), a light/dark theme toggle, and
+ * the search autocomplete on every page except the home page. The active theme
+ * is persisted to localStorage and reflected on the document element.
+ */
 import AutoComplete from "@/components/autocomplete/AutoComplete_Navbar.vue";
 import {MAGMA_SHOW} from "@/config.js";
 import logoBlack from "@/assets/figures/GNExT_Logo_Black.png";
@@ -104,9 +112,11 @@ export default {
   },
 
   computed: {
+    /** @returns {boolean} Whether the search box should be shown (everywhere but home). */
     showAutoComplete() {
       return this.$route.path !== '/';
     },
+    /** @returns {string} The logo image source matching the current theme. */
     logoSrc() {
       // Return different logo based on theme
       return this.isDark ? this.logoWhite : this.logoBlack;
@@ -114,6 +124,7 @@ export default {
   },
 
   methods: {
+    /** Toggles between the light and dark theme and persists the choice. */
     toggleTheme() {
       const currentTheme = this.$vuetify.theme.global.name
       this.$vuetify.theme.global.name = currentTheme === 'dyHealthNetTheme' ? 'dyHealthNetThemeDark' : 'dyHealthNetTheme'
@@ -122,6 +133,7 @@ export default {
       document.documentElement.classList.toggle('my-app-dark', this.isDark)
       this.darkModeText = currentTheme === 'dyHealthNetTheme' ? "Light mode" : "Dark mode";
     },
+    /** Applies the initial theme from localStorage, falling back to the OS preference. */
     defaultTheme() {
       if (localStorage.getItem('theme')) {
         this.$vuetify.theme.global.name = localStorage.getItem('theme')
@@ -134,6 +146,7 @@ export default {
       document.documentElement.classList.toggle('my-app-dark', this.isDark)
     },
   },
+  /** Resolves the active theme before the bar first renders. */
   created() {
     this.defaultTheme()
     this.darkModeText = this.$vuetify.theme.global.name === 'dyHealthNetTheme' ? "Light mode" : "Dark mode";

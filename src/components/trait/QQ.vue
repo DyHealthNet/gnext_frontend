@@ -56,6 +56,14 @@
 
 
 <script>
+/**
+ * GWAS QQ-plot card for a trait.
+ *
+ * Fetches the trait's QQ data from the backend and renders it via the shared
+ * `create_qq_plot` D3 helper, displaying the genomic-control lambda values
+ * alongside. Re-renders on theme change, supports an adjustable text size, and
+ * offers PNG/SVG/JPG export.
+ */
 import {create_qq_plot} from '../../utils/pheweb_plots.js';
 import {API_BASE_URL} from "@/config.js";
 import { sortBy, toPairs} from "lodash"
@@ -77,6 +85,7 @@ export default {
   },
 
   computed: {
+    /** @returns {string} The axis color matching the active theme. */
     currentAxesColor() {
       return this.$vuetify.theme.global.name === 'dyHealthNetTheme'
         ? this.$vuetify.theme.themes.dyHealthNetTheme.colors["darken-1"]
@@ -85,21 +94,25 @@ export default {
   },
 
   watch: {
+    // Redraw the plot when the theme (and thus axis color) changes.
     currentAxesColor(newColor, oldColor) {
       if (newColor !== oldColor) {
         this.loadQQPlot()
       }
     },
+    // Re-apply the font size to the plot's text when the slider changes.
     textSize() {
       this.updateTextSize()
     }
   },
 
+  /** Draws the QQ plot when the component mounts. */
   mounted() {
     this.loadQQPlot();
   },
 
   methods: {
+    /** Fetches the trait's QQ data, renders the plot, and displays the GC lambda values. */
     async loadQQPlot() {
       try {
         const res = await fetch(`${API_BASE_URL}/trait_get_qq/?id=${this.traitId}`);
@@ -146,10 +159,12 @@ export default {
       }
     },
 
+    /** Exports the QQ plot in the chosen image format. @param {'png'|'svg'|'jpg'} format - Output format. */
     handleDownload(format){
       downloadPlot('#qq_plot_container', `qq_gwas_${this.traitId}`, format);
     },
 
+    /** Applies the current slider text size to all text in the plot SVG. */
     updateTextSize() {
       const container = document.getElementById('qq_plot_container')
       if (!container) return

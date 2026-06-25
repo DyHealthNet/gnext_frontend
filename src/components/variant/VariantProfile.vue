@@ -31,6 +31,14 @@
 
 
 <script>
+/**
+ * Variant profile header shown on the Variant page.
+ *
+ * Displays the variant's ID, external IDs, location, alleles, and most-severe
+ * consequence (with an impact badge), plus a row of buttons linking out to
+ * external databases (GWAS Catalog, dbSNP, Ensembl, gnomAD, UCSC, ...) built
+ * from the variant's rsID and genome build.
+ */
 import LinkButton from "@/components/LinkButton.vue";
 import VariantImpactTag from "@/components/variant/VariantImpactTag.vue";
 import {GENOME_BUILD, HG_BUILD_NUMBER} from "@/config.js";
@@ -71,6 +79,7 @@ export default {
   },
 
   computed: {
+    /** @returns {boolean} Whether the variant has any usable external IDs. */
     hasExternalIds() {
       // Check if externalIds is not empty, not [""], and not just whitespace
       if (!this.externalIds) return false;
@@ -78,12 +87,14 @@ export default {
       return cleaned !== '' && cleaned !== '[""]' && cleaned !== '[]';
     },
 
+    /** @returns {string|null} The first rsID found in the external IDs, or null. */
     rsId(){
       if (!this.hasExternalIds) return null;
       const match = this.externalIds.match(/rs\d+/);
       return match ? match[0] : null;
     },
 
+    /** @returns {Object<string,string>} Map of external database name → URL for this variant (empty if no rsID). */
     links() {
       // from external IDs extract first rsID -> TODO: check if this is the correct way to do it
       if(!this.rsId) return {};

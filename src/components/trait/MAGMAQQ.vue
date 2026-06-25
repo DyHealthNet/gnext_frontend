@@ -53,6 +53,14 @@
 </template>
 
 <script>
+/**
+ * MAGMA gene-level QQ-plot card for a trait.
+ *
+ * Renders a QQ plot of the MAGMA gene p-values passed in via the `magmaResults`
+ * prop, using the `create_magma_qq_plot` D3 helper. Shows a spinner until
+ * results arrive, redraws on theme change, supports an adjustable text size,
+ * and offers PNG/SVG/JPG export.
+ */
 import {create_qq_plot} from '../../utils/pheweb_plots.js';
 import {API_BASE_URL} from "@/config.js";
 import { sortBy, toPairs} from "lodash"
@@ -80,6 +88,7 @@ export default {
   },
 
   computed: {
+    /** @returns {string} The axis color matching the active theme. */
     currentAxesColor() {
       return this.$vuetify.theme.global.name === 'dyHealthNetTheme'
         ? this.$vuetify.theme.themes.dyHealthNetTheme.colors["darken-1"]
@@ -88,15 +97,18 @@ export default {
   },
 
   watch: {
+    // Redraw the plot when the theme (and thus axis color) changes.
     currentAxesColor(newColor, oldColor) {
       if (newColor !== oldColor) {
         this.loadMAGMAQQPlot()
       }
     },
+    // Re-apply the font size to the plot's text when the slider changes.
     textSize() {
       this.updateTextSize()
     },
 
+    // Draw (or re-draw) the plot once MAGMA results are available.
     magmaResults: {
       handler(newVal) {
         if (newVal && newVal.length > 0) {
@@ -112,11 +124,13 @@ export default {
     }
   },
 
+  /** Attempts an initial plot render on mount. */
   mounted() {
     this.loadMAGMAQQPlot();
   },
 
   methods: {
+    /** Builds the p-value list from `magmaResults` and renders the MAGMA QQ plot. */
     async loadMAGMAQQPlot() {
       try {
         const pvals = this.magmaResults.map(result => ({P : result.pvalue}));
@@ -127,10 +141,12 @@ export default {
       }
     },
 
+    /** Exports the MAGMA QQ plot in the chosen image format. @param {'png'|'svg'|'jpg'} format - Output format. */
     handleDownload(format){
       downloadPlot('#qq_magma_plot_container', `qq_magma_${this.traitId}`, format);
     },
 
+    /** Applies the current slider text size to all text in the plot SVG. */
     updateTextSize() {
       const container = document.getElementById('qq_magma_plot_container')
       if (!container) return

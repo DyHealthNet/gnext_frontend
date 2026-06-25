@@ -24,7 +24,13 @@
 </template>
 
 <script>
-
+/**
+ * "Closest genes" card on the Variant page.
+ *
+ * Lists the genes near the variant (within the body or the configured up/
+ * downstream window) as buttons that navigate to the corresponding gene page,
+ * with an explanatory note about the mapping window read from the study config.
+ */
 export default {
   name: 'VariantClosestGene',
   props: {
@@ -46,11 +52,13 @@ export default {
   },
 
   methods: {
+    /** Navigates to a gene's page. @param {string} gene - Ensembl gene id. */
     handleGeneClick(gene) {
       // Navigate to gene page
       this.$router.push(`/gene/${gene}`);
     },
-    
+
+    /** Loads the up/downstream mapping window sizes from cached config or the backend. */
     fetchConfig() {
       const cached = localStorage.getItem('configs')
       if (cached) {
@@ -70,6 +78,7 @@ export default {
       }
     }
   },
+  /** Loads the mapping-window config when the card mounts. */
   mounted() {
     this.fetchConfig();
   }

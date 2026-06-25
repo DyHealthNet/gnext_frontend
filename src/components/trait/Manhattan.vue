@@ -74,6 +74,14 @@
 
 
 <script>
+/**
+ * GWAS Manhattan-plot card for a trait.
+ *
+ * Fetches the trait's binned/unbinned variants from the backend and renders the
+ * plot via the shared `create_gwas_plot` D3 helper, using theme-derived colors.
+ * Redraws (debounced) on theme/color change, supports an adjustable text size,
+ * and offers PNG/SVG/JPG export.
+ */
 import {create_gwas_plot} from '../../utils/pheweb_plots.js';
 import {API_BASE_URL} from "@/config.js";
 import {downloadPlot} from "@/utils/utils.js";
@@ -97,6 +105,7 @@ export default {
     }
   },
 
+  /** Initializes the theme colors and draws the plot on mount. */
   mounted() {
     this.chromColor1 = this.chromosomeColor1();
     this.chromColor2 = this.chromosomeColor2();
@@ -104,6 +113,7 @@ export default {
   },
 
   computed: {
+    /** @returns {string} The axis color matching the active theme. */
     currentAxesColor() {
       return this.$vuetify.theme.global.name === 'dyHealthNetTheme'
         ? this.$vuetify.theme.themes.dyHealthNetTheme.colors["darken-1"]
@@ -112,14 +122,17 @@ export default {
   },
 
   watch: {
+    // Redraw (debounced) when the theme axis color changes.
     currentAxesColor(newColor, oldColor) {
       if (newColor !== oldColor) {
         this.debouncedLoadPlot()
       }
     },
+    // Re-apply the font size to the plot's text when the slider changes.
     textSize() {
       this.updateTextSize()
     },
+    // Redraw when either alternating chromosome color changes.
     chromColor1() {
       this.debouncedLoadPlot()
     },
@@ -131,6 +144,7 @@ export default {
 
   methods: {
 
+    /** Debounces plot reloads (150 ms) to coalesce rapid theme/color changes. */
     debouncedLoadPlot() {
       // Clear any pending plot load
       if (this.plotLoadTimeout) {
@@ -142,6 +156,7 @@ export default {
       }, 150)
     },
 
+    /** @returns {string} First alternating chromosome color from the active theme. */
     chromosomeColor1() {
       let color = "white"
       if (this.$vuetify.theme.global.name === 'dyHealthNetTheme') {
@@ -152,6 +167,7 @@ export default {
       return color
     },
 
+    /** @returns {string} Second alternating chromosome color from the active theme. */
     chromosomeColor2() {
       let color = "white"
       if (this.$vuetify.theme.global.name === 'dyHealthNetTheme') {
@@ -162,6 +178,7 @@ export default {
       return color
     },
 
+    /** Fetches the trait's Manhattan data and renders the plot (guards against concurrent loads). */
     async loadManhattanPlot() {
       // Prevent multiple simultaneous loads
       if (this.isLoadingPlot) return
@@ -197,10 +214,12 @@ export default {
       }
     },
 
+    /** Exports the Manhattan plot in the chosen image format. @param {'png'|'svg'|'jpg'} format - Output format. */
     handleDownload(format){
       downloadPlot('#manhattan_plot_container', `manhattan_gwas_${this.traitId}`, format);
     },
 
+    /** Applies the current slider text size to all text in the plot SVG. */
     updateTextSize() {
       const container = document.getElementById('manhattan_plot_container')
       if (!container) return

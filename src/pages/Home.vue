@@ -66,6 +66,14 @@
 
 
 <script setup>
+/**
+ * Landing page.
+ *
+ * Shows the study welcome banner, the dataset stats grid, the main search
+ * autocomplete, and optional example trait/variant/gene shortcut buttons (shown
+ * only when configured). Prefetches the study config on mount so later pages
+ * can read it from localStorage.
+ */
 import AutoComplete from "@/components/autocomplete/AutoComplete_Home.vue";
 import HomeStatsGrid from "@/components/HomeStatsGrid.vue";
 import {STUDY_NAME, VARIANT_EXAMPLE, TRAIT_EXAMPLE, API_BASE_URL, GENE_EXAMPLE} from "@/config";
@@ -76,6 +84,7 @@ import logoBlack from "@/assets/figures/GNExT_Logo_Black.png";
 import logoWhite from "@/assets/figures/GNExT_Logo_White.png";
 
 const theme = useTheme()
+// Logo image source that switches with the active (light/dark) theme.
 const logoSrc = computed(() => {
   return theme.global.current.value.dark ? logoWhite : logoBlack;
 })
@@ -84,18 +93,26 @@ const mainSubheader = "Your gateway to explore and analyze GWAS summary statisti
 
 const router = useRouter();
 
+/** Navigates to the configured example trait page. */
 function onTraitClick() {
   router.push(`/trait/${TRAIT_EXAMPLE}`);
 }
 
+/** Navigates to the configured example variant page. */
 function onVariantClick() {
   router.push(`/variant/${encodeURIComponent(VARIANT_EXAMPLE)}`);
 }
 
+/** Navigates to the configured example gene page. */
 function onGeneClick() {
   router.push(`/gene/${GENE_EXAMPLE}`);
 }
 
+/**
+ * Loads the study config from localStorage if cached, otherwise fetches it from
+ * the backend and caches it for subsequent pages.
+ * @returns {object|undefined} Cached config when available synchronously.
+ */
 function loadConfigs() {
   // Try to load from localStorage first
   const cached = localStorage.getItem('configs')

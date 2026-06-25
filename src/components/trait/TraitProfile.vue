@@ -24,7 +24,14 @@
 
 
 <script>
-
+/**
+ * Trait profile header shown on the Trait page.
+ *
+ * Displays the trait's ID, label, group, sample count and an optional external
+ * reference link. When MAGMA is enabled, also shows the MAGMA analysis
+ * parameters (flank window, reference population, gene location) read from the
+ * study config.
+ */
 import LinkButton from "@/components/LinkButton.vue";
 import {TRAIT_EXTERNAL_REF_URL, MAGMA_SHOW, API_BASE_URL} from "@/config.js";
 
@@ -65,11 +72,13 @@ export default {
     }
   },
 
+  /** Loads the MAGMA parameters for display when the profile mounts. */
   mounted(){
     this.getMAGMAParams()
   },
 
   methods: {
+    /** Loads the MAGMA analysis parameters from cached config or the backend. */
     getMAGMAParams() {
       const cached = localStorage.getItem('configs')
       if (cached) {

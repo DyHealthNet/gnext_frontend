@@ -145,6 +145,16 @@
 </template>
 
 <script>
+/**
+ * Reusable PrimeVue DataTable wrapper used across the app's result tables.
+ *
+ * Accepts column `headers`, `rows` and display options as props and renders a
+ * paginated, globally-filterable, custom-sorted table. It knows how to turn
+ * certain known fields (variant_id, trait_id, gene_id, nearest_genes, location,
+ * ...) into entity links/tags, supports single-row selection (always keeping a
+ * row selected), and offers CSV/JSON/TXT export of the current rows.
+ * Emits `row-selected` / `row-unselected`.
+ */
 import 'locuszoom/dist/locuszoom.css'
 import {InputIcon, IconField, InputText, Column, DataTable, MultiSelect, Menu, Button, ProgressBar} from "primevue";
 import 'primeicons/primeicons.css'
@@ -234,6 +244,7 @@ export default {
   },
   computed: {
 
+    /** @returns {Array<object>} PrimeVue Menu items for the CSV/JSON/TXT download options. */
     downloadItems() {
       return [
         {label: 'Download as CSV', icon: 'pi pi-file', command: () => this.download('csv')},
@@ -241,6 +252,11 @@ export default {
         {label: 'Download as TXT', icon: 'pi pi-file', command: () => this.download('txt')}
       ];
     },
+    /**
+     * @returns {Array<{field:string, header:string}>} Column descriptors with
+     *   `priorityOrder` fields first and human-readable headers (snake_case
+     *   converted to Title Case, with a special label for `neg_log_pvalue`).
+     */
     columns() {
       const sorted = [
         ...this.priorityOrder.filter(c => this.headers.includes(c)),
@@ -254,6 +270,11 @@ export default {
       }));
       return sorted_renamed;
     },
+    /**
+     * @returns {Array<object>} `rows` sorted by the active sort field/order,
+     *   using numeric comparison when possible and a string fallback otherwise;
+     *   null/undefined values are pushed to the end.
+     */
     sortedRows() {
       if (!this.sortField) return this.rows;
       
@@ -287,7 +308,8 @@ export default {
     }
   },
   watch: {
-    // Watch for changes in rows and selection prop
+    // When rows arrive (or selection is toggled on) and nothing is selected yet,
+    // auto-select the first row and notify the parent.
     rows: {
       handler(newRows) {
         if (this.selection && newRows.length > 0 && !this.selectedRow) {
@@ -310,10 +332,15 @@ export default {
     }
   },
   methods: {
+    /** Emits `row-selected` when the user picks a row. @param {object} event - PrimeVue row-select event. */
     onRowSelect(event) {
       console.log('Selected row:', event.data);
       this.$emit('row-selected', event.data);
     },
+    /**
+     * Enforces always-selected behavior: re-selects the row instead of allowing
+     * an empty selection. @param {object} event - PrimeVue row-unselect event.
+     */
     onRowUnselect(event) {
       console.log('Attempted to unselect row:', event.data);
       // Prevent unselection by immediately reselecting
@@ -324,13 +351,19 @@ export default {
       });
       // Don't emit row-unselected to enforce always-selected behavior
     },
+    /** Toggles the download options popup menu. @param {Event} event - Click event. */
     onMenuClick(event) {
       this.$refs.menuRef.toggle(event);
     },
+    /** Updates the active sort field/order from a sort event. @param {object} event - PrimeVue sort event. */
     onSort(event) {
       this.sortField = event.sortField;
       this.sortOrder = event.sortOrder;
     },
+    /**
+     * Serializes the current rows and triggers a client-side file download.
+     * @param {'csv'|'json'|'txt'} format - Desired export format.
+     */
     download(format) {
       const rows = this.rows;
       let content = "";

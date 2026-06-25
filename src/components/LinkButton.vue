@@ -11,6 +11,11 @@
 </template>
 
 <script setup>
+/**
+ * Presentational button that opens an external URL in a new tab, showing a
+ * leading icon and a label. Used throughout the profile cards for links to
+ * external databases (NCBI, Ensembl, etc.).
+ */
 defineProps({
   title: { type: String, required: true },
   url: { type: String, required: true },

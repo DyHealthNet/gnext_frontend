@@ -131,6 +131,14 @@
 </template>
 
 <script>
+/**
+ * PheWAS (phenome-wide association) section on the Variant page.
+ *
+ * For the given variant, shows a LocusZoom PheWAS plot of association across all
+ * traits (grouped/colored by trait category) alongside a filterable PrimeVue
+ * results table. Supports filtering by p-value cutoff and trait category, and
+ * CSV/JSON/TXT export. The data is supplied via the `traitMetrics` prop.
+ */
 import LocusZoom from "locuszoom";
 import 'locuszoom/dist/locuszoom.css'
 import {API_BASE_URL, GENOME_BUILD} from "@/config.js";
@@ -185,6 +193,7 @@ export default {
   }),
 
   computed: {
+    /** @returns {string[]} Sorted unique trait categories present in the data (for the filter). */
     availableCategories() {
       const src = this.allRows || [];
       const set = new Set();
@@ -192,6 +201,7 @@ export default {
       return Array.from(set).sort();
     },
 
+    /** @returns {boolean} Whether the p-value cutoff is within [0, 1]. */
     isValidPValue() {
       return this.pvalCutoff >= 0 && this.pvalCutoff <= 1;
     }
@@ -199,15 +209,18 @@ export default {
 
 
   methods: {
+    /** Toggles the download options popup menu. @param {Event} event - Click event. */
     onMenuClick(event) {
       this.$refs.menuRef.toggle(event);
     },
 
+    /** Updates the active sort field/order. @param {object} event - PrimeVue sort event. */
     onSort(event) {
       this.sortField = event.sortField;
       this.sortOrder = event.sortOrder;
     },
 
+    /** Filters the table rows by the current p-value cutoff and selected categories, re-rendering the plot. */
     applyPhewasFiltering() {
       const cutoffRaw = this.pvalCutoff;
       const cutoff = Number.isFinite(+cutoffRaw) ? +cutoffRaw : 1; // sanitize
@@ -240,6 +253,7 @@ export default {
       this.$nextTick(() => this.renderPheWasPlot());
     },
 
+    /** Clears the p-value/category filters and restores all rows, re-rendering the plot. */
     resetPhewasFiltering() {
       this.pvalCutoff = 1;
       this.selectedCategory = null;
@@ -247,6 +261,7 @@ export default {
       this.$nextTick(() => this.renderPheWasPlot());
     },
 
+    /** Builds the LocusZoom PheWAS plot from the current `rows`. */
     async renderPheWasPlot() {
       if (!this.rows || !this.rows.length) return;
 
@@ -330,6 +345,7 @@ export default {
       LocusZoom.populate("#phewas_plot", dataSources, layout);
     },
 
+    /** Serializes the table rows and triggers a client-side file download. @param {'csv'|'json'|'txt'} format - Export format. */
     download(format) {
       const rows = this.rows;
       const variantId = this.variantId;
@@ -368,6 +384,7 @@ export default {
   },
 
   watch: {
+    // Rebuild the column descriptors (with humanized headers) when headers change.
     headers: {
       handler(newVal) {
         this.columns = newVal.map(col => ({
@@ -377,6 +394,7 @@ export default {
       },
       immediate: true
     },
+    // Reset rows/filters and redraw whenever the variant's trait metrics change.
     traitMetrics: {
       deep: true,
       immediate: true,
@@ -387,16 +405,19 @@ export default {
         this.resetPhewasFiltering();
       }
     },
+    // Clear the existing plot when navigating to a different variant.
     variantId() {
       const el = document.getElementById("phewas_plot");
       if (el) el.innerHTML = "";
     }
   },
 
+  /** Renders the PheWAS plot when the component mounts. */
   mounted() {
     this.renderPheWasPlot();
   },
 
+  /** Builds the download-menu items (bound to this instance) before render. */
   created() {
     this.downloadItems = [
       {

@@ -3,6 +3,16 @@
 </template>
 
 <script setup>
+/**
+ * LocusZoom regional association plot for the Gene page.
+ *
+ * Builds a LocusZoom plot of association p-values for the selected trait over a
+ * window around the gene, wiring a custom backend association adapter, LD data
+ * from the UMich portaldev/LD servers, a genes track, and a left/right "move"
+ * navigation widget. The plot is (re)created when the trait or gene region
+ * changes, and `setLDReference` / `refreshPlot` are exposed to the parent so it
+ * can set the LD reference variant or force a rebuild.
+ */
 import {ref, watch, onMounted, onBeforeUnmount, nextTick} from "vue";
 import LocusZoom from "locuszoom";
 import "locuszoom/dist/locuszoom.css";

@@ -81,6 +81,15 @@
 </template>
 
 <script>
+/**
+ * MAGMA gene-level Manhattan-plot card for a trait.
+ *
+ * Transforms the `magmaResults` prop (one row per gene) into plot points and
+ * renders them via the `create_manhattan_magma_plot` D3 helper, with a
+ * Bonferroni significance threshold (0.05 / total genes). Uses theme-derived
+ * colors, redraws on theme/color/results changes, supports an adjustable text
+ * size, and offers PNG/SVG/JPG export.
+ */
 import {create_manhattan_magma_plot} from '../../utils/magma_plots.js';
 import {downloadPlot} from "@/utils/utils.js";
 
@@ -102,6 +111,7 @@ export default {
   },
 
   computed: {
+    /** @returns {string} The axis color matching the active theme. */
     currentAxesColor() {
       return this.$vuetify.theme.global.name === 'dyHealthNetTheme'
           ? this.$vuetify.theme.themes.dyHealthNetTheme.colors["darken-1"]
@@ -109,6 +119,7 @@ export default {
     }
   },
 
+  /** Initializes the theme colors and draws the plot on mount. */
   async mounted() {
     this.chromColor1 = this.chromosomeColor1();
     this.chromColor2 = this.chromosomeColor2();
@@ -116,12 +127,14 @@ export default {
   },
 
   watch: {
+    // Redraw when the theme axis color changes.
     currentAxesColor(newColor, oldColor) {
       if (newColor !== oldColor) {
         this.loadManhattanMAGMAPlot()
       }
     },
 
+    // Redraw whenever the MAGMA results change.
     magmaResults: {
       immediate: true,
       deep: true,
@@ -129,9 +142,11 @@ export default {
         this.loadManhattanMAGMAPlot();
       }
     },
+    // Re-apply the font size to the plot's text when the slider changes.
     textSize() {
       this.updateTextSize()
     },
+    // Redraw when either alternating chromosome color changes.
     chromColor1() {
       this.loadManhattanMAGMAPlot()
     },
@@ -141,6 +156,7 @@ export default {
   },
 
   methods: {
+    /** @returns {string} First alternating chromosome color from the active theme. */
     chromosomeColor1() {
       let color = "white"
       if (this.$vuetify.theme.global.name === 'dyHealthNetTheme') {
@@ -151,6 +167,7 @@ export default {
       return color
     },
 
+    /** @returns {string} Second alternating chromosome color from the active theme. */
     chromosomeColor2() {
       let color = "white"
       if (this.$vuetify.theme.global.name === 'dyHealthNetTheme') {
@@ -161,6 +178,7 @@ export default {
       return color
     },
 
+    /** Maps `magmaResults` to plot points and renders the MAGMA Manhattan plot. */
     async loadManhattanMAGMAPlot() {
       this.isLoading = true;
       try {
@@ -202,10 +220,12 @@ export default {
       }
     },
 
+    /** Exports the MAGMA Manhattan plot in the chosen image format. @param {'png'|'svg'|'jpg'} format - Output format. */
     handleDownload(format){
       downloadPlot('#manhattan_magma_plot_container', `manhattan_magma_${this.traitId}`, format);
     },
 
+    /** Applies the current slider text size to all text in the plot SVG. */
     updateTextSize() {
       const container = document.getElementById('manhattan_magma_plot_container')
       if (!container) return

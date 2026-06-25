@@ -5,6 +5,11 @@
 </template>
 
 <script>
+/**
+ * Small colored badge for a variant's VEP impact level
+ * (HIGH / MODERATE / LOW / MODIFIER). The impact value selects the badge color
+ * via a CSS class. Used in the variant consequence tables.
+ */
 export default {
   name: 'VariantImpactTag',
   props: {
@@ -14,6 +19,7 @@ export default {
     }
   },
   computed: {
+    /** @returns {string} CSS class (`impact-<level>`) derived from the impact value. */
     impactClass() {
       return this.impact ? `impact-${this.impact.toLowerCase()}`: '';
     }

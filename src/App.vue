@@ -15,6 +15,13 @@
 </template>
 
 <script>
+/**
+ * Root application shell.
+ *
+ * Renders the persistent Navbar and the routed page content (`<router-view>`)
+ * inside the Vuetify app frame. Every page in the SPA is mounted within this
+ * layout.
+ */
 import Navbar from "@/components/Navbar.vue";
 
 export default {
@@ -24,6 +31,7 @@ export default {
   },
 
   computed: {
+    /** @returns {boolean} True when the current route is the home page ("/"). */
     isHomeRoute(){
       return this.$route.path === '/';
     }

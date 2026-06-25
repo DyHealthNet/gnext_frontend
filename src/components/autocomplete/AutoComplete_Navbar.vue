@@ -78,6 +78,14 @@
 </template>
 
 <script setup>
+/**
+ * Navbar search autocomplete (Typesense + Algolia InstantSearch).
+ *
+ * The compact search box shown in the top navigation bar on every page except
+ * home. Searches traits, variants and genes, displays type-specific icons in a
+ * dropdown menu, and navigates to the matching entity page on selection
+ * (clearing the query afterwards).
+ */
 import TypesenseInstantSearchAdapter from "typesense-instantsearch-adapter";
 import {ref, computed} from "vue";
 
@@ -133,6 +141,7 @@ const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
 
 const searchClient = typesenseInstantsearchAdapter.searchClient;
 
+/** Navigates to the selected hit's page and clears the search box. @param {object} hit - Selected search hit. */
 function goToHit(hit) {
   if (hit.type === "variant") {
     router.push(`/variant/${encodeURIComponent(hit.id)}`);

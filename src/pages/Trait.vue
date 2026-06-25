@@ -127,6 +127,15 @@
 </template>
 
 <script>
+/**
+ * Trait (phenotype) detail page, routed at `/trait/:id`.
+ *
+ * Orchestrates the trait-centric view: the trait profile, the GWAS Manhattan
+ * plot, GWAS results table and QQ plot, plus the MAGMA gene-level Manhattan,
+ * table and QQ when MAGMA is enabled. Fetches trait metadata and MAGMA results
+ * from the backend and re-fetches when the route `:id` changes. Provides a side
+ * navigation of jump links to each result card.
+ */
 import {useRoute} from 'vue-router';
 import ManhattanPlot from "@/components/trait/Manhattan.vue";
 import QQPlot from "@/components/trait/QQ.vue";
@@ -200,6 +209,7 @@ export default {
       )
     }
 
+    /** Fetches the trait's metadata (description, category, ref, sample size) from the backend. */
     const fetchTraitData = () => {
       const query = encodeURIComponent(id.value);
       fetch(`${API_BASE_URL}/trait_get_info/?id=${query}`)
@@ -213,6 +223,7 @@ export default {
           .catch(error => console.error('Error fetching annotation data:', error));
     };
 
+    /** Fetches the trait's MAGMA gene-level results (rows, headers, count) from the backend. */
     const getMAGMATableData = () => {
       const query = encodeURIComponent(id.value);
       fetch(`${API_BASE_URL}/trait_get_magma_results/?id=${query}`)
@@ -225,6 +236,7 @@ export default {
           .catch(error => console.error("Error fetching MAGMA table data:", error));
     };
 
+    /** Smoothly scrolls to a result card by element id, offset for the fixed navbar. @param {string} id - Target element id. */
     const scrollTo = (id) => {
       const element = document.getElementById(id);
       if (element) {

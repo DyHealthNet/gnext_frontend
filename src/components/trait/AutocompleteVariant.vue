@@ -55,6 +55,13 @@
 </template>
 
 <script>
+/**
+ * Variant-only autocomplete field (Typesense + Algolia InstantSearch).
+ *
+ * Used within the trait GWAS table search bar to let the user pick a variant.
+ * Filters suggestions to variant hits and emits `update-variant` with the
+ * selected variant's rsID and internal id.
+ */
 import {ref} from "vue";
 import TypesenseInstantSearchAdapter from "typesense-instantsearch-adapter";
 import {TYPESENSE_API_KEY} from "@/config.js";
@@ -66,6 +73,7 @@ export default {
       searchClient: null,
     };
   },
+  /** Initializes the Typesense InstantSearch adapter/search client. */
   created() {
     const searchParams = ref({
       query_by: "label,description,external_ref,category",
@@ -89,6 +97,11 @@ export default {
     this.searchClient = this.typesense.searchClient
   },
   methods: {
+    /**
+     * Selects a variant hit: fills the field and emits `update-variant`.
+     * @param {object} hit - The chosen search hit.
+     * @param {Function} refine - InstantSearch refine fn, used to clear suggestions.
+     */
     selectRsid(hit, refine) {
       if (hit.type === "variant") {
         this.rsid = hit.external_ref

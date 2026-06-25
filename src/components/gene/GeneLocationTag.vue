@@ -5,6 +5,11 @@
 </template>
 
 <script>
+/**
+ * Small colored badge for a variant's location relative to a gene
+ * (e.g. within_gene / upstream / downstream). The location string also selects
+ * the badge color via a CSS class. Used inside the gene/variant result tables.
+ */
 export default {
   name: 'GeneLocationTag',
   props: {

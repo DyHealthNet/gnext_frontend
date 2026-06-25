@@ -1,3 +1,11 @@
+/**
+ * Vue Router configuration for the GNExT SPA.
+ *
+ * Declares the static routes (home, docs, about, top hits, citation) and the
+ * dynamic entity routes (`/variant/:id`, `/trait/:id`, `/gene/:id`) that pass
+ * their `:id` param through as a prop. The Network Medicine route is only
+ * registered when MAGMA results are enabled via the `MAGMA_SHOW` config flag.
+ */
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from './pages/Home.vue'
 import Documentation from './pages/Documentation.vue'
@@ -68,6 +76,14 @@ if(MAGMA_SHOW === true){
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  /**
+   * Controls scroll position on navigation: restores the saved position on
+   * back/forward navigation, otherwise jumps to the top of the page.
+   * @param {import('vue-router').RouteLocationNormalized} to - Target route.
+   * @param {import('vue-router').RouteLocationNormalized} from - Previous route.
+   * @param {{left:number, top:number}|null} savedPosition - Position saved by the browser, if any.
+   * @returns {object} The scroll target for the new route.
+   */
   scrollBehavior(to, from, savedPosition) {
     // If the user navigated using browser back/forward, restore saved position
     if (savedPosition) {

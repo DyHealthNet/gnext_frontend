@@ -65,6 +65,14 @@
 </template>
 
 <script>
+/**
+ * GWAS results table for a trait, driven by the TableSearchBarGWAS filters.
+ *
+ * Renders the search bar, active-filter chips, and a TableSkeleton of variants.
+ * When filters are applied it queries the backend `trait_get_variants` endpoint
+ * in the appropriate mode (top loci, p-value, variant neighborhood, chromosome
+ * range), with a fast client-side path for tightening an existing p-value cutoff.
+ */
 import 'locuszoom/dist/locuszoom.css'
 import {API_BASE_URL} from "@/config.js";
 import TableSkeleton from "@/components/TableSkeleton.vue";
@@ -92,6 +100,12 @@ export default {
     }
   },
   methods: {
+    /**
+     * Handles the search bar's `apply-filters` event: fetches matching variants
+     * from the backend for the selected mode (or filters locally when only
+     * tightening an existing p-value cutoff) and updates the table.
+     * @param {object} filters - The filter state emitted by TableSearchBarGWAS.
+     */
     async onApplyFilters(filters) {
       setIsLoading(true);
       try {

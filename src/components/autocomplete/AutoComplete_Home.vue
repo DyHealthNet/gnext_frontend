@@ -69,6 +69,13 @@
 </template>
 
 <script setup>
+/**
+ * Home-page search autocomplete (Typesense + Algolia InstantSearch).
+ *
+ * The large central search box on the landing page. Searches traits, variants
+ * and genes (optionally filtered by `typeFilter`), shows type-specific icons in
+ * the suggestions, and navigates to the matching entity page on selection.
+ */
 import TypesenseInstantSearchAdapter from "typesense-instantsearch-adapter";
 import {ref, computed} from "vue";
 
@@ -126,6 +133,7 @@ const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
 
 const searchClient = typesenseInstantsearchAdapter.searchClient;
 
+/** Navigates to the page for the selected search hit (variant/trait/gene). @param {object} hit - Selected search hit. */
 function goToHit(hit) {
   if (hit.type === "variant") {
     router.push(`/variant/${encodeURIComponent(hit.id)}`);

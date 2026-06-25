@@ -20,6 +20,21 @@ function fmt(format) {
     });
 }
 
+/**
+ * Renders a GWAS Manhattan plot with D3. Binned variants (the dense background)
+ * are drawn as small shapes for performance, while the sparser unbinned (most
+ * significant) variants are drawn as hoverable, clickable points linking to the
+ * variant page. Variants are laid out along a concatenated per-chromosome axis.
+ * @param {object} variant_bins - Pre-binned variants for the background layer.
+ * @param {Array<object>} unbinned_variants - Individual top variants with
+ *   `chrom`, `pos`, `neg_log_pvalue`, etc.
+ * @param {object} [options] - Visual/link configuration.
+ * @param {string|null} [options.url_prefix] - Prefix for per-variant links.
+ * @param {string|null} [options.tooltip_template] - Lodash template for tooltips.
+ * @param {string} [options.color1] - First alternating chromosome color.
+ * @param {string} [options.color2] - Second alternating chromosome color.
+ * @param {string} [options.axes_color] - Axis color.
+ */
 function create_gwas_plot(variant_bins, unbinned_variants, {
     url_prefix = null,
     tooltip_template = null,
@@ -34,6 +49,8 @@ function create_gwas_plot(variant_bins, unbinned_variants, {
         return d.neg_log_pvalue;
     });
 
+    // Memoized: cumulative genomic start position and drawing offset per
+    // chromosome so chromosomes tile end-to-end along the x-axis.
     const get_chrom_offsets = memoize(function () {
         const chrom_padding = 2e7;
         const chrom_extents = {};
@@ -73,11 +90,14 @@ function create_gwas_plot(variant_bins, unbinned_variants, {
         };
     });
 
+    // Maps a variant to its absolute x position on the concatenated genome axis.
     function get_genomic_position(variant) {
         const chrom_offsets = get_chrom_offsets().chrom_offsets;
         return chrom_offsets[variant.chrom] + variant.pos;
     }
 
+    // Builds the y-axis scale and tick set, picking tick spacing by magnitude
+    // and adding a broken-axis segment above 20 for very significant values.
     function get_y_axis_config(max_data_qval, plot_height, includes_pval0) {
 
         let possible_ticks = [];
@@ -310,6 +330,7 @@ function create_gwas_plot(variant_bins, unbinned_variants, {
             .offset([-6, 0]);
         gwas_svg.call(point_tooltip);
 
+        // Builds a LocusZoom-region URL centered on a variant (±200 kb window).
         function get_link_to_LZ(variant) {
             let base = new URL(url_prefix, window.location.origin);
             base.searchParams.set('chrom', variant.chrom);
@@ -348,6 +369,7 @@ function create_gwas_plot(variant_bins, unbinned_variants, {
                 }
             });
 
+        // Draws the binned-variant background layer (one rect/line per bin).
         function pp1() {
             gwas_plot.append('g').attr('class', 'variant_hover_rings')
                 .selectAll('a.variant_hover_ring')
@@ -376,6 +398,7 @@ function create_gwas_plot(variant_bins, unbinned_variants, {
 
         pp1();
 
+        // Draws the unbinned (top) variants as hoverable, linkable points.
         function pp2() {
             gwas_plot.append('g')
                 .attr('class', 'variant_points')
@@ -408,6 +431,7 @@ function create_gwas_plot(variant_bins, unbinned_variants, {
 
         pp2();
 
+        // Draws the dense binned-variant circles (the bulk of the points).
         function pp3() { // drawing the ~60k binned variant circles takes ~500ms.  The (far fewer) unbinned variants take much less time.
             const bins = gwas_plot.append('g')
                 .attr('class', 'bins')
@@ -472,6 +496,14 @@ function create_gwas_plot(variant_bins, unbinned_variants, {
     });
 }
 
+/**
+ * Renders a GWAS QQ plot with D3: observed vs. expected -log10 p-values, with
+ * points colored per MAF range and an optional confidence-interval band.
+ * Falls back to a message when the data is too filtered to plot meaningfully.
+ * @param {Array<object>} maf_ranges - Per-MAF-bin QQ data (each with a `qq.bins`).
+ * @param {object} qq_ci - Confidence-interval band data.
+ * @param {string} axes_color - Axis text/line color.
+ */
 function create_qq_plot(maf_ranges, qq_ci, axes_color) {
     // Escape hatch: for highly filtered datasets ("only the most extreme hits"), it may not be possible to draw a qq
     // plot at all; the backend code clips all values past a cap. This manifests as empty bins, and drawing would fail

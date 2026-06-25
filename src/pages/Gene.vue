@@ -125,6 +125,15 @@
 </template>
 
 <script>
+/**
+ * Gene detail page, routed at `/gene/:id`.
+ *
+ * Shows the gene profile, its top association signals (one row per trait, in a
+ * selectable TableSkeleton), and a LocusZoom regional plot for the
+ * currently-selected trait. The selected trait is kept in sync with the `trait`
+ * query parameter; data is re-fetched when the route `:id` changes. A page-level
+ * overlay is shown while data loads.
+ */
 import {useRoute, useRouter} from 'vue-router';
 import geneIconBlack from "@/assets/figures/node_gene_black.png"
 import geneIconWhite from "@/assets/figures/node_gene_white.png"
@@ -186,6 +195,7 @@ export default {
       return `Gene_${id.value}_Top_Signals.csv`;
     });
 
+    /** Fetches the gene's location metadata (chromosome, symbol, start/end, strand). */
     const fetchGeneData = async () => {
       const query = encodeURIComponent(id.value);
       const res = await fetch(`${API_BASE_URL}/gene_get_info/?id=${query}`);
@@ -198,6 +208,11 @@ export default {
       strand.value = json.strand
     };
 
+    /**
+     * Fetches the gene's top association signals (one per trait) and seeds the
+     * selected trait: from the `trait` query param if present, otherwise the
+     * first row, syncing the URL and the table's selection accordingly.
+     */
     const fetchGeneSignals = async () => {
       const query = encodeURIComponent(id.value);
       const res = await fetch(`${API_BASE_URL}/gene_get_top_signals/?id=${query}`);
@@ -229,6 +244,7 @@ export default {
       header.value = json.header;
     };
 
+    /** Loads the up/downstream window sizes (for the LocusZoom region) from cached config or the backend. */
     const fetchConfig = async () => {
       const cached = localStorage.getItem('configs')
       if (cached) {
@@ -249,6 +265,7 @@ export default {
 
     };
 
+    /** Updates the selected trait (and URL query) when the user picks a table row. @param {object} rowData - Selected signal row. */
     const handleRowSelected = (rowData) => {
       selectedTrait.value = rowData["trait_id"];
       console.log("Selected trait ID:", selectedTrait.value);

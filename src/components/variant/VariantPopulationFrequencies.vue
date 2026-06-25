@@ -28,6 +28,13 @@
 </template>
 
 <script>
+/**
+ * Population allele-frequency bars on the Variant page.
+ *
+ * Renders a labeled bar per population from the `frequencies` prop, plus the
+ * study's own allele frequency (a single value, or a min–max range when they
+ * differ).
+ */
 import {API_BASE_URL} from "@/config.js";
 
 export default {
@@ -58,6 +65,7 @@ export default {
   },
 
   computed: {
+    /** @returns {number|string} The study allele frequency: a single value, or a "min - max" range. */
     studyAF() {
       if (this.minAF === this.maxAF) {
         return this.minAF

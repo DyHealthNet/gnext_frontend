@@ -31,6 +31,14 @@
 </template>
 
 <script setup>
+/**
+ * Gene-forwarding panel on the Network Medicine page.
+ *
+ * An expansion panel showing the loaded gene seed list and trait, with a
+ * gene-search autocomplete that links to a gene's page (carrying the trait
+ * along) so the user can inspect its GWAS signals. The panel auto-opens when a
+ * trait is loaded.
+ */
 import { ref, watch, computed } from 'vue'
 import { useTheme } from 'vuetify'
 import AutoCompleteDrugstone from "@/components/autocomplete/AutoComplete_Drugstone.vue";

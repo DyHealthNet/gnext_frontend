@@ -27,7 +27,13 @@
 
 
 <script>
-
+/**
+ * Gene profile header shown on the Gene page.
+ *
+ * Displays the gene's ID, symbol and genomic position, plus a row of buttons
+ * linking out to external databases (NCBI, Ensembl, OpenTargets, GeneCards,
+ * GWAS Catalog, gnomAD, GTEx) built from the gene symbol.
+ */
 import LinkButton from "@/components/LinkButton.vue";
 import {GENOME_BUILD, HG_BUILD_NUMBER} from "@/config.js";
 
@@ -63,6 +69,7 @@ export default {
   },
 
   computed: {
+    /** @returns {Object<string,string>} Map of external database name → URL for this gene (empty if no symbol). */
     links() {
       if(!this.geneSymbol) return {};
       const ncbiGeneUrl = `https://www.ncbi.nlm.nih.gov/gene/?term=${this.geneSymbol}`

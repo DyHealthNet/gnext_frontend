@@ -69,6 +69,13 @@
 </template>
 
 <script>
+/**
+ * Top Hits page.
+ *
+ * Fetches the study-wide table of top association peaks from the backend and
+ * displays it via TableSkeleton, alongside an explanation of the thresholds
+ * (p-value cutoff, peak sprawl distance, max counts) read from the study config.
+ */
 import 'locuszoom/dist/locuszoom.css'
 import {API_BASE_URL} from "@/config.js";
 import TableSkeleton from "@/components/TableSkeleton.vue";
@@ -103,6 +110,7 @@ export default {
     }
   },
   methods: {
+    /** Fetches the top-hits table from the backend and derives its column headers. */
     async get_top_hits_data() {
       setIsLoading(true);
       try {
@@ -134,6 +142,7 @@ export default {
       }
       setIsLoading(false);
     },
+    /** Loads the top-hits threshold settings from cached config or the backend. */
     async get_top_hits_configs(){
       const cached = localStorage.getItem('configs')
       if (cached) {
@@ -157,6 +166,7 @@ export default {
       }
     }
   },
+  /** Loads the top-hits data and threshold config when the page mounts. */
   mounted() {
     this.get_top_hits_data();
     this.get_top_hits_configs();
