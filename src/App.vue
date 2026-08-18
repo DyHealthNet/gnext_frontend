@@ -11,6 +11,7 @@
         </v-row>
       </v-container>
     </v-main>
+    <TourBanner/>
   </v-app>
 </template>
 
@@ -20,13 +21,17 @@
  *
  * Renders the persistent Navbar and the routed page content (`<router-view>`)
  * inside the Vuetify app frame. Every page in the SPA is mounted within this
- * layout.
+ * layout. Also mounts the opt-in `TourBanner` here (rather than per-page) so
+ * the guided-tour offer follows the visitor regardless of which page they
+ * land on first.
  */
 import Navbar from "@/components/Navbar.vue";
+import TourBanner from "@/components/tour/TourBanner.vue";
 
 export default {
   components: {
     Navbar,
+    TourBanner,
     //Navbar_AutoComplete
   },
 

@@ -16,7 +16,7 @@
 
         <v-row class="my-4">
           <v-col cols="12">
-            <v-card outlined class="position-relative">
+            <v-card outlined class="position-relative" data-tour-id="tophits-table-card">
               <!-- Loading Overlay -->
               <v-overlay
                 :model-value="showLoading"

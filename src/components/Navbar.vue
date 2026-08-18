@@ -73,6 +73,18 @@
       </template>
     </v-menu>
     <v-btn
+    v-if="tourEnabled"
+    icon
+    variant="text"
+    color="darken-1"
+    :disabled="isTourActive"
+    title="Replay guided tour"
+    @click="replayTour"
+  >
+    <v-icon>mdi-compass-outline</v-icon>
+  </v-btn>
+
+    <v-btn
     icon
     variant="text"
     color="darken-1"
@@ -91,12 +103,15 @@
  * Global top navigation bar.
  *
  * Renders the study logo, the primary nav links (Home, Top Hits, optional
- * Network Medicine, Documentation, About, Cite), a light/dark theme toggle, and
- * the search autocomplete on every page except the home page. The active theme
- * is persisted to localStorage and reflected on the document element.
+ * Network Medicine, Documentation, About, Cite), a "replay guided tour"
+ * shortcut, a light/dark theme toggle, and the search autocomplete on every
+ * page except the home page. The active theme is persisted to localStorage
+ * and reflected on the document element.
  */
 import AutoComplete from "@/components/autocomplete/AutoComplete_Navbar.vue";
-import {MAGMA_SHOW} from "@/config.js";
+import {MAGMA_SHOW, TOUR_ENABLED} from "@/config.js";
+import {startTour} from "@/utils/tour/tourEngine.js";
+import {isTourActive} from "@/components/tour/tourState.js";
 import logoBlack from "@/assets/figures/GNExT_Logo_Black.png";
 import logoWhite from "@/assets/figures/GNExT_Logo_White.png";
 
@@ -106,6 +121,7 @@ export default {
     return {
       isDark: false,
       magmaShow: MAGMA_SHOW,
+      tourEnabled: TOUR_ENABLED,
       logoBlack: logoBlack,
       logoWhite: logoWhite,
     }
@@ -120,10 +136,18 @@ export default {
     logoSrc() {
       // Return different logo based on theme
       return this.isDark ? this.logoWhite : this.logoBlack;
+    },
+    /** @returns {boolean} Whether a guided tour is currently running (disables the replay button). */
+    isTourActive() {
+      return isTourActive.value;
     }
   },
 
   methods: {
+    /** Starts (or restarts) the guided tour from the navbar shortcut. */
+    replayTour() {
+      startTour();
+    },
     /** Toggles between the light and dark theme and persists the choice. */
     toggleTheme() {
       const currentTheme = this.$vuetify.theme.global.name

@@ -41,7 +41,7 @@
 
         <v-row justify="space-around" align="stretch">
           <v-col xs="12" md="12" lg="12">
-            <v-card outlined class="d-flex flex-column h-100" style="min-height: 100px;">
+            <v-card outlined class="d-flex flex-column h-100" style="min-height: 100px;" data-tour-id="gene-profile-card">
               <v-toolbar color="primary-darken-1" density="compact">
                 <v-toolbar-title>Trait Profile</v-toolbar-title>
               </v-toolbar>
@@ -58,7 +58,7 @@
 
         <v-row justify="space-around" align="stretch">
           <v-col xs="12" md="12" lg="12">
-            <v-card outlined class="d-flex flex-column h-100" style="min-height: 100px;">
+            <v-card outlined class="d-flex flex-column h-100" style="min-height: 100px;" data-tour-id="gene-top-signals-card">
               <v-toolbar color="primary-darken-1" density="compact">
                 <v-toolbar-title>Top Signals in Gene</v-toolbar-title>
               </v-toolbar>

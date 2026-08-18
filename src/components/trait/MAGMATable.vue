@@ -77,7 +77,7 @@
       </v-container>
     <v-container>
 
-      <v-row>
+      <v-row data-tour-id="magma-seedlist-row">
         <v-col cols="3">
        <v-text-field
               v-model="geneNameList"

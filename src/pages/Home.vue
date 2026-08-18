@@ -27,7 +27,9 @@
         <v-icon class="ml-1">mdi-arrow-down</v-icon>
       </v-row>
 
-      <AutoComplete/>
+      <div data-tour-id="home-search">
+        <AutoComplete/>
+      </div>
 
 
         <v-row align="center" justify="center" class="mt-3" style="gap: 5px; font-size:0.8rem;">
