@@ -103,20 +103,21 @@ export default {
       studyBibtexEntry: STUDY_BIBTEX_CITATION,
       studyPlainEntry: STUDY_PLAIN_CITATION,
       softwareDoiLink: "https://doi.org/10.64898/2026.01.30.702559",
-      softwareBibtexEntry: `@article {Arend2026.01.30.702559,
-	author = {Arend, Lis and Woller, Fabian and Rehor, Bastienne and Emmert, David and Frasnelli, Johannes and Fuchsberger, Christian and Blumenthal, David B. and List, Markus},
-	title = {Bridging the gap between genome-wide association studies and network medicine with GNExT},
-	elocation-id = {2026.01.30.702559},
-	year = {2026},
-	doi = {10.64898/2026.01.30.702559},
-	URL = {https://www.biorxiv.org/content/early/2026/02/02/2026.01.30.702559},
-	eprint = {https://www.biorxiv.org/content/early/2026/02/02/2026.01.30.702559.full.pdf},
-	journal = {bioRxiv}
-}
-`,
-      softwarePlainEntry: `Bridging the gap between genome-wide association studies and network medicine with GNExT
-Lis Arend, Fabian Woller, Bastienne Rehor, David Emmert, Johannes Frasnelli, Christian Fuchsberger, David B. Blumenthal, Markus List
-bioRxiv 2026.01.30.702559; doi: https://doi.org/10.64898/2026.01.30.702559`
+      softwareBibtexEntry: `@ARTICLE{Arend2026-wi,
+              title        = {Bridging the gap between {GWAS} and network medicine with
+                              {GNExT}},
+              author       = {Arend, Lis and Woller, Fabian and Rehor, Bastienne and Emmert,
+                              David and Frasnelli, Johannes and Fuchsberger, Christian and
+                              Blumenthal, David B and List, Markus},
+              journaltitle = {Nat. Genet.},
+              pages        = {1--3},
+              date         = {2026-08-17},
+              doi          = {10.1038/s41588-026-02708-6},
+              urldate      = {2026-08-21},
+              language     = {en}
+            }
+      `,
+      softwarePlainEntry: `Arend, L., Woller, F., Rehor, B., Emmert, D., Frasnelli, J., Fuchsberger, C., Blumenthal, D. B., & List, M. (2026). Bridging the gap between GWAS and network medicine with GNExT. Nature Genetics, 1–3. https://doi.org/10.1038/s41588-026-02708-6`
     }
   },
 
