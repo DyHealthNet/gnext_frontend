@@ -12,66 +12,48 @@
     <AutoComplete v-if="$route.path !== '/'"/>
     <v-spacer v-else/>
 
-    <v-menu transition="slide-x-transition">
-      <template v-slot:activator="{ props }">
-        <v-btn to="/" color="darken-1" cl="mx-1" v-bind="props">
-          <template v-slot:prepend>
-            <v-icon>mdi-home-outline</v-icon>
-          </template>
-          Home
-        </v-btn>
+    <v-btn to="/" color="darken-1" class="mx-1">
+      <template v-slot:prepend>
+        <v-icon>mdi-home-outline</v-icon>
       </template>
-    </v-menu>
-    <v-menu transition="slide-x-transition">
-      <template v-slot:activator="{ props }">
-        <v-btn to="/tophits" color="darken-1" cl="mx-1" v-bind="props">
-          <template v-slot:prepend>
-            <v-icon>mdi-file-table-outline</v-icon>
-          </template>
-          Top Hits
-        </v-btn>
+      Home
+    </v-btn>
+    <v-btn to="/tophits" color="darken-1" class="mx-1">
+      <template v-slot:prepend>
+        <v-icon>mdi-file-table-outline</v-icon>
       </template>
-    </v-menu>
-    <v-menu v-if="magmaShow" transition="slide-x-transition">
-      <template v-slot:activator="{ props }">
-        <v-btn to="/networkmedicine" color="darken-1" cl="mx-1" v-bind="props">
-          <template v-slot:prepend>
-            <v-icon>mdi-pill-multiple</v-icon>
-          </template>
-          Network Medicine
-        </v-btn>
+      Top Hits
+    </v-btn>
+    <v-btn to="/traits" color="darken-1" class="mx-1">
+      <template v-slot:prepend>
+        <v-icon>mdi-chart-pie</v-icon>
       </template>
-    </v-menu>
-    <v-menu transition="slide-x-transition">
-      <template v-slot:activator="{ props }">
-        <v-btn to="/docs" color="darken-1" class="mx-1" v-bind="props">
-          <template v-slot:prepend>
-            <v-icon>mdi-help-circle-outline</v-icon>
-          </template>
-          Documentation
-        </v-btn>
+      Trait Overview
+    </v-btn>
+    <v-btn to="/networkmedicine" color="darken-1" class="mx-1" v-if="magmaShow">
+      <template v-slot:prepend>
+        <v-icon>mdi-pill-multiple</v-icon>
       </template>
-    </v-menu>
-   <v-menu transition="slide-x-transition">
-      <template v-slot:activator="{ props }">
-        <v-btn to="/about" color="darken-1" class="mx-1" v-bind="props">
-          <template v-slot:prepend>
-            <v-icon>mdi-book-open-outline</v-icon>
-          </template>
-          About
-        </v-btn>
+      Network Medicine
+    </v-btn>
+    <v-btn to="/docs" color="darken-1" class="mx-1">
+      <template v-slot:prepend>
+        <v-icon>mdi-help-circle-outline</v-icon>
       </template>
-    </v-menu>
-    <v-menu transition="slide-x-transition">
-      <template v-slot:activator="{ props }">
-        <v-btn to="/cite" color="darken-1" class="mx-1" v-bind="props">
-          <template v-slot:prepend>
-            <v-icon>mdi-pencil</v-icon>
-          </template>
-          Cite
-        </v-btn>
+      Documentation
+    </v-btn>
+    <v-btn to="/about" color="darken-1" class="mx-1">
+      <template v-slot:prepend>
+        <v-icon>mdi-book-open-outline</v-icon>
       </template>
-    </v-menu>
+      About
+    </v-btn>
+    <v-btn to="/cite" color="darken-1" class="mx-1">
+      <template v-slot:prepend>
+        <v-icon>mdi-pencil</v-icon>
+      </template>
+      Cite
+    </v-btn>
     <v-btn
     v-if="tourEnabled"
     icon

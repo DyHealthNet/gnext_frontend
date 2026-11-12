@@ -12,6 +12,7 @@ import Documentation from './pages/Documentation.vue'
 import Variant from "./pages/Variant.vue";
 import Trait from "./pages/Trait.vue";
 import TopHits from "./pages/TopHits.vue";
+import TraitOverview from "./pages/TraitOverview.vue";
 import Citation from "./pages/Citation.vue";
 import About from "./pages/About.vue";
 import NetworkMedicine from "@/pages/NetworkMedicine.vue";
@@ -38,6 +39,11 @@ const routes = [
     path: '/tophits',
     name: 'Top Hits',
     component: TopHits
+  },
+  {
+    path: '/traits',
+    name: 'Trait Overview',
+    component: TraitOverview
   },
   {
     path: '/cite',

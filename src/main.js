@@ -34,7 +34,7 @@ import App from './App.vue'
 //localStorage.clear()
 
 import InstantSearch from 'vue-instantsearch/vue3/es'
-import {COLOR_PRIMARY, COLOR_PRIMARY_DARK} from "@/config.js"; // ← this is critical for Vue 3
+import {COLOR_PRIMARY, COLOR_PRIMARY_DARK, STUDY_NAME} from "@/config.js"; // ← this is critical for Vue 3
 
 
 /** Vuetify color palette for the default (light) GNExT theme. */
@@ -225,5 +225,10 @@ app.use(vuetify).use(router).use(InstantSearch).use(PrimeVue, {
         }
     }
 })
+
+// Browser tab title: "GNExT - <study>" (falls back to plain "GNExT" from index.html).
+if (import.meta.env.VITE_STUDY_NAME) {
+  document.title = `GNExT - ${STUDY_NAME}`
+}
 
 app.mount('#app')

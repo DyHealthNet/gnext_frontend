@@ -56,3 +56,8 @@
 .driver-popover-arrow-side-right.driver-popover-arrow {
   border-color: rgb(var(--v-theme-surface));
 }
+
+/* Page scroll lock while the tour runs (class toggled by tourEngine.js). */
+html.gnext-tour-scroll-lock {
+  overflow: hidden !important;
+}

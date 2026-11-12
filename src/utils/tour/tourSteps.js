@@ -107,7 +107,7 @@ export function buildTourSteps({trail, hasSeedList, seedListName}) {
         title: 'Gene-level detail',
         description: 'The Gene page shows its genomic location plus quick links ' +
           'out to external gene databases (Ensembl, NCBI, Open Targets, ' +
-          'GeneCards, and more).',
+          'GTEx, and more).',
       },
     },
     hasGene && {

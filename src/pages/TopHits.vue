@@ -57,7 +57,7 @@
                   :downloadName="downloadName"
                   :defaultTableRows="defaultTableRows"
                   :priorityOrder="priorityOrder"
-                  :globalFilterFields="tableHeader"
+                  :globalFilterFields="tableHeaders"
                 />
               </v-card-text>
             </v-card>

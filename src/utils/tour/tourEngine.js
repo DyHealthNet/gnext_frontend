@@ -18,6 +18,19 @@ import {resolveTourTrail} from './tourTrail.js'
 import {ensureDemoSeedList} from './tourSeedList.js'
 import {setTourActive, isTourActive} from '@/components/tour/tourState.js'
 
+/**
+ * Class put on <html> while a tour runs. driver.js only locks scrolling on
+ * <body>, but Vuetify makes <html> the scroll container, so the page lock has
+ * to live there (see `tour.css`). Programmatic scrolling (driver.js's
+ * scrollIntoView, router navigation) keeps working under `overflow: hidden`.
+ */
+const SCROLL_LOCK_CLASS = 'gnext-tour-scroll-lock'
+
+/** Locks/unlocks page scrolling for the duration of the tour. @param {boolean} locked */
+function setScrollLock(locked) {
+  document.documentElement.classList.toggle(SCROLL_LOCK_CLASS, locked)
+}
+
 /** The active driver.js instance, if a tour is running. */
 let driverInstance = null
 /** The step definitions the active tour was built from (for route lookups in the click handlers). */
@@ -98,6 +111,11 @@ export async function startTour() {
     driverInstance = driver({
       showProgress: true,
       allowClose: true,
+      allowScroll: false,
+      // Highlighted elements are view-only; navigation happens via the popover buttons.
+      disableActiveInteraction: true,
+      // Clicking the dimmed background does nothing (close via the X button or Esc).
+      overlayClickBehavior: () => {},
       overlayOpacity: 0.6,
       stagePadding: 6,
       popoverClass: 'gnext-tour-popover',
@@ -105,15 +123,18 @@ export async function startTour() {
       skipMissingElement: true,
       steps: stepList.map(toDriveStep),
       onDestroyed: () => {
+        setScrollLock(false)
         localStorage.setItem('tourCompleted', 'true')
         setTourActive(false)
         driverInstance = null
       },
     })
 
+    setScrollLock(true)
     driverInstance.drive(0)
   } catch (err) {
     console.warn('Tour: failed to start', err)
+    setScrollLock(false)
     setTourActive(false)
   }
 }

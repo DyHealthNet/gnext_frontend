@@ -1,24 +1,29 @@
 <template>
-  <v-slide-y-reverse-transition>
-    <v-card
-      v-if="visible"
-      class="tour-banner"
-      elevation="8"
-      rounded="lg"
-    >
-      <v-card-text class="d-flex align-center flex-wrap ga-3 py-3">
-        <v-icon icon="mdi-compass-outline" color="primary" size="28"/>
-        <div class="flex-grow-1" style="min-width: 220px;">
-          <div class="text-subtitle-1 font-weight-bold">New here?</div>
-          <div class="text-body-2 text-medium-emphasis">
-            Take a quick guided tour of GNExT — from searching a trait to exploring a gene network.
+  <!-- Fixed positioning lives on this plain wrapper rather than the v-card:
+       Navbar.vue globally forces `.v-card { position: static !important }`,
+       which would otherwise drop the banner into the page flow (bottom of the page). -->
+  <div class="tour-banner-anchor">
+    <v-slide-y-reverse-transition>
+      <v-card
+        v-if="visible"
+        class="tour-banner"
+        elevation="8"
+        rounded="lg"
+      >
+        <v-card-text class="d-flex align-center flex-wrap ga-3 py-3">
+          <v-icon icon="mdi-compass-outline" color="primary" size="28"/>
+          <div class="flex-grow-1" style="min-width: 220px;">
+            <div class="text-subtitle-1 font-weight-bold">New here?</div>
+            <div class="text-body-2 text-medium-emphasis">
+              Take a quick guided tour of GNExT — from searching a trait to exploring a gene network.
+            </div>
           </div>
-        </div>
-        <v-btn color="primary" variant="flat" @click="accept">Start tour</v-btn>
-        <v-btn variant="text" @click="dismiss">No thanks</v-btn>
-      </v-card-text>
-    </v-card>
-  </v-slide-y-reverse-transition>
+          <v-btn color="primary" variant="flat" @click="accept">Start tour</v-btn>
+          <v-btn variant="text" @click="dismiss">No thanks</v-btn>
+        </v-card-text>
+      </v-card>
+    </v-slide-y-reverse-transition>
+  </div>
 </template>
 
 <script>
@@ -66,13 +71,21 @@ export default {
 </script>
 
 <style scoped>
-.tour-banner {
+.tour-banner-anchor {
   position: fixed;
   bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
   z-index: 40;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+  pointer-events: none;
+}
+
+.tour-banner {
   max-width: 560px;
-  width: calc(100% - 32px);
+  width: 100%;
+  pointer-events: auto;
 }
 </style>

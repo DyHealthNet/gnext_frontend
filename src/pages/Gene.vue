@@ -43,7 +43,7 @@
           <v-col xs="12" md="12" lg="12">
             <v-card outlined class="d-flex flex-column h-100" style="min-height: 100px;" data-tour-id="gene-profile-card">
               <v-toolbar color="primary-darken-1" density="compact">
-                <v-toolbar-title>Trait Profile</v-toolbar-title>
+                <v-toolbar-title>Gene Profile</v-toolbar-title>
               </v-toolbar>
               <GeneProfile :geneId="id"
                            :geneSymbol="symbol"

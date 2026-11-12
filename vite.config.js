@@ -9,8 +9,6 @@ export default defineConfig(({ mode }) => {
   const envDir = path.resolve(__dirname, '..')
   const env = loadEnv(mode, envDir, '')
 
-  console.log
-
   // Construct backend URL from VITE_BACKEND_PORT or fallback to VITE_API_URL
   const backendPort = env.VITE_BACKEND_PORT || '8000'
   const backendOrigin = env.VITE_API_URL || `http://localhost:${backendPort}`
@@ -25,8 +23,11 @@ export default defineConfig(({ mode }) => {
   return {
     envDir: envDir,
     envPrefix: 'VITE_',
+    // Don't inline the full env (PATH, secrets from ../.env, ...) into the client bundle.
+    // Client code reads config via import.meta.env.VITE_*; keep an empty object so
+    // any stray `process.env.X` reference in dependencies doesn't throw.
     define: {
-      'process.env': env
+      'process.env': {}
     },
     plugins: [
       vue({
@@ -52,6 +53,9 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: parseInt(env.VITE_FRONTEND_PORT || '5173'),
+      // Poll instead of using inotify: the per-user inotify watch limit on this
+      // server is exhausted (VS Code), and polling is more reliable on NFS anyway.
+      watch: { usePolling: true, interval: 300 },
       proxy: {
         '/backend': { target: backendOrigin, changeOrigin: true },
         '/typesense': {

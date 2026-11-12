@@ -31,7 +31,7 @@
  * Gene profile header shown on the Gene page.
  *
  * Displays the gene's ID, symbol and genomic position, plus a row of buttons
- * linking out to external databases (NCBI, Ensembl, OpenTargets, GeneCards,
+ * linking out to external databases (NCBI, Ensembl, OpenTargets,
  * GWAS Catalog, gnomAD, GTEx) built from the gene symbol.
  */
 import LinkButton from "@/components/LinkButton.vue";
@@ -39,7 +39,7 @@ import {GENOME_BUILD, HG_BUILD_NUMBER} from "@/config.js";
 
 
 export default {
-  name: "TraitProfile",
+  name: "GeneProfile",
   components: {LinkButton},
   props: {
     geneId: {
@@ -73,9 +73,13 @@ export default {
     links() {
       if(!this.geneSymbol) return {};
       const ncbiGeneUrl = `https://www.ncbi.nlm.nih.gov/gene/?term=${this.geneSymbol}`
-      const ensemblGeneUrl = `https://www.ensembl.org/Homo_sapiens/Gene/Summary?g=${this.geneSymbol}`
+      // Ensembl's gene pages only resolve stable IDs (a symbol like "APOE" 404s),
+      // so link by ENSG ID (version suffix stripped) and fall back to a search.
+      const ensemblId = (this.geneId || '').match(/^ENSG\d+/)?.[0]
+      const ensemblGeneUrl = ensemblId
+          ? `https://www.ensembl.org/Homo_sapiens/Gene/Summary?g=${ensemblId}`
+          : `https://www.ensembl.org/Homo_sapiens/Search/Results?q=${encodeURIComponent(this.geneSymbol)};site=ensembl;facet_species=Human`
       const opentargetGeneUrl = `https://platform.opentargets.org/search?q=${this.geneSymbol}&page=1`
-      const geneCardsUrl = `https://www.genecards.org/cgi-bin/carddisp.pl?gene=${this.geneSymbol}`
       const gwasCatalogUrl = `https://www.ebi.ac.uk/gwas/genes/${this.geneSymbol}`
       const gnomadUrl = `https://gnomad.broadinstitute.org/gene/${this.geneSymbol}?dataset=gnomad_r4`
       const gtExUrl = `https://www.gtexportal.org/home/gene/${this.geneSymbol}`
@@ -83,7 +87,6 @@ export default {
         "NCBI": ncbiGeneUrl,
         "Ensembl": ensemblGeneUrl,
         "OpenTargets": opentargetGeneUrl,
-        "Gene Cards": geneCardsUrl,
         "GWAS Catalog": gwasCatalogUrl,
         "gnomAD v4": gnomadUrl,
         "GTEx": gtExUrl
