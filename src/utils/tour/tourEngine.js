@@ -68,13 +68,137 @@ async function handlePrev(el, step, opts) {
   opts.driver.movePrevious()
 }
 
-/** Converts one of our step definitions into a driver.js `DriveStep`. @param {object} step */
-function toDriveStep(step) {
+/**
+ * Invisible stand-in element used to highlight only the *visible* part of a
+ * target that is wider than its scroll container (e.g. a table row inside a
+ * horizontally scrolling table: driver.js would otherwise cut the highlight
+ * out at the row's full width, past the card's edge).
+ */
+let clipProxy = null
+
+/** @returns {Element[]} Ancestors of `el` that clip their content (overflow other than visible). */
+function clippingAncestors(el) {
+  const result = []
+  for (let node = el.parentElement; node && node !== document.body; node = node.parentElement) {
+    const style = getComputedStyle(node)
+    if ([style.overflowX, style.overflowY].some(v => v !== 'visible')) result.push(node)
+  }
+  return result
+}
+
+/**
+ * Returns an element covering the visible part of `selector`'s target (its
+ * bounding box intersected with every clipping ancestor), or null while the
+ * target isn't rendered. Only writes styles when the box changed, because
+ * driver.js's waitForElement observes attribute mutations on the document.
+ * @param {string} selector - CSS selector of the real target.
+ */
+function clippedTarget(selector) {
+  const target = document.querySelector(selector)
+  if (!target) return null
+
+  let {left, top, right, bottom} = target.getBoundingClientRect()
+  for (const ancestor of clippingAncestors(target)) {
+    const r = ancestor.getBoundingClientRect()
+    left = Math.max(left, r.left)
+    top = Math.max(top, r.top)
+    right = Math.min(right, r.right)
+    bottom = Math.min(bottom, r.bottom)
+  }
+  if (right <= left || bottom <= top) return target
+
+  if (!clipProxy) {
+    clipProxy = document.createElement('div')
+    clipProxy.setAttribute('aria-hidden', 'true')
+    document.body.appendChild(clipProxy)
+  }
+  const css = `position:absolute;pointer-events:none;visibility:hidden;` +
+      `left:${left + window.scrollX}px;top:${top + window.scrollY}px;` +
+      `width:${right - left}px;height:${bottom - top}px;`
+  if (clipProxy.style.cssText !== css) clipProxy.style.cssText = css
+  return clipProxy
+}
+
+/** Removes the clip proxy element, if one was created. */
+function removeClipProxy() {
+  clipProxy?.remove()
+  clipProxy = null
+}
+
+/**
+ * Scrolls the page all the way to the top (page heading visible). Used for
+ * targets taller than the viewport, which driver.js would otherwise leave
+ * scrolled to somewhere in their middle. driver.js listens for scroll events
+ * and re-positions the highlight and popover on its own.
+ */
+function scrollPageToTop() {
+  window.scrollTo({top: 0, behavior: 'auto'})
+}
+
+/**
+ * Scrolls the page so `el`'s top sits just below the fixed navbar. Used for
+ * tall targets in the middle of a page, whose top driver.js would otherwise
+ * scroll to y=0 -- underneath the navbar.
+ * @param {Element|undefined} el
+ */
+function scrollTargetBelowNavbar(el) {
+  if (!el) return
+  const navbar = document.querySelector('.navbar')
+  const offset = (navbar ? navbar.getBoundingClientRect().height : 64) + 16
+  window.scrollTo({top: el.getBoundingClientRect().top + window.scrollY - offset, behavior: 'auto'})
+}
+
+/** Watches the highlighted element's size for the current step. */
+let resizeObserver = null
+
+/**
+ * Re-fits the highlight and popover whenever the highlighted element changes
+ * size -- e.g. a table or plot that finishes loading after the step was
+ * shown. driver.js only measures the element once (plus on window resize).
+ * @param {Element|undefined} el
+ */
+function followElementSize(el) {
+  resizeObserver?.disconnect()
+  resizeObserver = null
+  if (!el || typeof ResizeObserver === 'undefined') return
+  let initial = true // ResizeObserver reports once right after observe()
+  resizeObserver = new ResizeObserver(() => {
+    if (initial) { initial = false; return }
+    driverInstance?.refresh()
+  })
+  resizeObserver.observe(el)
+}
+
+/**
+ * Converts one of our step definitions into a driver.js `DriveStep`.
+ *
+ * Button state is set explicitly from the step's position: with
+ * `skipMissingElement`, driver.js treats a neighbouring step whose element
+ * lives on another route as "missing", so it would otherwise disable
+ * "Previous" and label "Next" as "Done" on every step next to a route change.
+ *
+ * @param {object} step - Step definition from `tourSteps.js`.
+ * @param {number} index - Position of the step in the tour.
+ * @param {number} total - Number of steps in the tour.
+ */
+function toDriveStep(step, index, total) {
   return {
-    element: step.selector || undefined,
+    // `clipToScrollParent` steps highlight only the visible part of the target (see `clippedTarget`).
+    element: step.selector
+        ? (step.clipToScrollParent ? () => clippedTarget(step.selector) : step.selector)
+        : undefined,
+    // `scrollToTop`: start at the top of the page instead of the middle of a tall target.
+    // `scrollBelowNavbar`: put a tall target's top just below the navbar instead of under it.
+    onHighlighted: (el) => {
+      if (step.scrollToTop) scrollPageToTop()
+      else if (step.scrollBelowNavbar) scrollTargetBelowNavbar(el)
+      followElementSize(el)
+    },
     popover: {
       title: step.popover.title,
       description: step.popover.description,
+      disableButtons: index === 0 ? ['previous'] : [],
+      nextBtnText: index === total - 1 ? 'Done' : 'Next',
       onNextClick: handleNext,
       onPrevClick: handlePrev,
     },
@@ -98,11 +222,11 @@ export async function startTour() {
       await router.push('/').catch(() => {})
     }
 
-    const [{driver}] = await Promise.all([
-      import('driver.js'),
-      import('driver.js/dist/driver.css'),
-      import('@/assets/tour.css'),
-    ])
+    // Load driver.css before our overrides so tour.css always wins the cascade
+    // (with Promise.all the injection order was a race).
+    const {driver} = await import('driver.js')
+    await import('driver.js/dist/driver.css')
+    await import('@/assets/tour.css')
 
     const trail = await resolveTourTrail()
     const seedListName = (MAGMA_SHOW && trail) ? await ensureDemoSeedList(trail.traitId) : null
@@ -121,8 +245,10 @@ export async function startTour() {
       popoverClass: 'gnext-tour-popover',
       waitForElement: 4000,
       skipMissingElement: true,
-      steps: stepList.map(toDriveStep),
+      steps: stepList.map((step, i) => toDriveStep(step, i, stepList.length)),
       onDestroyed: () => {
+        removeClipProxy()
+        followElementSize(null)
         setScrollLock(false)
         localStorage.setItem('tourCompleted', 'true')
         setTourActive(false)

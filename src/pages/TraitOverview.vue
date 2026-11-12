@@ -22,7 +22,7 @@
 
         <v-row class="my-2">
           <v-col cols="12">
-            <v-card outlined class="position-relative">
+            <v-card outlined class="position-relative" data-tour-id="trait-overview-table-card">
               <v-toolbar color="primary-darken-1" density="compact">
                 <v-toolbar-title>All Traits</v-toolbar-title>
               </v-toolbar>
@@ -74,7 +74,7 @@
 
         <v-row class="my-2">
           <v-col cols="12">
-            <v-card outlined class="position-relative">
+            <v-card outlined class="position-relative" data-tour-id="multi-trait-manhattan-card">
               <v-toolbar color="primary-darken-1" density="compact">
                 <v-toolbar-title>Multi-Trait Manhattan Plot</v-toolbar-title>
               </v-toolbar>

@@ -39,6 +39,8 @@
           </v-col>
         </v-row>
 
+        <!-- Wraps all gene cards so the guided tour can highlight them together. -->
+        <div data-tour-id="gene-overview">
         <v-row justify="space-around" align="stretch">
           <v-col xs="12" md="12" lg="12">
             <v-card outlined class="d-flex flex-column h-100" style="min-height: 100px;" data-tour-id="gene-profile-card">
@@ -119,6 +121,7 @@
             </v-card>
           </v-col>
         </v-row>
+        </div>
       </v-container>
     </v-main>
   </v-app>
@@ -180,13 +183,13 @@ export default {
       "trait_id",
       "trait_label",
       "trait_category",
-      "MAGMA P-value",
       "top_variant",
       "beta",
       "stderr_beta",
       "alt_allele_freq",
       "pvalue",
       "neg_log_pvalue",
+      "MAGMA P-value",
       "location",
       "distance"
     ];

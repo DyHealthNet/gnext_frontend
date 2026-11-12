@@ -21,7 +21,9 @@
           </v-col>
         </v-row>
 
-        <v-row justify="space-around" align="stretch">
+        <!-- Profile and the section shortcut buttons form their own row so the
+             guided tour can highlight them together (data-tour-id="trait-overview"). -->
+        <v-row justify="space-around" align="stretch" data-tour-id="trait-overview">
           <v-col xs="12" md="12" lg="12">
             <v-card outlined class="d-flex flex-column h-100" style="min-height: 100px;">
               <v-toolbar color="primary-darken-1" density="compact">
@@ -57,7 +59,9 @@
               <h3><strong>{{ section.label }}</strong></h3>
             </v-btn>
           </v-col>
+        </v-row>
 
+        <v-row justify="space-around" align="stretch">
           <v-col xs="12" md="12" lg="12">
             <v-card id="manhattan-card" outlined class="d-flex flex-column h-100" style="min-height: 700px;">
               <v-toolbar color="primary-darken-1" density="compact">

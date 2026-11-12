@@ -10,54 +10,128 @@
  * light/dark switches and any deployment's VITE_COLOR_PRIMARY(_DARK) override
  * with no JS branching needed here.
  */
-.gnext-tour-popover {
+/*
+ * Styled to match the first-visit welcome dialog (TourWelcomeDialog.vue, a
+ * Vuetify v-card): Roboto font, 20px bold title, 16px body text, and Vuetify-like
+ * buttons -- slightly rounded rectangles, primary "Next", text-style "Previous".
+ */
+/* Doubled class beats driver.css's own `.driver-popover` (white bg, 15px padding, font). */
+.driver-popover.gnext-tour-popover {
   background: rgb(var(--v-theme-surface));
-  color: rgb(var(--v-theme-on-surface, var(--v-theme-darken-1)));
-  border-radius: 10px;
+  color: rgb(var(--v-theme-on-surface));
+  /* Same font as Vuetify components (the popover lives outside .v-application). */
+  --driver-popover-font-family: "Roboto", sans-serif;
+  font-family: "Roboto", sans-serif;
+  border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  padding: 20px 24px 16px;
 
-  max-width: 500px !important; 
+  /* Wider than driver.js's 300px default, but never wider than the viewport (minus a 16px gutter). */
+  max-width: min(640px, calc(100vw - 32px)) !important;
   width: 100%;
 }
 
 .gnext-tour-popover .driver-popover-title {
-  color: rgb(var(--v-theme-primary-darken-1));
-  font-size: 24px !important;
+  color: rgb(var(--v-theme-on-surface));
+  font-family: "Roboto", sans-serif;
+  font-size: 20px !important;
+  font-weight: 700;
+  line-height: 1.4;
+  padding-right: 24px; /* keep clear of the close (X) button */
+}
+
+/* Leading emoji in a step title, sized/spaced like the 👋 in TourWelcomeDialog.vue. */
+.gnext-tour-popover .driver-popover-title .gnext-tour-title-icon {
+  display: inline-block;
+  font-size: 32px;
+  line-height: 1;
+  vertical-align: middle;
+  margin-right: 12px;
+}
+
+/* Image title icons (e.g. the variant node icon): same box as the emoji icons,
+   with the light/dark variant picked from the theme class Navbar.vue sets on <html>. */
+.gnext-tour-popover .driver-popover-title img.gnext-tour-title-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+html.my-app-dark .gnext-tour-popover .gnext-tour-icon-light,
+html:not(.my-app-dark) .gnext-tour-popover .gnext-tour-icon-dark {
+  display: none;
 }
 
 .gnext-tour-popover .driver-popover-description {
-  background-color: color-mix(in srgb, rgb(var(--v-theme-surface)) 20%, rgb(var(--v-theme-darken-1)) 20%) !important;
-    
-  color: rgb(var(--v-theme-darken-1));
-  font-size: 22px !important;
+  color: rgb(var(--v-theme-on-surface));
+  font-family: "Roboto", sans-serif;
+  font-size: 16px !important;
+  line-height: 1.5;
+  margin-top: 12px;
+}
 
-  padding: 15px 15px 15px 20px !important;
-  border-radius: 8px;  
+/* Lists: the global CSS reset strips list padding, which pushed the bullets
+   outside the text column. Indent them back inside it. */
+.gnext-tour-popover .driver-popover-description ul,
+.gnext-tour-popover .driver-popover-description ol {
+  margin: 8px 0;
+  padding-left: 1.5em;
+}
+
+.gnext-tour-popover .driver-popover-description li {
+  margin: 2px 0;
+}
+
+.gnext-tour-popover .driver-popover-footer {
+  margin-top: 20px;
 }
 
 .gnext-tour-popover .driver-popover-progress-text {
-  color: rgb(var(--v-theme-darken-1));
-  opacity: 0.7;
-  font-size: 22px !important;
+  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity, 0.7));
+  font-size: 14px !important;
 }
 
 .gnext-tour-popover button.driver-popover-next-btn,
 .gnext-tour-popover button.driver-popover-prev-btn {
-  background: rgb(var(--v-theme-primary));
-  color: #ffffff;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.0892em;
+  text-transform: uppercase;
   text-shadow: none;
-  border-radius: 999px;
+  height: 36px;
+  padding: 0 16px;
   border: none;
-  padding: 6px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: filter 0.15s ease, background-color 0.15s ease;
+}
+
+.gnext-tour-popover button.driver-popover-next-btn {
+  background: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-on-primary, 255, 255, 255));
+}
+
+.gnext-tour-popover button.driver-popover-next-btn:hover {
+  filter: brightness(1.08);
 }
 
 .gnext-tour-popover button.driver-popover-prev-btn {
-  background: rgb(var(--v-theme-surface-variant));
-  color: rgb(var(--v-theme-on-surface-variant));
+  background: transparent;
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.gnext-tour-popover button.driver-popover-prev-btn:hover {
+  background: rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.gnext-tour-popover button.driver-popover-btn-disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 .gnext-tour-popover button.driver-popover-close-btn {
-  color: rgb(var(--v-theme-darken-1));
+  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity, 0.7));
 }
 
 .driver-popover-arrow-side-bottom.driver-popover-arrow,

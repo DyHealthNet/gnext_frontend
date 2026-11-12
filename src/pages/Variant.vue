@@ -40,7 +40,9 @@
           </v-col>
         </v-row>
 
-        <v-row justify="space-around" align="stretch">
+        <!-- Profile, allele frequencies and the section shortcut buttons form their own row
+             so the guided tour can highlight them together (data-tour-id="variant-overview"). -->
+        <v-row justify="space-around" align="stretch" data-tour-id="variant-overview">
           <v-col xs="12" md="12" lg="6">
             <v-card outlined class="d-flex flex-column h-100" style="min-height: 300px;" data-tour-id="variant-profile-card">
               <v-toolbar color="primary-darken-1" density="compact">
@@ -95,7 +97,9 @@
               <h3><strong>{{ section.label }}</strong></h3>
             </v-btn>
           </v-col>
+        </v-row>
 
+        <v-row justify="space-around" align="stretch">
           <v-col cols="12" v-if="isCardEnabled('closest-genes')">
             <v-card outlined id="closest-genes">
               <v-toolbar color="primary-darken-1" density="compact">
