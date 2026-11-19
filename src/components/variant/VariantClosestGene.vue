@@ -12,6 +12,7 @@
           class="mb-2">
         <v-btn
             @click="handleGeneClick(ensg_id)"
+            :data-tour-gene="ensg_id"
             color="primary"
             variant="elevated">
           <span>

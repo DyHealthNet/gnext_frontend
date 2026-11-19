@@ -22,6 +22,7 @@ For detailed overview of the platform, please refer to the **[GNExT platform rep
 
 - 🔍 **Interactive Search**: Fast phenotype, variant, and gene lookup powered by Typesense
 - 📊 **Data Visualizations**: Manhattan plots, QQ plots, LocusZoom integration
+- 📈 **Multi-Trait Comparison**: Overlay the Manhattan plots of up to five traits on the Trait Overview page, or compare two traits in a Miami plot (the second trait mirrored below the first)
 - 🧬 **Gene Analysis**: MAGMA gene-based association results with interactive tables
 - 🌐 **Network Medicine**: Integration with Drugst.One for drug discovery insights
 

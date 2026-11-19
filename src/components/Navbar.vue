@@ -12,66 +12,60 @@
     <AutoComplete v-if="$route.path !== '/'"/>
     <v-spacer v-else/>
 
-    <v-menu transition="slide-x-transition">
-      <template v-slot:activator="{ props }">
-        <v-btn to="/" color="darken-1" cl="mx-1" v-bind="props">
-          <template v-slot:prepend>
-            <v-icon>mdi-home-outline</v-icon>
-          </template>
-          Home
-        </v-btn>
+    <v-btn to="/" color="darken-1" class="mx-1">
+      <template v-slot:prepend>
+        <v-icon>mdi-home-outline</v-icon>
       </template>
-    </v-menu>
-    <v-menu transition="slide-x-transition">
-      <template v-slot:activator="{ props }">
-        <v-btn to="/tophits" color="darken-1" cl="mx-1" v-bind="props">
-          <template v-slot:prepend>
-            <v-icon>mdi-file-table-outline</v-icon>
-          </template>
-          Top Hits
-        </v-btn>
+      Home
+    </v-btn>
+    <v-btn to="/tophits" color="darken-1" class="mx-1">
+      <template v-slot:prepend>
+        <v-icon>mdi-file-table-outline</v-icon>
       </template>
-    </v-menu>
-    <v-menu v-if="magmaShow" transition="slide-x-transition">
-      <template v-slot:activator="{ props }">
-        <v-btn to="/networkmedicine" color="darken-1" cl="mx-1" v-bind="props">
-          <template v-slot:prepend>
-            <v-icon>mdi-pill-multiple</v-icon>
-          </template>
-          Network Medicine
-        </v-btn>
+      Top Hits
+    </v-btn>
+    <v-btn to="/traits" color="darken-1" class="mx-1">
+      <template v-slot:prepend>
+        <v-icon>mdi-chart-pie</v-icon>
       </template>
-    </v-menu>
-    <v-menu transition="slide-x-transition">
-      <template v-slot:activator="{ props }">
-        <v-btn to="/docs" color="darken-1" class="mx-1" v-bind="props">
-          <template v-slot:prepend>
-            <v-icon>mdi-help-circle-outline</v-icon>
-          </template>
-          Documentation
-        </v-btn>
+      Trait Overview
+    </v-btn>
+    <v-btn to="/networkmedicine" color="darken-1" class="mx-1" v-if="magmaShow">
+      <template v-slot:prepend>
+        <v-icon>mdi-pill-multiple</v-icon>
       </template>
-    </v-menu>
-   <v-menu transition="slide-x-transition">
-      <template v-slot:activator="{ props }">
-        <v-btn to="/about" color="darken-1" class="mx-1" v-bind="props">
-          <template v-slot:prepend>
-            <v-icon>mdi-book-open-outline</v-icon>
-          </template>
-          About
-        </v-btn>
+      Network Medicine
+    </v-btn>
+    <v-btn to="/docs" color="darken-1" class="mx-1">
+      <template v-slot:prepend>
+        <v-icon>mdi-help-circle-outline</v-icon>
       </template>
-    </v-menu>
-    <v-menu transition="slide-x-transition">
-      <template v-slot:activator="{ props }">
-        <v-btn to="/cite" color="darken-1" class="mx-1" v-bind="props">
-          <template v-slot:prepend>
-            <v-icon>mdi-pencil</v-icon>
-          </template>
-          Cite
-        </v-btn>
+      Documentation
+    </v-btn>
+    <v-btn to="/about" color="darken-1" class="mx-1">
+      <template v-slot:prepend>
+        <v-icon>mdi-book-open-outline</v-icon>
       </template>
-    </v-menu>
+      About
+    </v-btn>
+    <v-btn to="/cite" color="darken-1" class="mx-1">
+      <template v-slot:prepend>
+        <v-icon>mdi-pencil</v-icon>
+      </template>
+      Cite
+    </v-btn>
+    <v-btn
+    v-if="tourEnabled"
+    icon
+    variant="text"
+    color="darken-1"
+    :disabled="isTourActive"
+    title="Replay guided tour"
+    @click="replayTour"
+  >
+    <v-icon>mdi-compass-outline</v-icon>
+  </v-btn>
+
     <v-btn
     icon
     variant="text"
@@ -91,12 +85,15 @@
  * Global top navigation bar.
  *
  * Renders the study logo, the primary nav links (Home, Top Hits, optional
- * Network Medicine, Documentation, About, Cite), a light/dark theme toggle, and
- * the search autocomplete on every page except the home page. The active theme
- * is persisted to localStorage and reflected on the document element.
+ * Network Medicine, Documentation, About, Cite), a "replay guided tour"
+ * shortcut, a light/dark theme toggle, and the search autocomplete on every
+ * page except the home page. The active theme is persisted to localStorage
+ * and reflected on the document element.
  */
 import AutoComplete from "@/components/autocomplete/AutoComplete_Navbar.vue";
-import {MAGMA_SHOW} from "@/config.js";
+import {MAGMA_SHOW, TOUR_ENABLED} from "@/config.js";
+import {startTour} from "@/utils/tour/tourEngine.js";
+import {isTourActive} from "@/components/tour/tourState.js";
 import logoBlack from "@/assets/figures/GNExT_Logo_Black.png";
 import logoWhite from "@/assets/figures/GNExT_Logo_White.png";
 
@@ -106,6 +103,7 @@ export default {
     return {
       isDark: false,
       magmaShow: MAGMA_SHOW,
+      tourEnabled: TOUR_ENABLED,
       logoBlack: logoBlack,
       logoWhite: logoWhite,
     }
@@ -120,10 +118,18 @@ export default {
     logoSrc() {
       // Return different logo based on theme
       return this.isDark ? this.logoWhite : this.logoBlack;
+    },
+    /** @returns {boolean} Whether a guided tour is currently running (disables the replay button). */
+    isTourActive() {
+      return isTourActive.value;
     }
   },
 
   methods: {
+    /** Starts (or restarts) the guided tour from the navbar shortcut. */
+    replayTour() {
+      startTour();
+    },
     /** Toggles between the light and dark theme and persists the choice. */
     toggleTheme() {
       const currentTheme = this.$vuetify.theme.global.name

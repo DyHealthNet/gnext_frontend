@@ -69,7 +69,7 @@
 
             <v-container>
               <v-row>
-                <v-col cols="3">
+                <v-col cols="3" data-tour-id="nm-select">
                   <v-select
                       v-model="selectedList"
                       :items="listNames"
@@ -114,7 +114,7 @@
 
     <v-row class="my-4">
       <v-col cols="12">
-        <v-card outlined>
+        <v-card outlined data-tour-id="nm-drugstone-card">
           <v-toolbar color="primary-darken-1" density="compact">
             <v-toolbar-title>Drugst.One</v-toolbar-title>
           </v-toolbar>
@@ -231,6 +231,7 @@ export default {
   mounted() {
     this.loadGeneLists()
     this.loadNetworkFromStorage()
+    this.applyTourAutoLoad()
   },
 
   computed: {
@@ -388,6 +389,24 @@ export default {
     /** Dismisses the "no gene lists" introductory overlay. */
     closeOverlay() {
       this.showNoGeneListsOverlay = false
+    },
+
+    /**
+     * If the guided tour signaled a demo seed list to showcase (via the
+     * transient `tourAutoLoadList` localStorage key), selects it and loads it
+     * into the network exactly as the "Add to Drugst.One" button would.
+     */
+    applyTourAutoLoad() {
+      const autoLoadName = localStorage.getItem('tourAutoLoadList')
+      if (!autoLoadName) return
+      localStorage.removeItem('tourAutoLoadList')
+
+      const geneLists = JSON.parse(localStorage.getItem('geneLists') || '{}')
+      if (Object.prototype.hasOwnProperty.call(geneLists, autoLoadName)) {
+        this.selectedList = autoLoadName
+        this.loadGenes(autoLoadName)
+        this.addNodesToNetwork()
+      }
     }
   }
 }

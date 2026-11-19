@@ -138,11 +138,68 @@
 
         <v-row class="my-4">
           <v-col cols="12">
+            <v-card outlined>
+              <v-toolbar color="primary-darken-1" density="compact" @click="expanded_traitoverview = !expanded_traitoverview">
+                <v-toolbar-title class="d-flex align-center gap-2">
+                  <v-icon icon="mdi-numeric-3-circle"/>
+                  Trait Overview Page
+                </v-toolbar-title>
+
+                <v-btn
+                    size="small"
+                    variant="text"
+                    icon="mdi-chevron-down"
+                    :class="{ 'rotate-180': expanded_traitoverview }"
+                ></v-btn>
+              </v-toolbar>
+
+              <v-expand-transition>
+                <div v-show="expanded_traitoverview">
+                  <v-divider></v-divider>
+                  <v-card-text>
+                    <p class="text-body-1 mb-4">
+                      The <b>Trait Overview page</b>, accessible via the navigation bar, lists <b>all traits</b>
+                      included in this study. For each trait, the table shows its trait ID, label, group (category), and
+                      number of samples. Clicking a trait ID opens the corresponding trait page.
+                    </p>
+                    <p class="text-body-1 mb-4">
+                      As in all other tables, you can use the <b>Keyword Search</b> to find traits by ID, label, or
+                      group, sort any column by clicking its header, and download the table as CSV, JSON, or TXT.
+                      Downloads contain the columns shown in the table.
+                    </p>
+                    <p class="text-body-1 mb-4">
+                      Below the table, a <b>pie chart</b> summarizes how many traits belong to each trait group.
+                      Hover over a slice to see the number and percentage of traits in that group.
+                      <b>Clicking a slice filters the table</b> to the traits of that group; click the same slice again,
+                      or remove the group chip above the table, to show all traits again.
+                    </p>
+                    <p class="text-body-1 mb-4">
+                      At the bottom of the page, the <b>Multi-Trait Manhattan Plot</b> lets you compare the genetic
+                      architecture of up to <b>five traits</b> at once. Use the search field above the plot to find traits by
+                      ID, name, or group and add them; each trait can be removed again via its chip. The plots are drawn
+                      exactly like the Manhattan plot on each trait page. By default, the <b>Overlaid</b> view draws all
+                      selected traits in a single plot with one color per trait, explained by a legend above the plot. With
+                      exactly <b>two traits</b>, you can
+                      switch to the <b>Stacked</b> view, a <b>Miami plot</b>: the second trait is mirrored below the first,
+                      with the chromosomes in between and a shared y-axis scale. Hover over a point to see the variant and
+                      its −log₁₀(p-value). Below the plot, as on the trait pages, you can adjust the text size and colors
+                      (one color per trait in the overlaid view, or two alternating chromosome colors in the stacked view)
+                      and download the plot as PNG, SVG, or JPG.
+                    </p>
+                  </v-card-text>
+                </div>
+              </v-expand-transition>
+            </v-card>
+          </v-col>
+        </v-row>
+
+        <v-row class="my-4">
+          <v-col cols="12">
 
             <v-card outlined>
               <v-toolbar color="primary-darken-1" density="compact" @click="expanded_variant = !expanded_variant">
                 <v-toolbar-title class="d-flex align-center">
-                  <v-icon icon="mdi-numeric-3-circle"/>
+                  <v-icon icon="mdi-numeric-4-circle"/>
                   Variant Page
                 </v-toolbar-title>
 
@@ -257,7 +314,7 @@
             <v-card outlined>
               <v-toolbar color="primary-darken-1" density="compact" @click="expanded_trait = !expanded_trait">
                 <v-toolbar-title class="d-flex align-center gap-2">
-                  <v-icon icon="mdi-numeric-4-circle"/>
+                  <v-icon icon="mdi-numeric-5-circle"/>
                   Trait Page
                 </v-toolbar-title>
 
@@ -360,7 +417,7 @@
             <v-card outlined>
               <v-toolbar color="primary-darken-1" density="compact" @click="expanded_networkmedicine = !expanded_networkmedicine">
                 <v-toolbar-title class="d-flex align-center gap-2">
-                  <v-icon icon="mdi-numeric-5-circle"/>
+                  <v-icon icon="mdi-numeric-6-circle"/>
                   Network Medicine Page
                 </v-toolbar-title>
 
@@ -436,7 +493,7 @@
             <v-card outlined>
               <v-toolbar color="primary-darken-1" density="compact" @click="expanded_gene = !expanded_gene">
                 <v-toolbar-title class="d-flex align-center gap-2">
-                  <v-icon icon="mdi-numeric-6-circle"/>
+                  <v-icon icon="mdi-numeric-7-circle"/>
                   Gene Page
                 </v-toolbar-title>
 
@@ -592,7 +649,7 @@
  * Documentation page.
  *
  * Long-form, mostly static help content with collapsible sections covering each
- * page of the platform (home, top hits, trait, variant, gene, network medicine)
+ * page of the platform (home, top hits, trait overview, trait, variant, gene, network medicine)
  * and the preprocessing pipeline, illustrated with tutorial screenshots. The
  * only dynamic data is the top-hits threshold config interpolated into the text
  * and the theme-aware logo.
@@ -620,6 +677,7 @@ export default {
       expanded_variant: false,
       expanded_home: true,
       expanded_tophits: false,
+      expanded_traitoverview: false,
       expanded_trait: false,
       expanded_networkmedicine: false,
       expanded_gene: false,

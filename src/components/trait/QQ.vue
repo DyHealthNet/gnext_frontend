@@ -1,13 +1,14 @@
 <template>
   <v-container>
     <v-row class="align-center">
-      <!-- Left column: QQ plot -->
-       <v-col xs="12" sm="12" md="12" lg="4">
+      <!-- Left column: QQ plot. Sized to the fixed-width plot (instead of a fraction of
+           the card) so the plot never spills over the GC lambda text next to it. -->
+      <v-col cols="auto">
         <div id="qq_plot_container" style="width: 400px; height: 750px;"></div>
       </v-col>
 
-      <!-- Right column: text/info -->
-       <v-col xs="12" sm="12" md="12" lg="8">
+      <!-- Right column: text/info; wraps below the plot when there isn't room beside it. -->
+      <v-col style="min-width: 220px;">
         <p class="gc-control"></p>
         <i>
           (Genomic Control lambda calculated based on the 50th percentile (median),

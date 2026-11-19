@@ -633,10 +633,18 @@ function create_qq_plot(maf_ranges, qq_ci, axes_color) {
                 return i + 'em';
             })
             .text(function (d) {
-                return fmt('{0} ≤ MAF < {1} ({2})',
-                    attempt_two_decimals(d.maf_range[0] || 0),
-                    attempt_two_decimals(d.maf_range[1] || 0.5),  // If MAF values are missing, MAF 0-0.5
-                    d.count);
+                // maf_range holds the (rounded) MAF of the first and last variant in the
+                // stratum, so both bounds are inclusive. Only a *missing* bound falls back
+                // to 0 / 0.5 -- a bound of 0 is a real value (previously `|| 0.5` turned
+                // an upper bound of 0 into "< 0.50").
+                const lo = d.maf_range[0] ?? 0;
+                const hi = d.maf_range[1] ?? 0.5;
+                const count = d.count.toLocaleString('en-US');
+                if (lo === hi) {
+                    return fmt('MAF ≈ {0} ({1})', attempt_two_decimals(lo), count);
+                }
+                return fmt('{0} ≤ MAF ≤ {1} ({2})',
+                    attempt_two_decimals(lo), attempt_two_decimals(hi), count);
             })
             .attr('fill', function (d) {
                 return d.color;

@@ -6,7 +6,7 @@
  * and re-pointed per deployment/study without code changes. Covers: the API
  * base path, genome build labels, example entity IDs shown in the UI, citation
  * text, the Typesense search key, theme colors, and feature flags
- * (`MAGMA_SHOW`, `GENE_ID_SPACE`).
+ * (`MAGMA_SHOW`, `GENE_ID_SPACE`, `TOUR_ENABLED`).
  */
 // config.js
 export const API_BASE_URL = "/backend";     // NOT /backend/backend
@@ -32,3 +32,6 @@ export const COLOR_PRIMARY_DARK = import.meta.env.VITE_COLOR_PRIMARY_DARK ?? "#5
 export const MAGMA_SHOW = import.meta.env.VITE_MAGMA_SHOW === 'true' ?? false;
 
 export const GENE_ID_SPACE = import.meta.env.VITE_GENE_ID_SPACE ?? "ensembl";
+
+// Guided first-visit product tour (defaults to enabled unless explicitly disabled).
+export const TOUR_ENABLED = import.meta.env.VITE_TOUR_ENABLED !== 'false';
